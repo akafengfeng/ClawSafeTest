@@ -208,7 +208,37 @@ pip install -e ".[dev]"
 python -m pytest tests/ -v
 ```
 
-Expected output: **25 passed**.
+Expected output: **48 passed** (core + Hermes integration + OpenClaw integration).
+
+---
+
+## Framework Compatibility
+
+### Hermes Agent (NousResearch)
+
+ClawSafe ships as a Hermes `MemoryProvider` + tool-set. Auto-discovered via pip entry point.
+
+```bash
+pip install clawsafe
+hermes --plugins clawsafe
+```
+
+The `ClawSafeMemoryProvider` implements the full Hermes `MemoryProvider` ABC:
+- `system_prompt_block()` injects recent HIGH findings into the system prompt
+- `prefetch()` surfaces security context before each turn
+- `sync_turn()` archives conversation turns with 24 h TTL
+- `handle_tool_call()` serves `clawsafe_query_findings` and `clawsafe_budget_status`
+
+The `register(ctx)` hook adds `pre_llm_call` / `post_llm_call` lifecycle guards and registers `clawsafe_scan_input` / `clawsafe_scan_output` tools in the `security` toolset.
+
+### OpenClaw
+
+ClawSafe installs as an OpenClaw skill under `~/.openclaw/workspace/skills/clawsafe/SKILL.md`.
+
+```python
+from clawsafe.integrations.openclaw import install
+install()
+```
 
 ---
 
@@ -221,7 +251,10 @@ Expected output: **25 passed**.
 | ClawSafeAgent (sync + stream) | ✅ Complete |
 | Token budget tracking | ✅ Complete |
 | Built-in skills (3) | ✅ Complete |
+| Hermes Agent integration | ✅ Complete |
+| OpenClaw integration | ✅ Complete |
 | CI (GitHub Actions) | ✅ Active |
+| AGENTS.md / SOUL.md / SKILL.md | ✅ Complete |
 | Semantic injection skill (LLM-based) | 🔲 Planned |
 | CLI for memory inspection | 🔲 Planned |
 

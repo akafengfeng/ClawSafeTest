@@ -6,13 +6,34 @@ build-backend = "setuptools.build_meta"
 name = "clawsafe"
 version = "0.1.0"
 description = "Security framework for Claude — sub-5% token overhead, skills + memory."
+authors = [{ name = "akafengfeng" }]
+license = { text = "Apache-2.0" }
+readme = "README.md"
 requires-python = ">=3.11"
+keywords = ["security", "claude", "anthropic", "llm", "agent", "prompt-injection"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
 dependencies = [
     "anthropic>=0.30.0",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "pytest-cov"]
+
+# Hermes Agent discovers plugins via this entry point group.
+[project.entry-points."hermes.plugins"]
+clawsafe = "clawsafe.integrations.hermes"
+
+[project.urls]
+Homepage = "https://github.com/akafengfeng/ClawSafeTest"
+Repository = "https://github.com/akafengfeng/ClawSafeTest"
+Issues = "https://github.com/akafengfeng/ClawSafeTest/issues"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
