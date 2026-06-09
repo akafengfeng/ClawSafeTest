@@ -26,14 +26,15 @@ jobs:
         run: pip install -e ".[dev]"
 
       - name: Run tests
-        run: python -m pytest tests/ -v --tb=short --co -q && python -m pytest tests/ -v --tb=short
+        run: python -m pytest tests/ -v --tb=short
 
-      - name: Check token budget math
-        run: python -c "
-from clawsafe.utils.token_budget import TokenBudget
-b = TokenBudget(0.05)
-b.record_main(1000)
-b.record_security('test', 40)
-assert b.is_within_budget(), f'Budget exceeded: {b.summary()}'
-print('Budget check passed:', b.summary())
-"
+      - name: Token budget smoke check
+        run: |
+          python - <<'EOF'
+          from clawsafe.utils.token_budget import TokenBudget
+          b = TokenBudget(0.05)
+          b.record_main(1000)
+          b.record_security("test", 40)
+          assert b.is_within_budget(), f"Budget exceeded: {b.summary()}"
+          print("Budget check passed:", b.summary())
+          EOF
