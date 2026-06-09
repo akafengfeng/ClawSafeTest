@@ -144,14 +144,36 @@ class ClawSafeAgent:
     # ------------------------------------------------------------------ private
 
     def _default_registry(self) -> SkillRegistry:
-        from ..skills.builtin import InputGuardSkill, OutputGuardSkill, PromptInjectionSkill
+        from ..skills.builtin import (
+            InputGuardSkill, OutputGuardSkill, PromptInjectionSkill,
+            JailbreakSkill, PIIDetectionSkill, ContentPolicySkill,
+            PIILeakageSkill, CodeSecuritySkill, RateLimitSkill,
+        )
         registry = SkillRegistry()
-        if self.config.enable_prompt_injection:
+        cfg = self.config
+        # PRE phase
+        if cfg.enable_prompt_injection:
             registry.register(PromptInjectionSkill())
-        if self.config.enable_input_guard:
+        if cfg.enable_input_guard:
             registry.register(InputGuardSkill())
-        if self.config.enable_output_guard:
+        if cfg.enable_jailbreak:
+            registry.register(JailbreakSkill())
+        if cfg.enable_pii_detection:
+            registry.register(PIIDetectionSkill())
+        if cfg.enable_content_policy:
+            registry.register(ContentPolicySkill())
+        if cfg.enable_rate_limit:
+            registry.register(RateLimitSkill(
+                max_requests=cfg.rate_limit_max_requests,
+                window_seconds=cfg.rate_limit_window_seconds,
+            ))
+        # POST phase
+        if cfg.enable_output_guard:
             registry.register(OutputGuardSkill())
+        if cfg.enable_pii_leakage:
+            registry.register(PIILeakageSkill())
+        if cfg.enable_code_security:
+            registry.register(CodeSecuritySkill())
         return registry
 
     def _maybe_block(self, results: list[SkillResult]) -> None:

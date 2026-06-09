@@ -19,13 +19,25 @@ class ClawSafeConfig:
     memory_db_path: str = "clawsafe.db"
     memory_max_entries: int = 10_000
 
-    # Skills
-    enable_input_guard: bool = True
-    enable_output_guard: bool = True
+    # PRE-phase skills
     enable_prompt_injection: bool = True
+    enable_input_guard: bool = True
+    enable_jailbreak: bool = True
+    enable_pii_detection: bool = True
+    enable_content_policy: bool = True
+    enable_rate_limit: bool = True
+
+    # POST-phase skills
+    enable_output_guard: bool = True
+    enable_pii_leakage: bool = True
+    enable_code_security: bool = True
+
+    # Rate-limit tuning
+    rate_limit_max_requests: int = 60
+    rate_limit_window_seconds: float = 60.0
 
     # If True, block the request on any HIGH-severity finding; otherwise warn only.
     block_on_high_severity: bool = True
 
-    # Extra skill names to auto-register (importable dotted paths)
+    # Extra skill class paths to auto-register (importable dotted paths)
     extra_skills: list[str] = field(default_factory=list)
