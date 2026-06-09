@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clawsafe"
+version = "0.1.0"
+description = "Security framework for Claude — sub-5% token overhead, skills + memory."
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=0.30.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-cov"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
