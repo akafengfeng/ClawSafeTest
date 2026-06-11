@@ -5,11 +5,11 @@ description: Multi-provider security framework for LLMs
 baseurl: /ClawSafeTest
 url: https://akafengfeng.github.io/ClawSafeTest
 
-# Theme
+# Theme (using Slate as base, overridden with custom CSS)
 theme: jekyll-theme-slate
 
 # Header settings
-show_downloads: true
+show_downloads: false
 github_is_project_page: true
 github_repository_url: https://github.com/akafengfeng/ClawSafeTest
 
@@ -18,6 +18,10 @@ markdown: kramdown
 kramdown:
   input: GFM
   hard_wrap: false
+
+# Assets
+sass:
+  style: compressed
 
 # Exclude from processing
 exclude:

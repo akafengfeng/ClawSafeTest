@@ -1,234 +1,324 @@
 ---
 layout: default
-title: ClawSafe — Multi-Provider LLM Security Framework
 ---
 
-# 🛡️ ClawSafe
+<div class="hero">
+  <div class="container">
+    <h1>ClawSafe</h1>
+    <p class="hero-subtitle">Multi-Provider Security Framework for LLMs</p>
+    <p style="color: var(--text-secondary); font-size: 1rem; margin-bottom: calc(var(--spacing-unit) * 6); max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.8;">
+      Unified security layer for Claude, GPT-4, DeepSeek & Qwen. Detect prompt injection, scan credentials, prevent jailbreaks. <strong>8 security policies. Rule-based. Zero token overhead.</strong>
+    </p>
+    
+    <div class="cta-buttons">
+      <a href="./guides/getting-started.md" class="btn btn-primary">Get Started in 5 Min</a>
+      <a href="https://github.com/akafengfeng/ClawSafeTest" class="btn btn-secondary">View on GitHub</a>
+    </div>
 
-**Security layer for LLMs (Claude, GPT-4, DeepSeek) — prompt injection detection, credential scanning, audit logs, <5% token overhead.**
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(var(--spacing-unit) * 4); margin-top: calc(var(--spacing-unit) * 10); text-align: center; max-width: 600px; margin-left: auto; margin-right: auto;">
+      <div>
+        <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: calc(var(--spacing-unit) * 1);">4</div>
+        <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">LLM Providers</div>
+        <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">Claude, GPT-4, DeepSeek, Qwen</div>
+      </div>
+      <div>
+        <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: calc(var(--spacing-unit) * 1);">8</div>
+        <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Security Skills</div>
+        <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">Injection, Jailbreak, PII</div>
+      </div>
+      <div>
+        <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: calc(var(--spacing-unit) * 1);">&lt;5%</div>
+        <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Overhead</div>
+        <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">Rule-Based, Zero Tokens</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/akafengfeng/ClawSafeTest)
-![GitHub](https://img.shields.io/github/license/akafengfeng/ClawSafeTest)
-![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)
-![Tests](https://img.shields.io/badge/tests-107%2F107-brightgreen.svg)
+<section style="background: var(--bg-secondary);">
+  <div class="container">
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 8);">Why ClawSafe?</h2>
+    
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>Multi-Provider</h3>
+        <p>One unified API for Claude, GPT-4, DeepSeek, Qwen, or custom providers. Same security layer everywhere.</p>
+      </div>
 
----
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Rule-Based Security</h3>
+        <p>All 8 security policies are deterministic rules. Zero tokens, zero API calls. Sub-5% total overhead.</p>
+      </div>
 
-## Why ClawSafe?
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3>Comprehensive Protection</h3>
+        <p>Prompt injection, jailbreaks, credential scanning, PII detection, content policy, rate limiting, code security.</p>
+      </div>
 
-Every LLM API call is an attack surface. ClawSafe sits between your application and any LLM provider, running **deterministic security checks** before and after every request.
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Full Audit Trail</h3>
+        <p>SQLite-backed memory store. Query all security findings, track patterns, prove compliance, zero external deps.</p>
+      </div>
 
-### Key Benefits
+      <div class="feature-card">
+        <div class="feature-icon">✨</div>
+        <h3>Production Ready</h3>
+        <p>107 unit tests, type hints, mypy compatible, 2,500+ lines of documentation. Battle-tested defaults.</p>
+      </div>
 
-- **🔐 Provider-Agnostic** — Works with Claude, GPT-4, DeepSeek, Qwen, or any custom LLM
-- **⚡ Sub-5% Overhead** — Rule-based skills cost zero tokens
-- **🎯 Deterministic** — No false positives from over-aggressive models
-- **📊 Audit Trail** — SQLite memory store logs every security finding
-- **🛠️ Pluggable** — Add custom security skills easily
-- **✅ Tested** — 107/107 tests passing, 80% coverage
+      <div class="feature-card">
+        <div class="feature-icon">🔧</div>
+        <h3>Extensible</h3>
+        <p>Add custom security skills via simple ABC. Support custom LLM providers in 50 lines of code.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
----
+<section>
+  <div class="container">
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6);">Supported LLM Providers</h2>
+    
+    <div style="overflow-x: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Provider</th>
+            <th>Models</th>
+            <th>Cost / 1M Input</th>
+            <th>Latency</th>
+            <th>Quality</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Anthropic</strong></td>
+            <td>Claude Opus, Sonnet, Haiku</td>
+            <td>$3–15</td>
+            <td>Medium</td>
+            <td>⭐⭐⭐⭐⭐</td>
+            <td><span class="badge badge-success">✓ Ready</span></td>
+          </tr>
+          <tr>
+            <td><strong>OpenAI</strong></td>
+            <td>GPT-4, GPT-4 Turbo, GPT-3.5</td>
+            <td>$0.50–30</td>
+            <td>Variable</td>
+            <td>⭐⭐⭐⭐⭐</td>
+            <td><span class="badge badge-success">✓ Ready</span></td>
+          </tr>
+          <tr>
+            <td><strong>TogetherAI</strong></td>
+            <td>DeepSeek, Qwen, Llama</td>
+            <td>$0.14–0.60</td>
+            <td>Fast</td>
+            <td>⭐⭐⭐⭐</td>
+            <td><span class="badge badge-success">✓ Ready</span></td>
+          </tr>
+          <tr>
+            <td><strong>Custom</strong></td>
+            <td>Any LLM via API</td>
+            <td>Varies</td>
+            <td>Varies</td>
+            <td>Varies</td>
+            <td><span class="badge badge-info">Custom ABC</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
-## Supported Providers
+<section style="background: var(--bg-secondary);">
+  <div class="container">
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 8);">8 Built-In Security Policies</h2>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--spacing-unit) * 6);">
+      <div>
+        <h3 style="color: var(--danger); font-size: 1.25rem; margin-bottom: calc(var(--spacing-unit) * 4); display: flex; align-items: center;">
+          <span style="font-size: 1.5rem; margin-right: calc(var(--spacing-unit) * 2);">↙️</span> PRE-Phase (Input)
+        </h3>
+        <ul style="list-style: none; padding: 0;">
+          <li style="padding: calc(var(--spacing-unit) * 2) 0; color: var(--text-secondary); display: flex; align-items: flex-start;">
+            <span style="color: var(--primary); font-weight: bold; margin-right: calc(var(--spacing-unit) * 2); flex-shrink: 0;">1.</span>
+            <span><strong>Prompt Injection</strong> — Detect instruction override attacks</span>
+          </li>
+          <li style="padding: calc(var(--spacing-unit) * 2) 0; color: var(--text-secondary); display: flex; align-items: flex-start;">
+            <span style="color: var(--primary); font-weight: bold; margin-right: calc(var(--spacing-unit) * 2); flex-shrink: 0;">2.</span>
+            <span><strong>Jailbreak Detection</strong> — Block DAN, roleplay, developer mode</span>
+          </li>
+          <li style="padding: calc(var(--spacing-unit) * 2) 0; color: var(--text-secondary); display: flex; align-items: flex-start;">
+            <span style="color: var(--primary); font-weight: bold; margin-right: calc(var(--spacing-unit) * 2); flex-shrink: 0;">3.</span>
+            <span><strong>Credential Scanning</strong> — Detect API keys, tokens, secrets</span>
+          </li>
+          <li style="padding: calc(var(--spacing-unit) * 2) 0; color: var(--text-secondary); display: flex; align-items: flex-start;">
+            <span style="color: var(--primary); font-weight: bold; margin-right: calc(var(--spacing-unit) * 2); flex-shrink: 0;">4.</span>
+            <span><strong>PII Detection</strong> — Protect SSN, credit cards, bank accounts</span>
+          </li>
+          <li style="padding: calc(var(--spacing-unit) * 2) 0; color: var(--text-secondary); display: flex; align-items: flex-start;">
+            <span style="color: var(--primary); font-weight: bold; margin-right: calc(var(--spacing-unit) * 2); flex-shrink: 0;">5.</span>
+            <span><strong>Content Policy</strong> — Block WMD, malware, harm synthesis</span>
+          </li>
+          <li style="padding: calc(var(--spacing-unit) * 2) 0; color: var(--text-secondary); display: flex; align-items: flex-start;">
+            <span style="color: var(--primary); font-weight: bold; margin-right: calc(var(--spacing-unit) * 2); flex-shrink: 0;">6.</span>
+            <span><strong>Rate Limiting</strong> — Enforce per-session request quotas</span>
+          </li>
+        </ul>
+      </div>
 
-| Provider | Models | Status |
-|----------|--------|--------|
-| **Anthropic** | Claude Opus, Sonnet, Haiku | ✅ Tested |
-| **OpenAI** | GPT-4, GPT-3.5-turbo | ✅ Tested |
-| **TogetherAI** | Qwen, DeepSeek, Llama, Mistral | ✅ Ready |
-| **Custom** | Any LLM API | ✅ Supported |
+      <div>
+        <h3 style="color: var(--success); font-size: 1.25rem; margin-bottom: calc(var(--spacing-unit) * 4); display: flex; align-items: center;">
+          <span style="font-size: 1.5rem; margin-right: calc(var(--spacing-unit) * 2);">↗️</span> POST-Phase (Output)
+        </h3>
+        <ul style="list-style: none; padding: 0;">
+          <li style="padding: calc(var(--spacing-unit) * 2) 0; color: var(--text-secondary); display: flex; align-items: flex-start;">
+            <span style="color: var(--primary); font-weight: bold; margin-right: calc(var(--spacing-unit) * 2); flex-shrink: 0;">7.</span>
+            <span><strong>Response Credential Guard</strong> — Prevent leaks in generated content</span>
+          </li>
+          <li style="padding: calc(var(--spacing-unit) * 2) 0; color: var(--text-secondary); display: flex; align-items: flex-start;">
+            <span style="color: var(--primary); font-weight: bold; margin-right: calc(var(--spacing-unit) * 2); flex-shrink: 0;">8.</span>
+            <span><strong>Code Security</strong> — Detect eval(), SQL injection, weak crypto</span>
+          </li>
+        </ul>
+      </div>
+    </div>
 
----
+    <div style="margin-top: calc(var(--spacing-unit) * 8); padding: calc(var(--spacing-unit) * 4); background: white; border-radius: 8px; border: 1px solid var(--border); text-align: center;">
+      <p style="color: var(--text-secondary); margin: 0;">All policies are <strong>rule-based</strong> with <strong>zero token cost</strong>. No false positives, no extra API calls.</p>
+    </div>
+  </div>
+</section>
 
-## Quick Start
+<section>
+  <div class="container">
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 8);">Quick Start</h2>
+    
+    <div style="max-width: 700px; margin: 0 auto;">
+      <div style="margin-bottom: calc(var(--spacing-unit) * 6);">
+        <h3 style="color: var(--text-primary); margin-bottom: calc(var(--spacing-unit) * 3); font-size: 1.1rem;">Step 1: Install</h3>
+        <pre><code>pip install clawsafe</code></pre>
+      </div>
 
-### Installation
+      <div style="margin-bottom: calc(var(--spacing-unit) * 6);">
+        <h3 style="color: var(--text-primary); margin-bottom: calc(var(--spacing-unit) * 3); font-size: 1.1rem;">Step 2: Set Your API Key</h3>
+        <pre><code>export ANTHROPIC_API_KEY=sk-ant-...</code></pre>
+      </div>
 
-```bash
-pip install clawsafe
-export ANTHROPIC_API_KEY=sk-ant-...
-```
-
-### Claude (Default)
-
-```python
-from clawsafe import ClawSafeAgent
+      <div style="margin-bottom: calc(var(--spacing-unit) * 6);">
+        <h3 style="color: var(--text-primary); margin-bottom: calc(var(--spacing-unit) * 3); font-size: 1.1rem;">Step 3: Start Using</h3>
+        <pre><code>from clawsafe import ClawSafeAgent
 
 agent = ClawSafeAgent()
 response = agent.create(
-    messages=[{"role": "user", "content": "Hello"}],
-    max_tokens=256,
+    messages=[{"role": "user", "content": "Hello"}]
 )
-print(response.text)
-```
+print(response.text)</code></pre>
+      </div>
 
-### GPT-4
-
-```python
-from clawsafe import ClawSafeAgent, ClawSafeConfig
+      <div style="padding: calc(var(--spacing-unit) * 4); background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border);">
+        <h3 style="color: var(--text-primary); margin-bottom: calc(var(--spacing-unit) * 3); font-size: 1.1rem;">Switch Providers</h3>
+        <pre><code># Use GPT-4
+from clawsafe import ClawSafeConfig
 
 config = ClawSafeConfig(provider="openai", model="gpt-4")
 agent = ClawSafeAgent(config)
-response = agent.create(
-    messages=[{"role": "user", "content": "Hello"}],
-    max_tokens=256,
-)
-print(response.text)
-```
 
-### DeepSeek
-
-```python
-from clawsafe import ClawSafeAgent, ClawSafeConfig
-
+# Use DeepSeek (cheapest)
 config = ClawSafeConfig(
     provider="togetherai",
     model="deepseek-ai/deepseek-chat"
-)
-agent = ClawSafeAgent(config)
-response = agent.create(
-    messages=[{"role": "user", "content": "Hello"}],
-    max_tokens=256,
-)
-print(response.text)
-```
+)</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
 
----
+<section style="background: var(--bg-secondary);">
+  <div class="container">
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 8);">Project Highlights</h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: calc(var(--spacing-unit) * 4);">
+      <div style="text-align: center;">
+        <div style="font-size: 2.5rem; margin-bottom: calc(var(--spacing-unit) * 2);">107</div>
+        <div style="font-weight: 600; color: var(--text-primary); margin-bottom: calc(var(--spacing-unit) * 1);">Unit Tests</div>
+        <p style="color: var(--text-secondary); margin: 0; font-size: 0.9rem;">Comprehensive test coverage</p>
+      </div>
 
-## Security Policies (8 Built-in Skills)
+      <div style="text-align: center;">
+        <div style="font-size: 2.5rem; margin-bottom: calc(var(--spacing-unit) * 2);">2500+</div>
+        <div style="font-weight: 600; color: var(--text-primary); margin-bottom: calc(var(--spacing-unit) * 1);">Lines of Docs</div>
+        <p style="color: var(--text-secondary); margin: 0; font-size: 0.9rem;">Complete documentation</p>
+      </div>
 
-ClawSafe detects and blocks:
+      <div style="text-align: center;">
+        <div style="font-size: 2.5rem; margin-bottom: calc(var(--spacing-unit) * 2);">v0.3.0</div>
+        <div style="font-weight: 600; color: var(--text-primary); margin-bottom: calc(var(--spacing-unit) * 1);">Current Release</div>
+        <p style="color: var(--text-secondary); margin: 0; font-size: 0.9rem;">Production ready</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-### 🚫 Input Validation (PRE-Phase)
-1. **Prompt Injection** — `ignore previous instructions`, persona overrides, exfiltration
-2. **Jailbreak Attempts** — DAN mode, developer mode, roleplay escapes, encoding tricks
-3. **Credential Leakage** — API keys, Bearer tokens, PEM private keys
-4. **PII Exposure** — SSN, credit cards, bank accounts, phone numbers
-5. **Policy Violations** — WMD synthesis, malware, CSAM, violence, drugs, trafficking
-6. **Rate Limiting** — Per-session request throttling
+<section>
+  <div class="container">
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 8);">Documentation</h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: calc(var(--spacing-unit) * 4);">
+      <a href="./guides/getting-started.md" style="padding: calc(var(--spacing-unit) * 4); background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.2s;">
+        <h3 style="color: var(--primary); margin-bottom: calc(var(--spacing-unit) * 2); margin-top: 0;">Getting Started</h3>
+        <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem;">5-minute quickstart guide. Install, configure, and run your first security check.</p>
+      </a>
 
-### 🔍 Output Validation (POST-Phase)
-7. **Response Credential Leakage** — API keys in model output
-8. **Insecure Code Patterns** — eval(), shell injection, SQL injection, weak crypto
+      <a href="./guides/providers.md" style="padding: calc(var(--spacing-unit) * 4); background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.2s;">
+        <h3 style="color: var(--primary); margin-bottom: calc(var(--spacing-unit) * 2); margin-top: 0;">Providers Guide</h3>
+        <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem;">Compare all 4 providers. Cost analysis. Setup instructions for each.</p>
+      </a>
 
-[View all policies →](./features/policies.md)
+      <a href="./guides/configuration.md" style="padding: calc(var(--spacing-unit) * 4); background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.2s;">
+        <h3 style="color: var(--primary); margin-bottom: calc(var(--spacing-unit) * 2); margin-top: 0;">Configuration</h3>
+        <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem;">Complete reference. All options explained with examples.</p>
+      </a>
 
----
+      <a href="./features/policies.md" style="padding: calc(var(--spacing-unit) * 4); background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.2s;">
+        <h3 style="color: var(--primary); margin-bottom: calc(var(--spacing-unit) * 2); margin-top: 0;">Security Policies</h3>
+        <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem;">Deep dive into all 8 policies with attack examples and mitigation.</p>
+      </a>
 
-## Features
+      <a href="https://github.com/akafengfeng/ClawSafeTest" style="padding: calc(var(--spacing-unit) * 4); background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.2s;">
+        <h3 style="color: var(--primary); margin-bottom: calc(var(--spacing-unit) * 2); margin-top: 0;">GitHub Repository</h3>
+        <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem;">Source code, issues, discussions, and contribution guidelines.</p>
+      </a>
 
-### 🏗️ Architecture
+      <a href="https://github.com/akafengfeng/ClawSafeTest/blob/main/CHANGELOG.md" style="padding: calc(var(--spacing-unit) * 4); background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.2s;">
+        <h3 style="color: var(--primary); margin-bottom: calc(var(--spacing-unit) * 2); margin-top: 0;">Release Notes</h3>
+        <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem;">v0.3.0 features, breaking changes, migration guide.</p>
+      </a>
+    </div>
+  </div>
+</section>
 
-```
-Your App
-  ↓
-ClawSafeAgent
-  ├── LLMProvider abstraction
-  ├── PRE-phase security checks
-  ├── Main LLM API call
-  ├── POST-phase security checks
-  ├── Token budget tracking
-  └── SQLite audit logging
-  ↓
-LLM API (Claude, GPT-4, DeepSeek, etc.)
-```
+<section style="background: var(--primary); color: white;">
+  <div class="container" style="text-align: center;">
+    <h2 style="color: white; margin-bottom: calc(var(--spacing-unit) * 4);">Ready to Secure Your LLM?</h2>
+    <p style="color: rgba(255,255,255,0.9); font-size: 1.1rem; margin-bottom: calc(var(--spacing-unit) * 6); max-width: 500px; margin-left: auto; margin-right: auto;">
+      Get started in minutes. One unified security layer for all your LLM providers.
+    </p>
+    <a href="./guides/getting-started.md" class="btn" style="background: white; color: var(--primary); font-weight: 600;">Start Now</a>
 
-### 📊 Multi-Provider Support
-
-- **Same API** for all providers
-- **Same 8 security policies** for all providers
-- **Same audit logging** across providers
-- **Switch providers** with one config change
-
-### 🔐 Zero Token Cost Security
-
-- All rule-based skills: **0 tokens**
-- Sub-5% total overhead guarantee
-- Token budget tracked per session
-
-### 📈 100% Backward Compatible
-
-- v0.3.0 fully compatible with v0.2.0 and v0.1.0
-- Claude is still the default
-- Existing code works unchanged
-
----
-
-## Documentation
-
-| Section | Content |
-|---------|---------|
-| **[Getting Started](./guides/getting-started.md)** | 5-minute quickstart |
-| **[Providers Guide](./guides/providers.md)** | Setup for all 4 providers |
-| **[Security Policies](./features/policies.md)** | All 8 security skills explained |
-| **[Configuration](./guides/configuration.md)** | All configuration options |
-| **[Contributing](./guides/contributing.md)** | How to contribute |
-| **[GitHub Repo](https://github.com/akafengfeng/ClawSafeTest)** | Full source code |
-
----
-
-## Testing & Quality
-
-```
-✅ 107/107 tests passing
-✅ 80% code coverage
-✅ Type hints with mypy
-✅ Professional documentation
-✅ Production-ready
-```
-
----
-
-## Cost Comparison
-
-ClawSafe works with the most cost-effective providers:
-
-| Provider | Model | Input | Output |
-|----------|-------|-------|--------|
-| **TogetherAI** | DeepSeek | $0.14/1M | $0.28/1M |
-| **TogetherAI** | Qwen 72B | $0.20/1M | $0.60/1M |
-| **OpenAI** | GPT-3.5-turbo | $0.50/1M | $1.50/1M |
-| **Anthropic** | Claude Sonnet | $3/1M | $15/1M |
-
-**Note:** ClawSafe overhead is <5%, so total cost stays minimal.
-
----
-
-## Project Status
-
-| Component | Status |
-|-----------|--------|
-| Core agent (all providers) | ✅ Complete |
-| Multi-provider support (4 types) | ✅ Complete |
-| Built-in security skills (8) | ✅ Complete |
-| Unit tests (107) | ✅ Complete |
-| Documentation (2,500+ lines) | ✅ Complete |
-| Production-ready | ✅ YES |
-
----
-
-## Get Started Now
-
-1. **[Install ClawSafe](./guides/getting-started.md)** — `pip install clawsafe`
-2. **[Choose a Provider](./guides/providers.md)** — Claude, GPT-4, DeepSeek, or custom
-3. **[Review Security Policies](./features/policies.md)** — Understand what's protected
-4. **[Use in Production](./guides/configuration.md)** — Configure for your needs
-
----
-
-## License
-
-[Apache License 2.0](https://github.com/akafengfeng/ClawSafeTest/blob/main/LICENSE)
-
----
-
-## Support
-
-- 📖 [Documentation](https://github.com/akafengfeng/ClawSafeTest#readme)
-- 🐛 [Report Issues](https://github.com/akafengfeng/ClawSafeTest/issues)
-- 💬 [Discussions](https://github.com/akafengfeng/ClawSafeTest/discussions)
-- 🔒 Security: Email fengfeng.wf@gmail.com
-
----
-
-**Built with [Claude Code](https://claude.ai/code)**
+    <div style="margin-top: calc(var(--spacing-unit) * 8); padding-top: calc(var(--spacing-unit) * 6); border-top: 1px solid rgba(255,255,255,0.2);">
+      <p style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin: 0;">
+        <a href="https://github.com/akafengfeng/ClawSafeTest" style="color: white; text-decoration: none;">GitHub</a> • 
+        <a href="https://github.com/akafengfeng/ClawSafeTest/issues" style="color: white; text-decoration: none;">Issues</a> • 
+        <a href="mailto:fengfeng.wf@gmail.com" style="color: white; text-decoration: none;">Security Contact</a>
+      </p>
+      <p style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 2); margin-bottom: 0;">
+        Open source under Apache License 2.0
+      </p>
+    </div>
+  </div>
+</section>
