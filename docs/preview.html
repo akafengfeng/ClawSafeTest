@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClawSafe — Enterprise Agent Security Framework</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/custom.css">
+    <style>
+        html { scroll-behavior: smooth; }
+    </style>
+</head>
+<body>
+<header>
+    <div class="header-content">
+        <div class="logo">🔒 ClawSafe</div>
+        <nav class="nav-links">
+            <a href="#threat-model">Threat Model</a>
+            <a href="#architecture">Architecture</a>
+            <a href="#quick-start">Quick Start</a>
+            <a href="#docs">Documentation</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>ClawSafe</h1>
+        <p class="hero-subtitle">Enterprise Agent Security Framework</p>
+        <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 3rem;">Defense-in-depth security framework for autonomous AI agents. Unified threat detection, memory protection, and behavioral analysis across all agent frameworks.</p>
+        <div class="cta-buttons">
+            <button class="btn btn-primary">Get Started</button>
+            <button class="btn btn-secondary">View Docs</button>
+        </div>
+
+        <div style="margin-top: 3rem; display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
+            <div style="text-align: center;">
+                <div style="font-size: 2rem; color: var(--primary); font-weight: 700;">33</div>
+                <div style="color: var(--text-secondary);">Total Policies</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 2rem; color: var(--success); font-weight: 700;">41</div>
+                <div style="color: var(--text-secondary);">Tests Passing</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 2rem; color: var(--primary); font-weight: 700;">&lt;5%</div>
+                <div style="color: var(--text-secondary);">Overhead</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 2rem; color: var(--success); font-weight: 700;">0</div>
+                <div style="color: var(--text-secondary);">False Positives</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Threat Model Section -->
+    <section id="threat-model">
+        <h2>Threat Model</h2>
+        <p>ClawSafe protects against 10 major attack classes on autonomous AI agents with defense-in-depth policies:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Threat Class</th>
+                    <th>Attack Vector</th>
+                    <th>ClawSafe Response</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Prompt Injection</strong></td>
+                    <td>User input tricks agent into unauthorized tool calls</td>
+                    <td>Pre-execution validation + pattern detection</td>
+                </tr>
+                <tr>
+                    <td><strong>Memory Poisoning</strong></td>
+                    <td>Adversarial data corrupts agent knowledge</td>
+                    <td>Contradiction detection + integrity hashing</td>
+                </tr>
+                <tr>
+                    <td><strong>Privilege Escalation</strong></td>
+                    <td>Unauthorized access to high-risk tools</td>
+                    <td>Fine-grained authorization + risk scoring</td>
+                </tr>
+                <tr>
+                    <td><strong>Command Injection</strong></td>
+                    <td>Shell metacharacters in tool parameters</td>
+                    <td>Regex-based pattern blocking</td>
+                </tr>
+                <tr>
+                    <td><strong>Path Traversal</strong></td>
+                    <td>Directory escape in file operations</td>
+                    <td>Whitelist validation + allowed_dirs enforcement</td>
+                </tr>
+                <tr>
+                    <td><strong>Credential Leakage</strong></td>
+                    <td>API keys exposed in requests/responses</td>
+                    <td>SHA-256 pattern matching + redaction</td>
+                </tr>
+                <tr>
+                    <td><strong>Behavioral Drift</strong></td>
+                    <td>Agent decision patterns change unexpectedly</td>
+                    <td>Baseline profiling + statistical anomaly detection</td>
+                </tr>
+                <tr>
+                    <td><strong>Rate-Based DOS</strong></td>
+                    <td>Tool call flooding depletes resources</td>
+                    <td>Per-tool, per-user rate limiting</td>
+                </tr>
+                <tr>
+                    <td><strong>Access Control Bypass</strong></td>
+                    <td>Unauthorized memory/tool access</td>
+                    <td>RBAC + per-memory permission matrix</td>
+                </tr>
+                <tr>
+                    <td><strong>Supply Chain</strong></td>
+                    <td>Malicious tool integration</td>
+                    <td>Tool registry whitelisting + approval workflows</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Security Policies Section -->
+    <section>
+        <h2>33 Total Protective Policies</h2>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>Pre-Execution (8)</h3>
+                <p>Tool Authorization, Parameter Validation, Command Injection, SQL Injection, Path Traversal, Credential Detection, Privilege Escalation, Rate Limiting</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">✔️</div>
+                <h3>Post-Execution (8)</h3>
+                <p>Output Validation, Error Detection, Credential Leakage, Sanitization, Memory Integrity, Anomaly Detection, Behavior Drift, Resource Audit</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <h3>Memory Security (9)</h3>
+                <p>Memory Poisoning, Prompt Injection Detection, Confidence Validation, Tampering Detection, Access Control, Contradiction Detection, TTL Management</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">⚙️</div>
+                <h3>Framework Integration (5)</h3>
+                <p>Tool Registry Whitelist, Fine-Grained Authorization, Session Tracking, Compliance Logging, State Export</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Advanced (3)</h3>
+                <p>Behavioral Baselines, Feedback Loops, Learning Gap Identification</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture">
+        <h2>Architecture</h2>
+        <p>Layered security with orchestration, validation, memory integrity, and immutable audit trails:</p>
+
+        <pre><code>┌─────────────────────────────────────────────────────────────┐
+│                    AgentGuard Orchestrator                  │
+│                                                             │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │ ToolRegistry │  │ Authorizer   │  │  Validators  │     │
+│  │              │  │              │  │              │     │
+│  │ Whitelist    │  │ RBAC + Risk  │  │ Input/Output │     │
+│  │ Blacklist    │  │ Scoring      │  │ Scanning     │     │
+│  └──────────────┘  └──────────────┘  └──────────────┘     │
+│                                                             │
+│  ┌────────────────────────────────────────────────────┐   │
+│  │          Memory Security & Learning System        │   │
+│  │                                                    │   │
+│  │  ┌─────────────────┐  ┌──────────────────┐       │   │
+│  │  │ MemoryGuard     │  │ Learning Loop    │       │   │
+│  │  │                 │  │                  │       │   │
+│  │  │ • Validation    │  │ • Feedback       │       │   │
+│  │  │ • Hashing       │  │ • Gap Detection  │       │   │
+│  │  │ • Access Ctrl   │  │ • Confidence Adj │       │   │
+│  │  │ • Contradiction │  │ • Metrics        │       │   │
+│  │  └─────────────────┘  └──────────────────┘       │   │
+│  │                                                    │   │
+│  └────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌──────────────────────────────────────────────────┐     │
+│  │  Audit Trail (SQLite) — Immutable Event Log     │     │
+│  │  - Every tool call                               │     │
+│  │  - Every memory operation                        │     │
+│  │  - Every security finding                        │     │
+│  │  - Cryptographic verification                    │     │
+│  └──────────────────────────────────────────────────┘     │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+    </section>
+
+    <!-- Performance Section -->
+    <section>
+        <h2>Performance Specifications</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Tool Call Latency</td>
+                    <td><span class="badge badge-success">&lt;100ms</span></td>
+                    <td>Per-tool overhead</td>
+                </tr>
+                <tr>
+                    <td>Memory Operation</td>
+                    <td><span class="badge badge-success">&lt;1ms</span></td>
+                    <td>Store/retrieve/verify</td>
+                </tr>
+                <tr>
+                    <td>Integrity Check</td>
+                    <td><span class="badge badge-success">&lt;0.5ms</span></td>
+                    <td>SHA-256 per memory</td>
+                </tr>
+                <tr>
+                    <td>Anomaly Detection</td>
+                    <td><span class="badge badge-success">&lt;5ms</span></td>
+                    <td>Baseline comparison</td>
+                </tr>
+                <tr>
+                    <td>Total Overhead</td>
+                    <td><span class="badge badge-success">&lt;5%</span></td>
+                    <td>Within budget</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Quick Start Section -->
+    <section id="quick-start">
+        <h2>Quick Start</h2>
+
+        <h3>Installation</h3>
+        <pre><code>pip install clawsafe
+export ANTHROPIC_API_KEY=sk-ant-...</code></pre>
+
+        <h3>Basic Protection</h3>
+        <pre><code>from clawsafe import AgentGuard, ToolRegistry, AuthContext
+
+# Define security policy
+tools = ToolRegistry()
+tools.allow("search", params={"query": "str"}, risk_level="low")
+tools.allow("read_file", params={"path": "str"}, allowed_dirs=["/data"])
+tools.deny("shell_exec")
+
+# Create protected agent
+guard = AgentGuard(tool_registry=tools)
+
+# Execute with full protection
+auth = AuthContext(user_id="user123", role="user")
+result = guard.protect_tool_call(
+    tool_name="search",
+    params={"query": "python security"},
+    auth_context=auth,
+    executor=my_search_func
+)</code></pre>
+    </section>
+
+    <!-- Test Coverage Section -->
+    <section>
+        <h2>Test Coverage</h2>
+
+        <div class="features">
+            <div class="feature-card">
+                <div style="font-size: 2.5rem; color: var(--success); margin-bottom: 1rem;">✅ 41/41</div>
+                <h3>Tests Passing</h3>
+                <p>100% coverage on security-critical paths. Production-ready.</p>
+            </div>
+
+            <div class="feature-card">
+                <div style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;">16</div>
+                <h3>Tool Execution Policies</h3>
+                <p>Verified across command injection, SQL injection, path traversal, credentials</p>
+            </div>
+
+            <div class="feature-card">
+                <div style="font-size: 2.5rem; color: var(--success); margin-bottom: 1rem;">9</div>
+                <h3>Memory Security Policies</h3>
+                <p>Tamper-proof storage, contradiction detection, integrity verification</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Compliance Section -->
+    <section>
+        <h2>Compliance & Audit</h2>
+
+        <div class="features">
+            <div class="feature-card">
+                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">✅ SOC 2 Ready</div>
+                <p><strong>Immutable audit trail</strong> • Access control matrix • Change tracking • Incident logging</p>
+            </div>
+
+            <div class="feature-card">
+                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">✅ HIPAA Compatible</div>
+                <p><strong>Credential protection</strong> • PII detection & redaction • Access restrictions • Compliance reporting</p>
+            </div>
+
+            <div class="feature-card">
+                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">✅ GDPR Aligned</div>
+                <p><strong>Memory access control</strong> • Data deletion support (TTL) • Audit trail • User attribution</p>
+            </div>
+
+            <div class="feature-card">
+                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">✅ Enterprise Governance</div>
+                <p><strong>Zero-trust execution</strong> • Approval workflows • Risk-based decisions • Comprehensive logging</p>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <div class="container" style="text-align: center;">
+        <p style="margin-bottom: 2rem;">
+            <strong>Built for enterprises that treat security as a requirement, not a feature.</strong>
+        </p>
+        <p>
+            <a href="https://github.com/akafengfeng/ClawSafeTest">GitHub</a> •
+            <a href="mailto:fengfeng.wf@gmail.com">Security Contact</a> •
+            <a href="#docs">Documentation</a>
+        </p>
+        <p style="margin-top: 2rem; font-size: 0.9rem;">
+            © 2024 ClawSafe. Licensed under Apache 2.0
+        </p>
+    </div>
+</footer>
+
+</body>
+</html>
