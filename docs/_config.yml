@@ -1,7 +1,7 @@
 # GitHub Pages Configuration for ClawSafe
 
 title: ClawSafe
-description: Multi-provider security framework for LLMs
+description: Enterprise Agent Security Framework — Defense-in-depth security for autonomous AI agents
 baseurl: /ClawSafeTest
 url: https://akafengfeng.github.io/ClawSafeTest
 
