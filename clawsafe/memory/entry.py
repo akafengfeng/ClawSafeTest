@@ -12,6 +12,8 @@ class MemoryType(str, Enum):
     CONTEXT = "context"                 # general conversation context worth retaining
     USER_FACT = "user_fact"             # stable facts about the user / session
     SKILL_RESULT = "skill_result"       # raw skill result snapshot
+    TOOL_CALL = "tool_call"             # agent tool call record
+    BEHAVIOR_ANOMALY = "behavior_anomaly"  # detected behavioral anomaly
 
 
 @dataclass
