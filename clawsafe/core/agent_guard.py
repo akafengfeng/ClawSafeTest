@@ -3,9 +3,11 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Callable, Optional
+import time
 
 from clawsafe.core.agent_config import AgentGuardConfig
 from clawsafe.core.auth import ActionAuthorizer, ActionRequest, AuthContext
+from clawsafe.core.memory_integration import MemoryAwareAgentState, MemoryLearningLoop
 from clawsafe.core.memory_security import MemoryGuard, AgentMemory, MemoryType as MemorySecurityType
 from clawsafe.core.tools import ToolRegistry
 from clawsafe.core.validator import FindingSeverity, InputValidator, OutputValidator, ValidationFinding
@@ -50,8 +52,9 @@ class AgentGuard:
     - Comprehensive audit logging
     """
 
-    def __init__(self, config: Optional[AgentGuardConfig] = None):
+    def __init__(self, config: Optional[AgentGuardConfig] = None, agent_id: str = "agent-default"):
         self.config = config or AgentGuardConfig()
+        self.agent_id = agent_id
         self.memory = MemoryStore(
             backend=self.config.audit_backend,
             db_path=self.config.audit_db_path,
@@ -61,6 +64,7 @@ class AgentGuard:
         self.input_validator = InputValidator()
         self.output_validator = OutputValidator()
         self.memory_guard = MemoryGuard()  # Memory security
+        self.agent_state = MemoryAwareAgentState(agent_id, self.memory_guard)  # Memory integration
         self._call_counts: dict[str, int] = {}
         self._tool_registry = self.config.tool_registry or ToolRegistry()
 
@@ -437,3 +441,62 @@ class AgentGuard:
     def cleanup_expired_memories(self) -> int:
         """Remove expired memories. Returns count removed."""
         return self.memory_guard.cleanup_expired()
+
+    # ==================== Memory Integration ====================
+
+    def process_interaction(
+        self,
+        user_input: str,
+        user_id: str,
+        session_id: str,
+    ) -> None:
+        """Process user interaction and update agent memory."""
+        self.agent_state.update_from_interaction(
+            interaction=user_input,
+            user_id=user_id,
+            timestamp=datetime.now().timestamp(),
+        )
+
+    def execute_tool_with_learning(
+        self,
+        tool_name: str,
+        params: dict,
+        auth_context: AuthContext,
+        executor: Callable,
+    ) -> Any:
+        """Execute tool and learn from results."""
+        result, learned = self.agent_state.tool_executor.execute_with_learning(
+            tool_name=tool_name,
+            params=params,
+            executor=executor,
+            auth_context=auth_context,
+        )
+
+        return result
+
+    def process_user_feedback(
+        self,
+        memory_id: str,
+        feedback: str,
+        rating: float,
+        user_id: str,
+    ) -> bool:
+        """Process user feedback to improve memory confidence."""
+        return self.agent_state.learning_loop.process_user_feedback(
+            memory_id=memory_id,
+            feedback=feedback,
+            rating=rating,
+            user_id=user_id,
+        )
+
+    def get_agent_insights(self) -> dict:
+        """Get comprehensive insights about agent knowledge."""
+        return self.agent_state.get_agent_insights()
+
+    def get_learning_report(self) -> dict:
+        """Get agent learning progress report."""
+        return self.agent_state.learning_loop.get_learning_report()
+
+    def export_agent_state(self) -> dict:
+        """Export agent's complete state for persistence."""
+        return self.agent_state.export_memory_state()
