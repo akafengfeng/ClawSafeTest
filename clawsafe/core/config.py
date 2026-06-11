@@ -7,13 +7,22 @@ class ClawSafeConfig:
     """Configuration for the ClawSafe security framework.
 
     This dataclass defines all configurable parameters for ClawSafeAgent, including
-    Anthropic API settings, security skill toggles, memory backend, and enforcement
+    LLM provider settings, security skill toggles, memory backend, and enforcement
     behavior. All defaults are conservative: blocking on HIGH-severity findings,
     SQLite audit logging, and all skills enabled.
 
+    ClawSafe is provider-agnostic and supports multiple LLM APIs:
+    - Anthropic (Claude models) — set provider="anthropic"
+    - OpenAI (GPT-4, GPT-3.5-turbo) — set provider="openai"
+    - TogetherAI (Qwen, DeepSeek, Llama, Mistral) — set provider="togetherai"
+
     Attributes:
-        api_key: Anthropic API key (or set ANTHROPIC_API_KEY env var).
-        model: Claude model ID to use (default: claude-sonnet-4-6).
+        provider: LLM provider type ("anthropic", "openai", "togetherai"). Default: "anthropic".
+        model: Model ID for the selected provider:
+            - Anthropic: "claude-opus-4-1", "claude-sonnet-4-6", "claude-haiku-3-5"
+            - OpenAI: "gpt-4", "gpt-4-turbo", "gpt-3.5-turbo"
+            - TogetherAI: "deepseek-ai/deepseek-chat", "Qwen/Qwen1.5-72B-Chat", etc.
+        api_key: API key for the provider (or set env vars: ANTHROPIC_API_KEY, OPENAI_API_KEY, TOGETHER_API_KEY).
         security_token_budget_fraction: Fraction of total tokens reserved for security
             overhead (default: 0.05 for 5%). Rule-based skills are free; LLM-assisted
             skills must stay within this budget.
@@ -36,18 +45,23 @@ class ClawSafeConfig:
         extra_skills: List of dotted import paths to custom Skill classes to auto-register.
 
     Example:
-        >>> config = ClawSafeConfig(
-        ...     model="claude-opus-4-1",
-        ...     enable_pii_detection=True,
-        ...     block_on_high_severity=True,
-        ...     extra_skills=["myapp.skills.CustomSkill"],
-        ... )
+        >>> # Use Claude (default)
+        >>> config = ClawSafeConfig(model="claude-opus-4-1")
+        >>> agent = ClawSafeAgent(config)
+
+        >>> # Use GPT-4
+        >>> config = ClawSafeConfig(provider="openai", model="gpt-4")
+        >>> agent = ClawSafeAgent(config)
+
+        >>> # Use DeepSeek via TogetherAI
+        >>> config = ClawSafeConfig(provider="togetherai", model="deepseek-ai/deepseek-chat")
         >>> agent = ClawSafeAgent(config)
     """
 
-    # Anthropic API
-    api_key: Optional[str] = None
+    # LLM Provider
+    provider: str = "anthropic"  # "anthropic" | "openai" | "togetherai"
     model: str = "claude-sonnet-4-6"
+    api_key: Optional[str] = None
 
     # Token budget: fraction of total tokens reserved for security overhead.
     # Target is 5% — keep skills fast and lightweight to stay within this.

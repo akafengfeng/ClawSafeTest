@@ -4,9 +4,8 @@ import os
 import time
 from typing import Any, Iterator, Optional
 
-import anthropic
-
 from .config import ClawSafeConfig
+from .provider import LLMProvider, LLMResponse, get_provider
 from ..memory.entry import MemoryEntry, MemoryType
 from ..memory.store import MemoryStore
 from ..skills.base import Severity, SkillPhase, SkillResult
@@ -33,34 +32,48 @@ class SecurityBlockedError(Exception):
 
 
 class ClawSafeAgent:
-    """Security-first wrapper around the Anthropic API client.
+    """Security-first wrapper for any LLM API (Claude, GPT-4, Qwen, DeepSeek, etc.).
 
-    Wraps all Claude API calls with deterministic security checks in PRE and POST phases.
+    Wraps all LLM API calls with deterministic security checks in PRE and POST phases.
     Skills run rule-based detection (credentials, injection, PII, policy violations) before
-    sending messages to Claude, and scan responses for credential leakage or policy breaches.
+    sending messages to the LLM, and scan responses for credential leakage or policy breaches.
 
     All security findings are logged to the audit trail (MemoryStore) with session isolation.
     Token budget is tracked to ensure security overhead stays under the configured threshold.
 
+    Supports multiple LLM providers:
+    - Anthropic (Claude models)
+    - OpenAI (GPT-4, GPT-3.5-turbo)
+    - TogetherAI (Qwen, DeepSeek, Llama, Mistral, etc.)
+
     Attributes:
-        config: ClawSafeConfig with model, budget, skill toggles, and backend preferences.
+        config: ClawSafeConfig with provider, model, budget, skill toggles.
+        provider: LLMProvider instance (Anthropic, OpenAI, TogetherAI).
         budget: TokenBudget tracking security overhead vs 5% target.
         memory: MemoryStore (SQLite or in-memory) for audit logging.
         registry: SkillRegistry with PRE/POST phase skills.
 
     Example:
-        >>> from clawsafe import ClawSafeAgent
+        >>> from clawsafe import ClawSafeAgent, ClawSafeConfig
+        >>> # Use Claude (default)
         >>> agent = ClawSafeAgent()
+        >>> # Use GPT-4
+        >>> config = ClawSafeConfig(provider="openai", model="gpt-4")
+        >>> agent = ClawSafeAgent(config)
+        >>> # Use DeepSeek via TogetherAI
+        >>> config = ClawSafeConfig(provider="togetherai", model="deepseek-ai/deepseek-chat")
+        >>> agent = ClawSafeAgent(config)
         >>> response = agent.create(
         ...     messages=[{"role": "user", "content": "What is 2+2?"}],
         ...     max_tokens=256,
         ... )
-        >>> print(response.content[0].text)
+        >>> print(response.text)
     """
 
     def __init__(
         self,
         config: Optional[ClawSafeConfig] = None,
+        provider: Optional[LLMProvider] = None,
         registry: Optional[SkillRegistry] = None,
         memory: Optional[MemoryStore] = None,
     ):
@@ -72,8 +85,15 @@ class ClawSafeAgent:
             max_entries=self.config.memory_max_entries,
         )
 
-        api_key = self.config.api_key or os.environ.get("ANTHROPIC_API_KEY")
-        self._client = anthropic.Anthropic(api_key=api_key)
+        # Initialize LLM provider
+        if provider:
+            self.provider = provider
+        else:
+            self.provider = get_provider(
+                provider_type=self.config.provider,
+                model=self.config.model,
+                api_key=self.config.api_key,
+            )
 
         self.registry = registry or self._default_registry()
         for dotpath in self.config.extra_skills:
@@ -86,42 +106,52 @@ class ClawSafeAgent:
         messages: list[dict],
         *,
         system: str = "",
-        model: Optional[str] = None,
         session_id: Optional[str] = None,
         **kwargs: Any,
-    ) -> anthropic.types.Message:
-        """Send messages to Claude with security guards in PRE and POST phases.
+    ) -> LLMResponse:
+        """Send messages to LLM with security guards in PRE and POST phases.
 
-        Runs all PRE-phase skills on input, sends the request to Claude, then runs
+        Runs all PRE-phase skills on input, sends the request to the LLM, then runs
         POST-phase skills on the response. If `block_on_high_severity=True` and any
         skill returns a HIGH finding, raises SecurityBlockedError.
 
+        Works with any LLM provider: Anthropic (Claude), OpenAI (GPT-4), TogetherAI (Qwen, DeepSeek).
+
         Args:
             messages: List of message dicts: [{"role": "user" | "assistant", "content": str}]
-            system: Optional system prompt (prepended to messages).
-            model: Claude model ID (overrides config.model if provided).
+            system: Optional system prompt.
             session_id: Session identifier for audit log isolation (optional).
-            **kwargs: Additional arguments passed to anthropic.Anthropic.messages.create()
-                     (e.g., max_tokens, temperature, top_p).
+            **kwargs: Additional arguments passed to the LLM provider
+                     (e.g., max_tokens=256, temperature=0.7, top_p=0.9).
 
         Returns:
-            anthropic.types.Message: Response from Claude with usage metadata.
+            LLMResponse with text, model, token usage, and stop reason.
 
         Raises:
             SecurityBlockedError: If HIGH-severity findings block the request.
-            anthropic.APIError: If the API call fails.
+            Exception: If the LLM API call fails.
 
         Example:
+            >>> from clawsafe import ClawSafeAgent, ClawSafeConfig
+            >>> # Use Claude
             >>> agent = ClawSafeAgent()
             >>> response = agent.create(
             ...     messages=[{"role": "user", "content": "Hello"}],
             ...     max_tokens=512,
             ...     session_id="user123",
             ... )
-            >>> print(response.content[0].text)
+            >>> print(response.text)
+
+            >>> # Use GPT-4
+            >>> config = ClawSafeConfig(provider="openai", model="gpt-4")
+            >>> agent = ClawSafeAgent(config)
+            >>> response = agent.create(
+            ...     messages=[{"role": "user", "content": "Hello"}],
+            ...     max_tokens=512,
+            ... )
+            >>> print(response.text)
         """
-        model = model or self.config.model
-        payload = {"messages": messages, "system": system, "model": model, **kwargs}
+        payload = {"messages": messages, "system": system, "model": self.provider.model, **kwargs}
 
         # PRE phase
         pre_results = self.registry.run_phase(SkillPhase.PRE, payload)
@@ -130,23 +160,20 @@ class ClawSafeAgent:
 
         # Main call
         start = time.perf_counter()
-        response = self._client.messages.create(
-            model=model,
+        response = self.provider.create(
             messages=messages,
             system=system,
             **kwargs,
         )
         elapsed = time.perf_counter() - start
 
-        usage = response.usage
-        self.budget.record_main(usage.input_tokens + usage.output_tokens)
+        self.budget.record_main(response.input_tokens + response.output_tokens)
 
         # POST phase
-        response_text = response.content[0].text if response.content else ""
         post_payload = {
             **payload,
-            "response": response_text,
-            "usage": {"input": usage.input_tokens, "output": usage.output_tokens},
+            "response": response.text,
+            "usage": {"input": response.input_tokens, "output": response.output_tokens},
             "elapsed_s": elapsed,
         }
         post_results = self.registry.run_phase(SkillPhase.POST, post_payload)
@@ -160,62 +187,67 @@ class ClawSafeAgent:
         messages: list[dict],
         *,
         system: str = "",
-        model: Optional[str] = None,
         session_id: Optional[str] = None,
         **kwargs: Any,
     ) -> Iterator[str]:
-        """Stream response from Claude with security guards in PRE and POST phases.
+        """Stream response from LLM with security guards in PRE and POST phases.
 
         Like `create()`, but yields response tokens as they arrive. PRE-phase skills
         run before streaming starts; POST-phase skills run after the full response
         is collected.
 
+        Works with any LLM provider: Anthropic (Claude), OpenAI (GPT-4), TogetherAI (Qwen, DeepSeek).
+
         Args:
             messages: List of message dicts.
             system: Optional system prompt.
-            model: Claude model ID (overrides config.model if provided).
             session_id: Session identifier for audit log isolation (optional).
-            **kwargs: Additional arguments passed to anthropic.Anthropic.messages.stream().
+            **kwargs: Additional arguments passed to the LLM provider
+                     (e.g., max_tokens=512, temperature=0.7).
 
         Yields:
-            str: Individual response tokens as they arrive from Claude.
+            str: Individual response tokens as they arrive.
 
         Raises:
             SecurityBlockedError: If HIGH-severity findings block the request.
 
         Example:
+            >>> from clawsafe import ClawSafeAgent, ClawSafeConfig
+            >>> # Stream from Claude
             >>> agent = ClawSafeAgent()
             >>> for chunk in agent.stream(
             ...     messages=[{"role": "user", "content": "Tell a story"}],
             ...     max_tokens=512,
             ... ):
             ...     print(chunk, end="", flush=True)
+
+            >>> # Stream from DeepSeek via TogetherAI
+            >>> config = ClawSafeConfig(provider="togetherai", model="deepseek-ai/deepseek-chat")
+            >>> agent = ClawSafeAgent(config)
+            >>> for chunk in agent.stream(messages=[{"role": "user", "content": "Hello"}]):
+            ...     print(chunk, end="", flush=True)
         """
-        model = model or self.config.model
-        payload = {"messages": messages, "system": system, "model": model, **kwargs}
+        payload = {"messages": messages, "system": system, "model": self.provider.model, **kwargs}
 
         pre_results = self.registry.run_phase(SkillPhase.PRE, payload)
         self._record_results(pre_results, session_id, phase="pre")
         self._maybe_block(pre_results)
 
         full_text = []
-        input_tokens = output_tokens = 0
 
-        with self._client.messages.stream(model=model, messages=messages, system=system, **kwargs) as stream:
-            for text in stream.text_stream:
-                full_text.append(text)
-                yield text
-            msg = stream.get_final_message()
-            input_tokens = msg.usage.input_tokens
-            output_tokens = msg.usage.output_tokens
+        for text in self.provider.stream(messages=messages, system=system, **kwargs):
+            full_text.append(text)
+            yield text
 
-        self.budget.record_main(input_tokens + output_tokens)
-
+        # Estimate tokens (exact count requires another API call)
         response_text = "".join(full_text)
+        estimated_output_tokens = len(response_text) // 4  # Rough estimate: 1 token ≈ 4 chars
+        self.budget.record_main(estimated_output_tokens)
+
         post_payload = {
             **payload,
             "response": response_text,
-            "usage": {"input": input_tokens, "output": output_tokens},
+            "usage": {"input": 0, "output": estimated_output_tokens},
         }
         post_results = self.registry.run_phase(SkillPhase.POST, post_payload)
         self._record_results(post_results, session_id, phase="post")
