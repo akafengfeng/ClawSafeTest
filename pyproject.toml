@@ -4,27 +4,49 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "clawsafe"
-version = "0.1.0"
-description = "Security framework for Claude — sub-5% token overhead, skills + memory."
-authors = [{ name = "akafengfeng" }]
+version = "0.2.0"
+description = "Security-first framework for Claude — sub-5% token overhead, prompt injection detection, credential scanning, audit logs."
+authors = [{ name = "akafengfeng", email = "fengfeng.wf@gmail.com" }]
 license = { text = "Apache-2.0" }
 readme = "README.md"
 requires-python = ">=3.11"
-keywords = ["security", "claude", "anthropic", "llm", "agent", "prompt-injection"]
+keywords = [
+    "security",
+    "claude",
+    "anthropic",
+    "llm",
+    "agent",
+    "prompt-injection",
+    "credential-detection",
+    "audit-logging",
+]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Security",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
 ]
 dependencies = [
     "anthropic>=0.30.0",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-cov"]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=6",
+    "black>=24",
+    "ruff>=0.6",
+    "mypy>=1.11",
+]
+docs = [
+    "sphinx>=8",
+    "sphinx-rtd-theme>=2",
+]
 
 # Hermes Agent discovers plugins via this entry point group.
 [project.entry-points."hermes.plugins"]
@@ -33,7 +55,33 @@ clawsafe = "clawsafe.integrations.hermes"
 [project.urls]
 Homepage = "https://github.com/akafengfeng/ClawSafeTest"
 Repository = "https://github.com/akafengfeng/ClawSafeTest"
+Documentation = "https://github.com/akafengfeng/ClawSafeTest#readme"
 Issues = "https://github.com/akafengfeng/ClawSafeTest/issues"
+Changelog = "https://github.com/akafengfeng/ClawSafeTest/releases"
+
+# Code quality tools configuration
+[tool.black]
+line-length = 100
+target-version = ["py311", "py312"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "RUF"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["clawsafe"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "--cov=clawsafe --cov-report=term-missing --cov-report=html"
+minversion = "8"

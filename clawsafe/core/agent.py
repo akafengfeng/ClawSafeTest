@@ -15,7 +15,15 @@ from ..utils.token_budget import TokenBudget
 
 
 class SecurityBlockedError(Exception):
-    """Raised when a HIGH-severity finding blocks a request."""
+    """Raised when a HIGH-severity security finding blocks a request.
+
+    This exception is raised when `block_on_high_severity=True` and any security
+    skill returns a HIGH-severity finding. The exception contains the full list
+    of SkillResult objects for inspection and logging.
+
+    Attributes:
+        results: List of SkillResult objects containing the findings.
+    """
 
     def __init__(self, results: list[SkillResult]):
         self.results = results
@@ -25,13 +33,29 @@ class SecurityBlockedError(Exception):
 
 
 class ClawSafeAgent:
-    """
-    Thin security wrapper around the Anthropic client.
+    """Security-first wrapper around the Anthropic API client.
 
-    Usage::
+    Wraps all Claude API calls with deterministic security checks in PRE and POST phases.
+    Skills run rule-based detection (credentials, injection, PII, policy violations) before
+    sending messages to Claude, and scan responses for credential leakage or policy breaches.
 
-        agent = ClawSafeAgent(config)
-        response = agent.create(messages=[{"role": "user", "content": "hello"}])
+    All security findings are logged to the audit trail (MemoryStore) with session isolation.
+    Token budget is tracked to ensure security overhead stays under the configured threshold.
+
+    Attributes:
+        config: ClawSafeConfig with model, budget, skill toggles, and backend preferences.
+        budget: TokenBudget tracking security overhead vs 5% target.
+        memory: MemoryStore (SQLite or in-memory) for audit logging.
+        registry: SkillRegistry with PRE/POST phase skills.
+
+    Example:
+        >>> from clawsafe import ClawSafeAgent
+        >>> agent = ClawSafeAgent()
+        >>> response = agent.create(
+        ...     messages=[{"role": "user", "content": "What is 2+2?"}],
+        ...     max_tokens=256,
+        ... )
+        >>> print(response.content[0].text)
     """
 
     def __init__(
@@ -66,6 +90,36 @@ class ClawSafeAgent:
         session_id: Optional[str] = None,
         **kwargs: Any,
     ) -> anthropic.types.Message:
+        """Send messages to Claude with security guards in PRE and POST phases.
+
+        Runs all PRE-phase skills on input, sends the request to Claude, then runs
+        POST-phase skills on the response. If `block_on_high_severity=True` and any
+        skill returns a HIGH finding, raises SecurityBlockedError.
+
+        Args:
+            messages: List of message dicts: [{"role": "user" | "assistant", "content": str}]
+            system: Optional system prompt (prepended to messages).
+            model: Claude model ID (overrides config.model if provided).
+            session_id: Session identifier for audit log isolation (optional).
+            **kwargs: Additional arguments passed to anthropic.Anthropic.messages.create()
+                     (e.g., max_tokens, temperature, top_p).
+
+        Returns:
+            anthropic.types.Message: Response from Claude with usage metadata.
+
+        Raises:
+            SecurityBlockedError: If HIGH-severity findings block the request.
+            anthropic.APIError: If the API call fails.
+
+        Example:
+            >>> agent = ClawSafeAgent()
+            >>> response = agent.create(
+            ...     messages=[{"role": "user", "content": "Hello"}],
+            ...     max_tokens=512,
+            ...     session_id="user123",
+            ... )
+            >>> print(response.content[0].text)
+        """
         model = model or self.config.model
         payload = {"messages": messages, "system": system, "model": model, **kwargs}
 
@@ -110,7 +164,33 @@ class ClawSafeAgent:
         session_id: Optional[str] = None,
         **kwargs: Any,
     ) -> Iterator[str]:
-        """Streaming variant — PRE skills fire before the stream, POST fires after."""
+        """Stream response from Claude with security guards in PRE and POST phases.
+
+        Like `create()`, but yields response tokens as they arrive. PRE-phase skills
+        run before streaming starts; POST-phase skills run after the full response
+        is collected.
+
+        Args:
+            messages: List of message dicts.
+            system: Optional system prompt.
+            model: Claude model ID (overrides config.model if provided).
+            session_id: Session identifier for audit log isolation (optional).
+            **kwargs: Additional arguments passed to anthropic.Anthropic.messages.stream().
+
+        Yields:
+            str: Individual response tokens as they arrive from Claude.
+
+        Raises:
+            SecurityBlockedError: If HIGH-severity findings block the request.
+
+        Example:
+            >>> agent = ClawSafeAgent()
+            >>> for chunk in agent.stream(
+            ...     messages=[{"role": "user", "content": "Tell a story"}],
+            ...     max_tokens=512,
+            ... ):
+            ...     print(chunk, end="", flush=True)
+        """
         model = model or self.config.model
         payload = {"messages": messages, "system": system, "model": model, **kwargs}
 
