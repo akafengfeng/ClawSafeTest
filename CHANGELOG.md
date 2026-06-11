@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0] — 2026-06-11
+
+### Added
+- **Multi-provider support** - Works with Anthropic (Claude), OpenAI (GPT-4), TogetherAI (Qwen, DeepSeek)
+- New `LLMProvider` abstraction layer in `clawsafe/core/provider.py`
+- `AnthropicProvider`, `OpenAIProvider`, `TogetherAIProvider` implementations
+- `get_provider()` factory function for dynamic provider selection
+- `LLMResponse` normalized response format across all providers
+- 16 comprehensive unit tests for provider abstraction
+- `PROVIDERS.md` documentation with setup for all providers and custom providers
+- Provider comparison table (cost, latency, quality)
+- Custom provider implementation guide
+- Support for provider-specific parameters (temperature, top_p, etc.)
+
+### Changed
+- `ClawSafeAgent` now accepts any `LLMProvider` instead of hardcoded Anthropic client
+- `ClawSafeConfig` now has `provider` parameter ("anthropic" | "openai" | "togetherai")
+- Response type changed from `anthropic.types.Message` to `LLMResponse`
+- README completely restructured to emphasize multi-provider support
+- GETTING_STARTED.md updated with examples for all providers
+- Updated all documentation to reflect provider-agnostic design
+- Version bumped to 0.3.0
+
+### Fixed
+- None (backward compatible, Claude is still default)
+
+### Tests
+- 107/107 tests passing (16 new provider tests)
+- 80% code coverage maintained
+
+---
+
 ## [0.2.0] — 2026-06-11
 
 ### Added

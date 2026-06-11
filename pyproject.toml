@@ -4,21 +4,26 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "clawsafe"
-version = "0.2.0"
-description = "Security-first framework for Claude — sub-5% token overhead, prompt injection detection, credential scanning, audit logs."
+version = "0.3.0"
+description = "Multi-provider security framework for LLMs (Claude, GPT-4, DeepSeek, Qwen) - sub-5% token overhead, prompt injection detection, credential scanning, audit logs."
 authors = [{ name = "akafengfeng", email = "fengfeng.wf@gmail.com" }]
 license = { text = "Apache-2.0" }
 readme = "README.md"
 requires-python = ">=3.11"
 keywords = [
     "security",
-    "claude",
-    "anthropic",
     "llm",
+    "claude",
+    "gpt",
+    "deepseek",
+    "qwen",
+    "anthropic",
+    "openai",
     "agent",
     "prompt-injection",
     "credential-detection",
     "audit-logging",
+    "multi-provider",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

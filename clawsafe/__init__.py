@@ -11,7 +11,7 @@ from .core.provider import (
 from .skills.registry import SkillRegistry
 from .memory.store import MemoryStore
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __all__ = [
     "ClawSafeAgent",
     "ClawSafeConfig",
