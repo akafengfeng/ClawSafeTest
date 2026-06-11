@@ -3,27 +3,26 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "clawsafe"
-version = "0.3.0"
-description = "Multi-provider security framework for LLMs (Claude, GPT-4, DeepSeek, Qwen) - sub-5% token overhead, prompt injection detection, credential scanning, audit logs."
+name = "clawsafe-agent"
+version = "0.4.0"
+description = "Agent Security Framework - Protect tool execution, prevent unauthorized actions, detect anomalies. Works with OpenClaw, Hermes, LangChain, CrewAI."
 authors = [{ name = "akafengfeng", email = "fengfeng.wf@gmail.com" }]
 license = { text = "Apache-2.0" }
 readme = "README.md"
 requires-python = ">=3.11"
 keywords = [
     "security",
-    "llm",
-    "claude",
-    "gpt",
-    "deepseek",
-    "qwen",
-    "anthropic",
-    "openai",
     "agent",
+    "tool-protection",
+    "authorization",
+    "openclaw",
+    "hermes",
+    "langchain",
+    "crewai",
+    "command-injection",
     "prompt-injection",
-    "credential-detection",
     "audit-logging",
-    "multi-provider",
+    "anomaly-detection",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
