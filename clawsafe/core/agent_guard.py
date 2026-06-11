@@ -1,11 +1,12 @@
 """Main AgentGuard security orchestrator."""
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Callable, Optional
 
 from clawsafe.core.agent_config import AgentGuardConfig
 from clawsafe.core.auth import ActionAuthorizer, ActionRequest, AuthContext
+from clawsafe.core.memory_security import MemoryGuard, AgentMemory, MemoryType as MemorySecurityType
 from clawsafe.core.tools import ToolRegistry
 from clawsafe.core.validator import FindingSeverity, InputValidator, OutputValidator, ValidationFinding
 from clawsafe.memory import MemoryStore
@@ -59,6 +60,7 @@ class AgentGuard:
         self.authorizer = ActionAuthorizer(mode=self.config.authorization_mode)
         self.input_validator = InputValidator()
         self.output_validator = OutputValidator()
+        self.memory_guard = MemoryGuard()  # Memory security
         self._call_counts: dict[str, int] = {}
         self._tool_registry = self.config.tool_registry or ToolRegistry()
 
@@ -296,3 +298,142 @@ class AgentGuard:
         if tool_name:
             return [c.content for c in calls if c.content.get("tool") == tool_name]
         return [c.content for c in calls]
+
+    # ==================== Memory Security ====================
+
+    def store_agent_memory(
+        self,
+        memory_type: MemorySecurityType,
+        content: str,
+        source: str,
+        confidence: float = 0.8,
+        user_id: str = "system",
+        expires_in_hours: Optional[int] = None,
+    ) -> tuple[bool, list]:
+        """Store a protected agent memory.
+
+        Args:
+            memory_type: Type of memory (FACT, BEHAVIOR, RELATIONSHIP, etc.)
+            content: Memory content
+            source: Where it came from (user, system, learned, inferred)
+            confidence: Confidence score 0.0-1.0
+            user_id: User ID for access control
+            expires_in_hours: Optional TTL in hours
+
+        Returns:
+            (success, findings)
+        """
+        import uuid
+
+        memory = AgentMemory(
+            id=str(uuid.uuid4()),
+            type=memory_type,
+            content=content,
+            source=source,
+            confidence=confidence,
+        )
+
+        if expires_in_hours:
+            memory.expires_at = (
+                datetime.now().timestamp() + expires_in_hours * 3600
+            )
+
+        success, findings = self.memory_guard.store_memory(memory, user_id)
+
+        # Log to audit trail
+        if success:
+            self.memory.save(
+                MemoryEntry(
+                    type=MemoryType.SECURITY_EVENT,
+                    content={
+                        "phase": "memory_storage",
+                        "memory_type": memory_type.value,
+                        "source": source,
+                        "confidence": confidence,
+                    },
+                )
+            )
+
+        return success, findings
+
+    def retrieve_agent_memory(
+        self, memory_id: str, user_id: str = "system"
+    ) -> Optional[dict]:
+        """Retrieve a protected agent memory.
+
+        Returns:
+            Memory dict or None if not found/not accessible
+        """
+        memory = self.memory_guard.retrieve_memory(memory_id, user_id)
+
+        if memory:
+            return {
+                "id": memory.id,
+                "type": memory.type.value,
+                "content": memory.content,
+                "source": memory.source,
+                "confidence": memory.confidence,
+                "created_at": memory.created_at,
+                "access_count": memory.access_count,
+            }
+
+        return None
+
+    def verify_memory_integrity(self) -> list[dict]:
+        """Verify integrity of all stored memories.
+
+        Returns:
+            List of tampering findings
+        """
+        findings = self.memory_guard.verify_all_integrity()
+
+        for finding in findings:
+            self.memory.save(
+                MemoryEntry(
+                    type=MemoryType.SECURITY_EVENT,
+                    content={
+                        "phase": "memory_integrity",
+                        "severity": finding.severity.value,
+                        "message": finding.message,
+                        "memory_id": finding.memory_id,
+                    },
+                )
+            )
+
+        return [
+            {
+                "policy": f.policy_name,
+                "severity": f.severity.value,
+                "message": f.message,
+                "memory_id": f.memory_id,
+            }
+            for f in findings
+        ]
+
+    def detect_memory_contradictions(self, memory_id: str) -> Optional[dict]:
+        """Detect contradictions in agent memory.
+
+        Returns:
+            Finding dict or None
+        """
+        finding = self.memory_guard.detect_contradictions(memory_id)
+
+        if finding:
+            return {
+                "policy": finding.policy_name,
+                "severity": finding.severity.value,
+                "message": finding.message,
+                "memory_id": finding.memory_id,
+            }
+
+        return None
+
+    def get_memory_statistics(self) -> dict:
+        """Get statistics about agent memories."""
+        stats = self.memory_guard.get_memory_statistics()
+        stats["audit_log_size"] = len(self.memory_guard.access_log)
+        return stats
+
+    def cleanup_expired_memories(self) -> int:
+        """Remove expired memories. Returns count removed."""
+        return self.memory_guard.cleanup_expired()

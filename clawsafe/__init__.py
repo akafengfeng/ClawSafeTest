@@ -3,6 +3,12 @@ from .core.agent_config import AgentGuardConfig
 from .core.agent_guard import AgentGuard, SecurityBlockedError, ToolCallResult
 from .core.auth import ActionAuthorizer, AuthContext, AuthorizationMode
 from .core.config import ClawSafeConfig
+from .core.memory_security import (
+    AgentMemory,
+    MemoryGuard,
+    MemoryType as MemorySecurityType,
+    MemoryValidator,
+)
 from .core.provider import (
     LLMProvider,
     LLMResponse,
@@ -38,6 +44,11 @@ __all__ = [
     "ValidationFinding",
     "SecurityBlockedError",
     "ToolCallResult",
+    # Memory security
+    "MemoryGuard",
+    "MemoryValidator",
+    "AgentMemory",
+    "MemorySecurityType",
     # Framework integrations
     "BaseAgentAdapter",
     "OpenClawAdapter",
