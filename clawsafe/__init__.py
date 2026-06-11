@@ -13,6 +13,13 @@ from .core.provider import (
 )
 from .core.tools import ToolPolicy, ToolRegistry
 from .core.validator import InputValidator, OutputValidator, ValidationFinding
+from .integrations import (
+    BaseAgentAdapter,
+    CrewAIAdapter,
+    HermesAdapter,
+    LangChainAdapter,
+    OpenClawAdapter,
+)
 from .memory.store import MemoryStore
 from .skills.registry import SkillRegistry
 
@@ -31,6 +38,12 @@ __all__ = [
     "ValidationFinding",
     "SecurityBlockedError",
     "ToolCallResult",
+    # Framework integrations
+    "BaseAgentAdapter",
+    "OpenClawAdapter",
+    "HermesAdapter",
+    "LangChainAdapter",
+    "CrewAIAdapter",
     # LLM security (legacy, v0.3.0)
     "ClawSafeAgent",
     "ClawSafeConfig",
