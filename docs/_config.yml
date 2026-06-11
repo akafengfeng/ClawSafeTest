@@ -1,0 +1,62 @@
+# GitHub Pages Configuration for ClawSafe
+
+title: ClawSafe
+description: Multi-provider security framework for LLMs
+baseurl: /ClawSafeTest
+url: https://akafengfeng.github.io/ClawSafeTest
+
+# Theme
+theme: jekyll-theme-slate
+
+# Header settings
+show_downloads: true
+github_is_project_page: true
+github_repository_url: https://github.com/akafengfeng/ClawSafeTest
+
+# Plugins
+plugins:
+  - jekyll-seo-tag
+  - jekyll-feed
+
+# Markdown
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+
+# Collections
+collections:
+  guides:
+    output: true
+    permalink: /guides/:path/
+  features:
+    output: true
+    permalink: /features/:path/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+  - scope:
+      path: "guides"
+      type: "guides"
+    values:
+      layout: "post"
+  - scope:
+      path: "features"
+      type: "features"
+    values:
+      layout: "post"
+
+# Exclude from processing
+exclude:
+  - .github
+  - tests
+  - clawsafe
+  - .gitignore
+  - CONTRIBUTING.md
+  - CODE_OF_CONDUCT.md
+  - CHANGELOG.md
