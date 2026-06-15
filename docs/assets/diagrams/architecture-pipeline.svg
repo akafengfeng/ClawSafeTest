@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1200 1400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <defs>
+    <style>
+      .phase-box { fill: #1a1f3a; stroke: #00d9ff; stroke-width: 2; }
+      .phase-title { font-size: 16px; font-weight: bold; fill: #00d9ff; }
+      .phase-text { font-size: 12px; fill: #a0b0d4; }
+      .arrow { stroke: #00d9ff; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .pass { fill: #00ff88; }
+      .fail { fill: #ff3333; }
+      .label { font-size: 11px; fill: #e8f0fe; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#00d9ff" />
+    </marker>
+  </defs>
+
+  <rect width="1200" height="1400" fill="#0a0e27"/>
+
+  <!-- Title -->
+  <text x="600" y="40" font-size="28" font-weight="bold" fill="#00d9ff" text-anchor="middle">
+    ClawSafe 8-Phase Security Pipeline
+  </text>
+
+  <!-- Input -->
+  <rect x="450" y="80" width="300" height="60" rx="5" fill="#00d9ff" opacity="0.2" stroke="#00d9ff" stroke-width="2"/>
+  <text x="600" y="110" font-size="14" font-weight="bold" fill="#00d9ff" text-anchor="middle">Tool Call Request</text>
+
+  <!-- Arrow down -->
+  <path d="M 600 140 L 600 180" class="arrow"/>
+
+  <!-- Phase 1: Authorization -->
+  <rect x="350" y="180" width="500" height="100" rx="5" class="phase-box"/>
+  <text x="600" y="205" text-anchor="middle" class="phase-title">Phase 1: Authorization Check</text>
+  <text x="370" y="225" class="phase-text">✓ User authenticated? (verify identity)</text>
+  <text x="370" y="245" class="phase-text">✓ User role permitted? (RBAC enforcement)</text>
+  <text x="370" y="265" class="phase-text">✓ Risk acceptable? (risk scoring)</text>
+
+  <!-- Arrow and decision -->
+  <path d="M 600 280 L 600 320" class="arrow"/>
+  <circle cx="600" cy="330" r="15" fill="none" stroke="#00d9ff" stroke-width="2"/>
+  <text x="600" y="335" font-size="12" fill="#00d9ff" text-anchor="middle">RBAC</text>
+  <text x="750" y="335" font-size="11" fill="#00ff88">PASS</text>
+  <text x="450" y="335" font-size="11" fill="#ff3333">FAIL→DENY</text>
+
+  <!-- Phase 2: Tool Registry -->
+  <path d="M 600 345 L 600 380" class="arrow"/>
+  <rect x="350" y="380" width="500" height="100" rx="5" class="phase-box"/>
+  <text x="600" y="405" text-anchor="middle" class="phase-title">Phase 2: Tool Registry Validation</text>
+  <text x="370" y="425" class="phase-text">✓ Tool in whitelist? (approved tools only)</text>
+  <text x="370" y="445" class="phase-text">✓ Tool not blacklisted? (blocked tools)</text>
+  <text x="370" y="465" class="phase-text">✓ Parameters match schema? (type checking)</text>
+
+  <path d="M 600 480 L 600 520" class="arrow"/>
+  <circle cx="600" cy="530" r="15" fill="none" stroke="#00d9ff" stroke-width="2"/>
+  <text x="600" y="535" font-size="12" fill="#00d9ff" text-anchor="middle">Whitelist</text>
+  <text x="750" y="535" font-size="11" fill="#00ff88">FOUND</text>
+  <text x="450" y="535" font-size="11" fill="#ff3333">NOT FOUND→DENY</text>
+
+  <!-- Phase 3: Input Validation -->
+  <path d="M 600 545 L 600 580" class="arrow"/>
+  <rect x="300" y="580" width="600" height="120" rx="5" class="phase-box"/>
+  <text x="600" y="605" text-anchor="middle" class="phase-title">Phase 3: Input Validation Scanning</text>
+  <text x="320" y="625" class="phase-text">✓ Command injection? (shell metacharacters: ;|&amp;$`)</text>
+  <text x="320" y="645" class="phase-text">✓ SQL injection? (SQL keywords: UNION, SELECT, DROP)</text>
+  <text x="320" y="665" class="phase-text">✓ Path traversal? (directory escapes: ../ ..\\)</text>
+  <text x="320" y="685" class="phase-text">✓ Credential detection? (API keys, private keys)</text>
+
+  <path d="M 600 700 L 600 740" class="arrow"/>
+  <circle cx="600" cy="750" r="15" fill="none" stroke="#00d9ff" stroke-width="2"/>
+  <text x="600" y="755" font-size="12" fill="#00d9ff" text-anchor="middle">Scan</text>
+  <text x="750" y="755" font-size="11" fill="#00ff88">NO THREATS</text>
+  <text x="420" y="755" font-size="11" fill="#ff3333">THREAT→DENY</text>
+
+  <!-- Phase 4: Rate Limiting -->
+  <path d="M 600 765 L 600 800" class="arrow"/>
+  <rect x="350" y="800" width="500" height="100" rx="5" class="phase-box"/>
+  <text x="600" y="825" text-anchor="middle" class="phase-title">Phase 4: Rate Limiting</text>
+  <text x="370" y="845" class="phase-text">✓ Per-tool quota OK? (tool call limits)</text>
+  <text x="370" y="865" class="phase-text">✓ Per-user quota OK? (user rate limits)</text>
+  <text x="370" y="885" class="phase-text">Prevents: DOS attacks, resource exhaustion</text>
+
+  <path d="M 600 900 L 600 940" class="arrow"/>
+  <circle cx="600" cy="950" r="15" fill="none" stroke="#00d9ff" stroke-width="2"/>
+  <text x="600" y="955" font-size="12" fill="#00d9ff" text-anchor="middle">Rate</text>
+  <text x="750" y="955" font-size="11" fill="#00ff88">OK</text>
+  <text x="450" y="955" font-size="11" fill="#ff3333">EXCEEDED→BLOCK</text>
+
+  <!-- Phase 5: Execution -->
+  <path d="M 600 965 L 600 1000" class="arrow"/>
+  <rect x="400" y="1000" width="400" height="80" rx="5" fill="#00ff88" opacity="0.2" stroke="#00ff88" stroke-width="2"/>
+  <text x="600" y="1025" text-anchor="middle" class="phase-title" fill="#00ff88">Phase 5: EXECUTE TOOL</text>
+  <text x="420" y="1050" class="phase-text" fill="#00ff88">Run the tool function</text>
+
+  <path d="M 600 1080 L 600 1120" class="arrow"/>
+
+  <!-- Phase 6: Output Validation -->
+  <rect x="300" y="1120" width="600" height="100" rx="5" class="phase-box"/>
+  <text x="600" y="1145" text-anchor="middle" class="phase-title">Phase 6: Output Validation</text>
+  <text x="320" y="1165" class="phase-text">✓ Response schema valid? (structure checking)</text>
+  <text x="320" y="1185" class="phase-text">✓ Credentials leaked? (API keys, passwords)</text>
+  <text x="320" y="1205" class="phase-text">✓ Errors expose internals? (information leakage)</text>
+
+  <path d="M 600 1220 L 600 1260" class="arrow"/>
+
+  <!-- Phase 7: Memory Learning -->
+  <rect x="300" y="1260" width="600" height="80" rx="5" class="phase-box"/>
+  <text x="600" y="1285" text-anchor="middle" class="phase-title">Phase 7: Memory Learning</text>
+  <text x="320" y="1305" class="phase-text">Extract learnable facts from result</text>
+  <text x="320" y="1325" class="phase-text">Validate facts (no contradictions) • Store with confidence</text>
+
+  <!-- Success Output -->
+  <rect x="350" y="1360" width="500" height="60" rx="5" fill="#00ff88" opacity="0.15" stroke="#00ff88" stroke-width="2"/>
+  <text x="600" y="1385" text-anchor="middle" fill="#00ff88" font-size="14" font-weight="bold">✓ SUCCESS: Return ToolCallResult</text>
+  <text x="600" y="1405" text-anchor="middle" fill="#00ff88" font-size="11">(output + findings + execution_time)</text>
+</svg>

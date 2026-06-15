@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1400 900" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <defs>
+    <style>
+      .threat-box { fill: #1a1f3a; stroke: #ff3333; stroke-width: 2; }
+      .threat-title { font-size: 14px; font-weight: bold; fill: #ff3333; }
+      .threat-text { font-size: 11px; fill: #a0b0d4; }
+      .mitigation-box { fill: #1a1f3a; stroke: #00ff88; stroke-width: 2; }
+      .mitigation-text { font-size: 11px; fill: #00ff88; }
+      .center-text { font-size: 16px; font-weight: bold; fill: #00d9ff; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="900" fill="#0a0e27"/>
+
+  <!-- Title -->
+  <text x="700" y="40" font-size="28" font-weight="bold" fill="#00d9ff" text-anchor="middle">
+    ClawSafe Threat Model: 10 Attack Classes
+  </text>
+
+  <!-- Central Agent -->
+  <circle cx="700" cy="450" r="80" fill="#00d9ff" opacity="0.1" stroke="#00d9ff" stroke-width="3"/>
+  <text x="700" y="450" font-size="14" font-weight="bold" fill="#00d9ff" text-anchor="middle">Autonomous</text>
+  <text x="700" y="470" font-size="14" font-weight="bold" fill="#00d9ff" text-anchor="middle">Agent</text>
+
+  <!-- Top row: Prompt Injection, Memory Poisoning, Privilege Escalation -->
+  <!-- Prompt Injection (top-left) -->
+  <rect x="50" y="80" width="280" height="140" rx="5" class="threat-box"/>
+  <text x="190" y="105" text-anchor="middle" class="threat-title">Prompt Injection</text>
+  <text x="70" y="125" class="threat-text">Attack: User input tricks</text>
+  <text x="70" y="140" class="threat-text">agent into unauthorized</text>
+  <text x="70" y="155" class="threat-text">tool calls</text>
+  <rect x="50" y="165" width="280" height="45" rx="3" class="mitigation-box"/>
+  <text x="70" y="185" class="mitigation-text">✓ Pre-execution validation</text>
+  <text x="70" y="200" class="mitigation-text">✓ Pattern detection</text>
+
+  <!-- Memory Poisoning (top-center) -->
+  <rect x="420" y="80" width="280" height="140" rx="5" class="threat-box"/>
+  <text x="560" y="105" text-anchor="middle" class="threat-title">Memory Poisoning</text>
+  <text x="440" y="125" class="threat-text">Attack: Adversarial data</text>
+  <text x="440" y="140" class="threat-text">corrupts agent knowledge</text>
+  <text x="440" y="155" class="threat-text">and decision-making</text>
+  <rect x="420" y="165" width="280" height="45" rx="3" class="mitigation-box"/>
+  <text x="440" y="185" class="mitigation-text">✓ Contradiction detection</text>
+  <text x="440" y="200" class="mitigation-text">✓ Integrity hashing</text>
+
+  <!-- Privilege Escalation (top-right) -->
+  <rect x="790" y="80" width="280" height="140" rx="5" class="threat-box"/>
+  <text x="930" y="105" text-anchor="middle" class="threat-title">Privilege Escalation</text>
+  <text x="810" y="125" class="threat-text">Attack: Unauthorized</text>
+  <text x="810" y="140" class="threat-text">access to high-risk tools</text>
+  <text x="810" y="155" class="threat-text">by low-privilege user</text>
+  <rect x="790" y="165" width="280" height="45" rx="3" class="mitigation-box"/>
+  <text x="810" y="185" class="mitigation-text">✓ Fine-grained RBAC</text>
+  <text x="810" y="200" class="mitigation-text">✓ Risk scoring</text>
+
+  <!-- Command Injection (middle-left) -->
+  <rect x="50" y="310" width="280" height="140" rx="5" class="threat-box"/>
+  <text x="190" y="335" text-anchor="middle" class="threat-title">Command Injection</text>
+  <text x="70" y="355" class="threat-text">Attack: Shell</text>
+  <text x="70" y="370" class="threat-text">metacharacters in</text>
+  <text x="70" y="385" class="threat-text">parameters execute code</text>
+  <rect x="50" y="395" width="280" height="45" rx="3" class="mitigation-box"/>
+  <text x="70" y="415" class="mitigation-text">✓ Regex pattern blocking</text>
+  <text x="70" y="430" class="mitigation-text">✓ Character whitelist</text>
+
+  <!-- SQL Injection (middle-right) -->
+  <rect x="1070" y="310" width="280" height="140" rx="5" class="threat-box"/>
+  <text x="1210" y="335" text-anchor="middle" class="threat-title">SQL Injection</text>
+  <text x="1090" y="355" class="threat-text">Attack: SQL keywords</text>
+  <text x="1090" y="370" class="threat-text">in parameters execute</text>
+  <text x="1090" y="385" class="threat-text">arbitrary database queries</text>
+  <rect x="1070" y="395" width="280" height="45" rx="3" class="mitigation-box"/>
+  <text x="1090" y="415" class="mitigation-text">✓ SQL pattern detection</text>
+  <text x="1090" y="430" class="mitigation-text">✓ Parameterized queries</text>
+
+  <!-- Path Traversal (bottom-left) -->
+  <rect x="50" y="540" width="280" height="140" rx="5" class="threat-box"/>
+  <text x="190" y="565" text-anchor="middle" class="threat-title">Path Traversal</text>
+  <text x="70" y="585" class="threat-text">Attack: Directory escapes</text>
+  <text x="70" y="600" class="threat-text">(../) access forbidden</text>
+  <text x="70" y="615" class="threat-text">files and directories</text>
+  <rect x="50" y="625" width="280" height="45" rx="3" class="mitigation-box"/>
+  <text x="70" y="645" class="mitigation-text">✓ Whitelist validation</text>
+  <text x="70" y="660" class="mitigation-text">✓ allowed_dirs enforcement</text>
+
+  <!-- Credential Leakage (bottom-center) -->
+  <rect x="420" y="540" width="280" height="140" rx="5" class="threat-box"/>
+  <text x="560" y="565" text-anchor="middle" class="threat-title">Credential Leakage</text>
+  <text x="440" y="585" class="threat-text">Attack: API keys exposed</text>
+  <text x="440" y="600" class="threat-text">in requests or responses</text>
+  <text x="440" y="615" class="threat-text">leading to account takeover</text>
+  <rect x="420" y="625" width="280" height="45" rx="3" class="mitigation-box"/>
+  <text x="440" y="645" class="mitigation-text">✓ Pattern matching (regex)</text>
+  <text x="440" y="660" class="mitigation-text">✓ Output redaction</text>
+
+  <!-- Behavioral Drift (bottom-right) -->
+  <rect x="790" y="540" width="280" height="140" rx="5" class="threat-box"/>
+  <text x="930" y="565" text-anchor="middle" class="threat-title">Behavioral Drift</text>
+  <text x="810" y="585" class="threat-text">Attack: Agent decision</text>
+  <text x="810" y="600" class="threat-text">patterns change</text>
+  <text x="810" y="615" class="threat-text">unexpectedly (compromise)</text>
+  <rect x="790" y="625" width="280" height="45" rx="3" class="mitigation-box"/>
+  <text x="810" y="645" class="mitigation-text">✓ Baseline profiling</text>
+  <text x="810" y="660" class="mitigation-text">✓ Anomaly detection</text>
+
+  <!-- Additional info at bottom -->
+  <rect x="100" y="760" width="1200" height="110" rx="5" fill="#1a1f3a" stroke="#00d9ff" stroke-width="2" opacity="0.8"/>
+  <text x="700" y="785" text-anchor="middle" font-size="14" font-weight="bold" fill="#00d9ff">
+    Additional Threats Protected:
+  </text>
+  <text x="120" y="810" font-size="12" fill="#a0b0d4">
+    • Rate-Based DOS: Tool call flooding → Per-tool, per-user rate limiting
+  </text>
+  <text x="120" y="830" font-size="12" fill="#a0b0d4">
+    • Access Control Bypass: Unauthorized memory/tool access → RBAC + per-memory permissions
+  </text>
+  <text x="120" y="850" font-size="12" fill="#a0b0d4">
+    • Supply Chain: Malicious tool integration → Tool registry whitelisting + approval workflows
+  </text>
+</svg>

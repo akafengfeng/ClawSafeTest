@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1200 1000" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <defs>
+    <style>
+      .cycle-box { fill: #1a1f3a; stroke: #00d9ff; stroke-width: 2; }
+      .cycle-title { font-size: 12px; font-weight: bold; fill: #00d9ff; }
+      .cycle-text { font-size: 10px; fill: #a0b0d4; }
+      .arrow { stroke: #00d9ff; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .feedback-arrow { stroke: #00ff88; stroke-width: 2; fill: none; marker-end: url(#arrowhead-fb); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#00d9ff" />
+    </marker>
+    <marker id="arrowhead-fb" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#00ff88" />
+    </marker>
+  </defs>
+
+  <rect width="1200" height="1000" fill="#0a0e27"/>
+
+  <!-- Title -->
+  <text x="600" y="40" text-anchor="middle" style="font-size: 24px; font-weight: bold; fill: #00d9ff;">
+    ClawSafe Agent Learning Loop: Continuous Improvement
+  </text>
+
+  <!-- Central cycle -->
+  <circle cx="600" cy="450" r="280" fill="none" stroke="#00d9ff" stroke-width="2" stroke-dasharray="5,5" opacity="0.3"/>
+
+  <!-- Step 1: User Interaction -->
+  <g>
+    <rect x="80" y="350" width="200" height="90" rx="5" class="cycle-box"/>
+    <text x="180" y="375" text-anchor="middle" class="cycle-title">1. User Interaction</text>
+    <text x="100" y="395" class="cycle-text">• User sends input</text>
+    <text x="100" y="408" class="cycle-text">• Agent processes</text>
+    <text x="100" y="421" class="cycle-text">• Record interaction</text>
+  </g>
+  <path d="M 280 395 L 340 395" class="arrow"/>
+
+  <!-- Step 2: Tool Execution with Learning -->
+  <g>
+    <rect x="340" y="300" width="220" height="140" rx="5" class="cycle-box"/>
+    <text x="450" y="325" text-anchor="middle" class="cycle-title">2. Execute & Learn</text>
+    <text x="360" y="345" class="cycle-text">✓ Call tool</text>
+    <text x="360" y="358" class="cycle-text">✓ Capture result</text>
+    <text x="360" y="371" class="cycle-text">✓ Extract facts</text>
+    <text x="360" y="384" class="cycle-text">✓ Validate facts</text>
+    <text x="360" y="397" class="cycle-text">✓ Store in memory</text>
+    <text x="360" y="410" class="cycle-text">  (confidence: 0.8)</text>
+    <text x="360" y="423" class="cycle-text">✓ Update profiles</text>
+  </g>
+  <path d="M 560 370 L 620 370" class="arrow"/>
+
+  <!-- Step 3: Memory Growth -->
+  <g>
+    <rect x="620" y="300" width="200" height="140" rx="5" class="cycle-box"/>
+    <text x="720" y="325" text-anchor="middle" class="cycle-title">3. Memory Growth</text>
+    <text x="640" y="345" class="cycle-text">Agent accumulates:</text>
+    <text x="640" y="358" class="cycle-text">• User preferences</text>
+    <text x="640" y="371" class="cycle-text">• Tool success rates</text>
+    <text x="640" y="384" class="cycle-text">• Interaction patterns</text>
+    <text x="640" y="397" class="cycle-text">• Learning gaps</text>
+  </g>
+  <path d="M 820 370 L 880 370" class="arrow"/>
+
+  <!-- Step 4: Agent Adaptation -->
+  <g>
+    <rect x="880" y="300" width="200" height="140" rx="5" class="cycle-box"/>
+    <text x="980" y="325" text-anchor="middle" class="cycle-title">4. Adaptation</text>
+    <text x="900" y="345" class="cycle-text">Agent becomes smarter:</text>
+    <text x="900" y="358" class="cycle-text">• Customized responses</text>
+    <text x="900" y="371" class="cycle-text">• Optimized tools</text>
+    <text x="900" y="384" class="cycle-text">• Better decisions</text>
+    <text x="900" y="397" class="cycle-text">• Fewer errors</text>
+  </g>
+  <path d="M 980 440 L 980 500" class="arrow"/>
+
+  <!-- Step 5: User Feedback -->
+  <g>
+    <rect x="880" y="500" width="200" height="110" rx="5" class="cycle-box"/>
+    <text x="980" y="525" text-anchor="middle" class="cycle-title">5. User Feedback</text>
+    <text x="900" y="545" class="cycle-text">✓ User rates response</text>
+    <text x="900" y="558" class="cycle-text">✓ Provides correction</text>
+    <text x="900" y="571" class="cycle-text">✓ Confidence improves</text>
+    <text x="900" y="584" class="cycle-text">  (0.8 → 0.9)</text>
+  </g>
+  <path d="M 880 555 L 820 555" class="feedback-arrow"/>
+
+  <!-- Step 6: Learning Loop -->
+  <g>
+    <rect x="620" y="500" width="200" height="110" rx="5" class="cycle-box"/>
+    <text x="720" y="525" text-anchor="middle" class="cycle-title">6. Continuous Loop</text>
+    <text x="640" y="545" class="cycle-text">✓ Each interaction</text>
+    <text x="640" y="558" class="cycle-text">  improves memory</text>
+    <text x="640" y="571" class="cycle-text">✓ Confidence increases</text>
+    <text x="640" y="584" class="cycle-text">✓ Agent evolves</text>
+  </g>
+  <path d="M 620 555 L 560 555" class="feedback-arrow"/>
+
+  <!-- Back to start -->
+  <path d="M 480 555 L 180 555 L 180 440" class="feedback-arrow"/>
+
+  <!-- Side panel: Metrics -->
+  <rect x="50" y="680" width="450" height="240" rx="5" fill="#1a1f3a" stroke="#00d9ff" stroke-width="2" opacity="0.9"/>
+
+  <text x="275" y="710" text-anchor="middle" style="font-size: 13px; font-weight: bold; fill: #00d9ff;">
+    Memory Metrics Tracked
+  </text>
+
+  <text x="70" y="740" style="font-size: 11px; fill: #a0b0d4; font-weight: bold;">Memory Profile:</text>
+  <text x="80" y="758" style="font-size: 10px; fill: #a0b0d4;">✓ Total interactions: 127</text>
+  <text x="80" y="773" style="font-size: 10px; fill: #a0b0d4;">✓ Total memories: 42</text>
+  <text x="80" y="788" style="font-size: 10px; fill: #a0b0d4;">✓ Average confidence: 0.82</text>
+
+  <text x="70" y="815" style="font-size: 11px; fill: #a0b0d4; font-weight: bold;">Tool Insights:</text>
+  <text x="80" y="833" style="font-size: 10px; fill: #a0b0d4;">✓ search: 95% success, 12 facts learned</text>
+  <text x="80" y="848" style="font-size: 10px; fill: #a0b0d4;">✓ read_file: 88% success, 8 facts</text>
+
+  <text x="70" y="875" style="font-size: 11px; fill: #a0b0d4; font-weight: bold;">Learning Gaps:</text>
+  <text x="80" y="893" style="font-size: 10px; fill: #a0b0d4;">⚠ Tool X has low success (67%)</text>
+  <text x="80" y="908" style="font-size: 10px; fill: #a0b0d4;">⚠ 5 low-confidence memories</text>
+
+  <!-- Side panel: Security -->
+  <rect x="570" y="680" width="450" height="240" rx="5" fill="#1a1f3a" stroke="#00ff88" stroke-width="2" opacity="0.9"/>
+
+  <text x="795" y="710" text-anchor="middle" style="font-size: 13px; font-weight: bold; fill: #00ff88;">
+    Learning Security Guarantees
+  </text>
+
+  <text x="590" y="740" style="font-size: 11px; fill: #a0b0d4; font-weight: bold;">Integrity Verification:</text>
+  <text x="600" y="758" style="font-size: 10px; fill: #a0b0d4;">✓ SHA-256 hashing (tampering detected)</text>
+  <text x="600" y="773" style="font-size: 10px; fill: #a0b0d4;">✓ Contradiction detection (conflicts caught)</text>
+  <text x="600" y="788" style="font-size: 10px; fill: #a0b0d4;">✓ Confidence validation (range 0.0-1.0)</text>
+
+  <text x="590" y="815" style="font-size: 11px; fill: #a0b0d4; font-weight: bold;">Access Control:</text>
+  <text x="600" y="833" style="font-size: 10px; fill: #a0b0d4;">✓ Per-user isolation (alice ≠ bob)</text>
+  <text x="600" y="848" style="font-size: 10px; fill: #a0b0d4;">✓ RBAC enforcement (authorized access only)</text>
+
+  <text x="590" y="875" style="font-size: 11px; fill: #a0b0d4; font-weight: bold;">Audit & Compliance:</text>
+  <text x="600" y="893" style="font-size: 10px; fill: #a0b0d4;">✓ Complete audit trail (every operation logged)</text>
+  <text x="600" y="908" style="font-size: 10px; fill: #a0b0d4;">✓ Non-repudiation (user attribution)</text>
+
+  <!-- Key insight box -->
+  <rect x="100" y="950" width="1000" height="30" rx="5" fill="#00ff88" opacity="0.15" stroke="#00ff88" stroke-width="2"/>
+  <text x="600" y="970" text-anchor="middle" style="font-size: 12px; fill: #00ff88; font-weight: bold;">
+    Key Insight: Agents that learn from interactions become smarter AND stay secure (memory integrity + access control)
+  </text>
+</svg>
