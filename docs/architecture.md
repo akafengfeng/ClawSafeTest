@@ -195,6 +195,8 @@ findings = scan_output(model_response)
 
 Lite changes the ergonomics, never the security: every path routes through the same `AgentGuard` pipeline.
 
+ClawSafe ships as **one package with two tiers**, selected purely by import. A plain `pip install clawsafe-agent` is the zero-dependency lite tier; the full framework (`from clawsafe.full import AgentGuard, ...` or any direct name import) loads lazily on first access, and the LLM provider SDKs sit behind the `[full]` extra. Importing the lite tier never loads providers, adapters, or any third-party SDK.
+
 ## Security Decision Flow
 
 ![Animated dataflow through the ClawSafe pipeline: allowed calls reach a sanitized result, malicious calls are diverted to a blocked state, and both are audited](assets/animations/dataflow-animation.svg)

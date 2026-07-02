@@ -45,6 +45,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `require_explicit_approval` is now honored: approval-flagged calls block when the
   config demands explicit approval.
 
+### Changed (packaging)
+- **One package, two tiers**: the base install is now the zero-dependency lite
+  tier (`guarded`, `protect_agent`, `scan_messages`, `scan_output`). The full
+  framework resolves lazily on attribute access and is re-exported by the new
+  `clawsafe.full` namespace. LLM provider SDKs moved behind the `[full]` /
+  `[providers]` extras — `anthropic` is no longer a hard dependency. Existing
+  imports (`from clawsafe import AgentGuard`) keep working unchanged.
+- Provider classes now raise a helpful ImportError naming the extra to install
+  when their SDK is missing.
+
 ### Added
 - **`clawsafe.lite` — one-line integration layer**: `protect_agent(agent, tools=...)`
   auto-detects the framework (OpenClaw/Hermes style) and applies the hardened

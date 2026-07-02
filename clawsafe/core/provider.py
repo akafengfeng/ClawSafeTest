@@ -114,7 +114,13 @@ class AnthropicProvider(LLMProvider):
     def _init_client(self, **kwargs: Any) -> None:
         import os
 
-        import anthropic
+        try:
+            import anthropic
+        except ImportError as e:
+            raise ImportError(
+                "AnthropicProvider needs the 'anthropic' SDK. "
+                "Install the full tier: pip install \"clawsafe-agent[full]\""
+            ) from e
 
         api_key = self.api_key or os.environ.get("ANTHROPIC_API_KEY")
         self._client = anthropic.Anthropic(api_key=api_key)
@@ -168,7 +174,13 @@ class OpenAIProvider(LLMProvider):
     def _init_client(self, **kwargs: Any) -> None:
         import os
 
-        from openai import OpenAI
+        try:
+            from openai import OpenAI
+        except ImportError as e:
+            raise ImportError(
+                "OpenAIProvider needs the 'openai' SDK. "
+                "Install it: pip install openai"
+            ) from e
 
         api_key = self.api_key or os.environ.get("OPENAI_API_KEY")
         self._client = OpenAI(api_key=api_key)
@@ -233,7 +245,13 @@ class TogetherAIProvider(LLMProvider):
     def _init_client(self, **kwargs: Any) -> None:
         import os
 
-        from together import Together
+        try:
+            from together import Together
+        except ImportError as e:
+            raise ImportError(
+                "TogetherAIProvider needs the 'together' SDK. "
+                "Install it: pip install together"
+            ) from e
 
         api_key = self.api_key or os.environ.get("TOGETHER_API_KEY")
         self._client = Together(api_key=api_key)

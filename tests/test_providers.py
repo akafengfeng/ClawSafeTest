@@ -10,6 +10,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+pytest.importorskip("anthropic", reason="provider tests need the [full] extra")
+
 from clawsafe.core.provider import (
     AnthropicProvider,
     LLMResponse,

@@ -22,7 +22,7 @@ layout: default
         <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">Pre, post, memory, integration &amp; behavioral</div>
       </div>
       <div>
-        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: calc(var(--spacing-unit) * 1);">175</div>
+        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: calc(var(--spacing-unit) * 1);">216</div>
         <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Tests Passing</div>
         <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">CI on Python 3.11 &amp; 3.12</div>
       </div>
@@ -353,7 +353,7 @@ layout: default
       <h3 style="color: var(--primary); margin-top: 0; border: none; padding-bottom: 0;">Test Coverage</h3>
       <div class="stats-grid" style="margin-top: calc(var(--spacing-unit) * 4);">
         <div>
-          <div style="font-size: 2rem; font-weight: 700; color: var(--success);">175</div>
+          <div style="font-size: 2rem; font-weight: 700; color: var(--success);">216</div>
           <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: calc(var(--spacing-unit) * 1);">Tests Passing</div>
         </div>
         <div>
@@ -378,8 +378,11 @@ layout: default
     <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6);">Quick Start</h2>
 
     <h3 style="color: var(--primary);">Installation</h3>
-    <pre><code>pip install clawsafe-agent
-export ANTHROPIC_API_KEY=sk-ant-...</code></pre>
+    <pre><code># Lite tier — zero dependencies, the instant taste
+pip install clawsafe-agent
+
+# Full tier — adds LLM provider SDKs
+pip install "clawsafe-agent[full]"</code></pre>
 
     <h3 style="color: var(--primary);">One-Line Integration</h3>
     <pre><code>from clawsafe import protect_agent, guarded

@@ -9,7 +9,7 @@ for OpenClaw, Hermes Agent, LangChain, CrewAI, and custom frameworks.
 
 ![Version](https://img.shields.io/badge/version-0.4.0-blue?style=flat-square)
 ![CI](https://github.com/akafengfeng/ClawSafeTest/actions/workflows/ci.yml/badge.svg)
-![Tests](https://img.shields.io/badge/tests-175%20passing-brightgreen?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-216%20passing-brightgreen?style=flat-square)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue?style=flat-square)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green?style=flat-square)
 
@@ -35,11 +35,25 @@ Autonomous agents call tools, store memories, and act on untrusted input — eve
 
 Detection is **deterministic and rule-based**: the same input always produces the same verdict, with no ML inference in the hot path.
 
+## 📦 One Package, Two Tiers
+
+ClawSafe ships as a single package; you select what you load purely by import. The base install has **zero dependencies**.
+
+| | 🪶 Lite — the taste | 🏗️ Full — the framework |
+|---|---|---|
+| **Install** | `pip install clawsafe-agent` | `pip install "clawsafe-agent[full]"` |
+| **Import** | `from clawsafe import guarded, protect_agent, scan_messages` | `from clawsafe.full import AgentGuard, MemoryGuard, ...` |
+| **What you get** | A decorator for single functions, an auto-detecting agent wrapper, standalone input/output scanners | The eight-phase orchestrator, memory security + learning loop, framework adapters, hardened presets, LLM providers |
+| **When** | Demos, quick hardening, frameworks without adapters | Production deployments, audit requirements, memory-aware agents |
+
+Nothing from the full tier loads until you touch it — `from clawsafe import AgentGuard` lazily pulls in exactly that module and no more. The LLM SDKs (`anthropic`, etc.) are only needed for the provider classes, behind the `[full]` extra. And lite is not a different engine: it routes through the same pipeline the full tier uses.
+
 ## ✨ Highlights
 
 | | |
 |---|---|
 | **Fail-closed by design** | Unauthorized, unregistered, or policy-violating calls are blocked — severity flags tune warnings, never bypass authorization |
+| **Two tiers, one package** | Zero-dependency lite tier on plain install; the full framework loads lazily, only when you import it |
 | **One-line integration** | `protect_agent(agent, tools=...)` auto-detects the framework; `@guarded` protects a single function with no framework at all |
 | **One-call hardening** | `secure_openclaw_adapter()` / `secure_hermes_adapter()` give an agent strict mode + a pre-applied denylist of 13 dangerous tools |
 | **Path containment** | File tools are confined to `allowed_dirs`; traversal patterns, sibling-prefix tricks, and relative paths are rejected |
@@ -52,7 +66,8 @@ Detection is **deterministic and rule-based**: the same input always produces th
 ### Install
 
 ```bash
-pip install clawsafe-agent
+pip install clawsafe-agent            # lite tier — zero dependencies
+pip install "clawsafe-agent[full]"    # + LLM provider SDKs for the full tier
 ```
 
 ### One line, whole agent
@@ -290,7 +305,7 @@ git clone https://github.com/akafengfeng/ClawSafeTest.git
 cd ClawSafeTest
 pip install -e ".[dev]"
 
-python -m pytest tests/     # 175 tests
+python -m pytest tests/     # 216 tests
 ruff check clawsafe/ tests/ # lint
 ```
 

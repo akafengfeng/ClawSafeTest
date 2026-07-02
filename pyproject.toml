@@ -35,12 +35,19 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
-dependencies = [
-    "anthropic>=0.30.0",
-]
+# The base install is the zero-dependency lite tier. LLM provider SDKs
+# live behind the "full" extra so users select what they load.
+dependencies = []
 
 [project.optional-dependencies]
+full = [
+    "anthropic>=0.30.0",
+]
+providers = [
+    "anthropic>=0.30.0",
+]
 dev = [
+    "anthropic>=0.30.0",
     "pytest>=8",
     "pytest-cov>=6",
     "black>=24",

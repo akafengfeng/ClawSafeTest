@@ -5,7 +5,8 @@ Protect your AI agents from tool execution attacks in 5 minutes.
 ## Installation
 
 ```bash
-pip install clawsafe-agent
+pip install clawsafe-agent            # lite tier, zero dependencies
+pip install "clawsafe-agent[full]"    # + LLM provider SDKs
 ```
 
 ## Quick Start: Protect Your Agent
