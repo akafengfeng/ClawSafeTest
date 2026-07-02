@@ -10,7 +10,7 @@ Quick 5-minute guide to install and use ClawSafe.
 ## Installation
 
 ```bash
-pip install clawsafe
+pip install clawsafe-agent
 ```
 
 Set your LLM provider's API key:

@@ -6,13 +6,13 @@ Each test verifies that the provider correctly normalizes responses to LLMRespon
 
 from __future__ import annotations
 
-import sys
-from unittest.mock import MagicMock, patch, Mock
+from unittest.mock import MagicMock, patch
+
 import pytest
 
 from clawsafe.core.provider import (
-    LLMResponse,
     AnthropicProvider,
+    LLMResponse,
     OpenAIProvider,
     get_provider,
 )

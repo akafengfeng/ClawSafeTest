@@ -4,7 +4,6 @@ from clawsafe.skills.base import Severity, SkillPhase
 from clawsafe.skills.builtin import InputGuardSkill, OutputGuardSkill, PromptInjectionSkill
 from clawsafe.skills.registry import SkillRegistry
 
-
 # ── PromptInjectionSkill ──────────────────────────────────────────────────────
 
 def test_injection_clean_passes():

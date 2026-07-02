@@ -1,9 +1,10 @@
 """Base adapter for agent framework integrations."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
-from clawsafe import AgentGuard, AgentGuardConfig, AuthContext, ToolRegistry
+from clawsafe import AgentGuard, AgentGuardConfig, AuthContext
 
 
 class BaseAgentAdapter(ABC):
@@ -14,7 +15,7 @@ class BaseAgentAdapter(ABC):
     specific tool call interception and integration.
     """
 
-    def __init__(self, guard: Optional[AgentGuard] = None, config: Optional[AgentGuardConfig] = None):
+    def __init__(self, guard: AgentGuard | None = None, config: AgentGuardConfig | None = None):
         """Initialize adapter.
 
         Args:
@@ -28,14 +29,17 @@ class BaseAgentAdapter(ABC):
             self.guard = AgentGuard(config)
 
         self.tool_registry = self.guard.config.tool_registry
+        # Per-instance tool table — never shared across adapters, so one
+        # agent's registrations cannot bleed into another's.
+        self.tools: dict[str, Callable] = {}
 
     def register_tool(
         self,
         tool_name: str,
         tool_func: Callable,
-        params: Optional[dict] = None,
+        params: dict | None = None,
         risk_level: str = "medium",
-        allowed_dirs: Optional[list] = None,
+        allowed_dirs: list | None = None,
     ) -> None:
         """Register a tool with security policy.
 
@@ -114,13 +118,10 @@ class BaseAgentAdapter(ABC):
         """
         pass
 
-    # Framework-specific implementations override these
-    tools: dict = {}
-
-    def get_audit_log(self, tool_name: Optional[str] = None) -> list[dict]:
+    def get_audit_log(self, tool_name: str | None = None) -> list[dict]:
         """Get audit log of tool calls and security findings."""
         return self.guard.query_tool_calls(tool_name=tool_name)
 
-    def get_security_findings(self, tool_name: Optional[str] = None) -> list[dict]:
+    def get_security_findings(self, tool_name: str | None = None) -> list[dict]:
         """Get security findings."""
         return self.guard.query_findings(tool_name=tool_name)

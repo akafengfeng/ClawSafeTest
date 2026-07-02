@@ -178,7 +178,7 @@ class TestMemoryGuard:
 
     def test_memory_expiration(self, memory_guard):
         """Test memory expiration."""
-        from datetime import datetime, timedelta
+        from datetime import datetime
 
         memory = AgentMemory(
             id="mem1",
@@ -282,7 +282,7 @@ class TestAgentGuardMemorySecurity:
         assert success
 
         # Get memory ID from guard
-        memory_id = list(agent_guard.memory_guard.memory_store.keys())[0]
+        memory_id = next(iter(agent_guard.memory_guard.memory_store.keys()))
 
         retrieved = agent_guard.retrieve_agent_memory(memory_id, "user1")
         assert retrieved is not None
@@ -362,7 +362,7 @@ class TestAgentGuardMemorySecurity:
         )
 
         # Get memory ID
-        memory_id = list(agent_guard.memory_guard.memory_store.keys())[0]
+        memory_id = next(iter(agent_guard.memory_guard.memory_store.keys()))
 
         # Store contradictory memory
         agent_guard.store_agent_memory(

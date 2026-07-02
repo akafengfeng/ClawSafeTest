@@ -1,4 +1,4 @@
-from .store import MemoryStore
 from .entry import MemoryEntry, MemoryType
+from .store import MemoryStore
 
-__all__ = ["MemoryStore", "MemoryEntry", "MemoryType"]
+__all__ = ["MemoryEntry", "MemoryStore", "MemoryType"]

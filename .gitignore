@@ -1,8 +1,22 @@
+# Python
 __pycache__/
 *.py[cod]
 *.egg-info/
+.eggs/
+
+# Build & distribution
 dist/
 build/
-.eggs/
+
+# Test & coverage artifacts
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Local databases & secrets
 *.db
 .env
+
+# Editor / tool state
+.claude/settings.local.json
+.DS_Store

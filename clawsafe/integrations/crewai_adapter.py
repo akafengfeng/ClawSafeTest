@@ -1,6 +1,6 @@
 """CrewAI integration for ClawSafe agent security."""
 
-from typing import Any, Optional
+from typing import Any
 
 from clawsafe import AgentGuard, AgentGuardConfig
 from clawsafe.integrations.base_adapter import BaseAgentAdapter
@@ -26,7 +26,7 @@ class CrewAIAdapter(BaseAgentAdapter):
         >>> protected_crew = adapter.wrap_agent(crew)
     """
 
-    def __init__(self, guard: Optional[AgentGuard] = None, config: Optional[AgentGuardConfig] = None):
+    def __init__(self, guard: AgentGuard | None = None, config: AgentGuardConfig | None = None):
         """Initialize CrewAI adapter."""
         super().__init__(guard, config)
         self.tools = {}
@@ -49,7 +49,7 @@ class CrewAIAdapter(BaseAgentAdapter):
         # Protect crew-level execution
         original_kickoff = crew.kickoff if hasattr(crew, "kickoff") else None
 
-        def protected_kickoff(inputs: dict = None, **kwargs) -> str:
+        def protected_kickoff(inputs: dict | None = None, **kwargs) -> str:
             """Protected crew kickoff."""
             # Extract context
             user_id = kwargs.get("user_id", "crewai-user")
@@ -80,7 +80,6 @@ class CrewAIAdapter(BaseAgentAdapter):
         """
         # Protect agent's tool execution
         if hasattr(agent, "execute_tool"):
-            original_execute_tool = agent.execute_tool
 
             def protected_execute_tool(tool_name: str, tool_input: str) -> str:
                 """Protected tool execution."""
@@ -93,7 +92,7 @@ class CrewAIAdapter(BaseAgentAdapter):
                     import json
 
                     params = json.loads(tool_input) if isinstance(tool_input, str) else tool_input
-                except:
+                except (ValueError, TypeError):
                     params = {"input": tool_input}
 
                 success, output = self.protect_tool_call(

@@ -262,7 +262,7 @@ layout: default
     <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6); border: none; padding-bottom: 0;">Quick Start</h2>
 
     <h3 style="color: var(--primary);">Installation</h3>
-    <pre><code>pip install clawsafe
+    <pre><code>pip install clawsafe-agent
 export ANTHROPIC_API_KEY=sk-ant-...</code></pre>
 
     <h3 style="color: var(--primary);">Basic Protection</h3>

@@ -1,7 +1,6 @@
 """Configuration for AgentGuard security framework."""
 
-from dataclasses import dataclass, field
-from typing import Optional, Set
+from dataclasses import dataclass
 
 from clawsafe.core.auth import AuthorizationMode
 from clawsafe.core.tools import ToolRegistry
@@ -35,7 +34,7 @@ class AgentGuardConfig:
         enable_rate_limiting: Enable per-tool and global rate limits.
     """
 
-    tool_registry: Optional[ToolRegistry] = None
+    tool_registry: ToolRegistry | None = None
     authorization_mode: AuthorizationMode = AuthorizationMode.STANDARD
     block_on_high_severity: bool = True
     block_on_medium_severity: bool = False

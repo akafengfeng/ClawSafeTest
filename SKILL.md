@@ -49,19 +49,19 @@ Compatible with the [agentskills.io](https://agentskills.io) open standard.
 ## Installation
 
 ```bash
-pip install clawsafe
+pip install clawsafe-agent
 ```
 
 **Hermes Agent:**
 ```bash
-pip install clawsafe
+pip install clawsafe-agent
 # plugin auto-discovered via entry point hermes.plugins = clawsafe.integrations.hermes
 hermes --plugins clawsafe
 ```
 
 **OpenClaw:**
 ```bash
-pip install clawsafe
+pip install clawsafe-agent
 python -c "from clawsafe.integrations.openclaw import install; install()"
 # installs SKILL.md to ~/.openclaw/workspace/skills/clawsafe/SKILL.md
 ```

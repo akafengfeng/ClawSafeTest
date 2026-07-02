@@ -10,7 +10,6 @@ from clawsafe import (
     SecurityBlockedError,
     ToolRegistry,
 )
-from clawsafe.core.validator import FindingSeverity
 
 
 @pytest.fixture
@@ -325,16 +324,16 @@ class TestAuditLogging:
         # Try multiple tools
         try:
             guard.protect_tool_call("search", {"query": "test"}, auth_context, lambda t, p: "ok")
-        except:
+        except Exception:
             pass
 
         try:
             guard.protect_tool_call("shell_exec", {"command": "test"}, auth_context, lambda t, p: "ok")
-        except:
+        except Exception:
             pass
 
         # Query by tool
-        search_findings = guard.query_findings(tool_name="search")
+        guard.query_findings(tool_name="search")
         shell_findings = guard.query_findings(tool_name="shell_exec")
 
         # shell_exec should have findings (blocked tool)

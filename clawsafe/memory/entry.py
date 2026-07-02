@@ -4,7 +4,7 @@ import time
 import uuid
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 
 class MemoryType(str, Enum):
@@ -22,9 +22,9 @@ class MemoryEntry:
     content: dict[str, Any]
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     timestamp: float = field(default_factory=time.time)
-    session_id: Optional[str] = None
+    session_id: str | None = None
     tags: list[str] = field(default_factory=list)
-    ttl: Optional[float] = None   # seconds; None = no expiry
+    ttl: float | None = None   # seconds; None = no expiry
 
     def is_expired(self) -> bool:
         if self.ttl is None:

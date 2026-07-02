@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 
 class SkillPhase(str, Enum):
@@ -37,7 +37,7 @@ class SkillResult:
     tokens_used: int = 0
 
     @property
-    def highest_severity(self) -> Optional[Severity]:
+    def highest_severity(self) -> Severity | None:
         if not self.findings:
             return None
         order = {Severity.HIGH: 2, Severity.MEDIUM: 1, Severity.LOW: 0}

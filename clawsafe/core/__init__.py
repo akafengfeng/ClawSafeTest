@@ -7,20 +7,20 @@ from .tools import ToolPolicy, ToolRegistry
 from .validator import InputValidator, OutputValidator, ValidationFinding
 
 __all__ = [
+    "ActionAuthorizer",
     # Agent security (new)
     "AgentGuard",
     "AgentGuardConfig",
-    "ToolRegistry",
-    "ToolPolicy",
-    "ActionAuthorizer",
     "AuthContext",
     "AuthorizationMode",
-    "InputValidator",
-    "OutputValidator",
-    "ValidationFinding",
-    "SecurityBlockedError",
-    "ToolCallResult",
     # LLM security (legacy)
     "ClawSafeAgent",
     "ClawSafeConfig",
+    "InputValidator",
+    "OutputValidator",
+    "SecurityBlockedError",
+    "ToolCallResult",
+    "ToolPolicy",
+    "ToolRegistry",
+    "ValidationFinding",
 ]

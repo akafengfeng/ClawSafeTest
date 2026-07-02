@@ -1,7 +1,7 @@
 """Tool registry and policies for agent security."""
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Optional, Set
+from typing import Any
 
 
 @dataclass
@@ -10,15 +10,15 @@ class ToolPolicy:
 
     tool_name: str
     enabled: bool = True
-    allowed_users: Optional[Set[str]] = None
-    allowed_roles: Optional[Set[str]] = None
-    param_schema: Dict[str, Any] = field(default_factory=dict)
+    allowed_users: set[str] | None = None
+    allowed_roles: set[str] | None = None
+    param_schema: dict[str, Any] = field(default_factory=dict)
     max_calls_per_minute: int = 60
     max_calls_per_hour: int = 500
     max_execution_time_seconds: float = 30.0
     max_memory_mb: int = 512
-    allowed_dirs: Optional[Set[str]] = None
-    blocked_patterns: Optional[Set[str]] = None
+    allowed_dirs: set[str] | None = None
+    blocked_patterns: set[str] | None = None
     requires_approval: bool = False
     risk_level: str = "medium"
 
@@ -27,15 +27,15 @@ class ToolRegistry:
     """Registry of allowed tools with security policies."""
 
     def __init__(self):
-        self._tools: Dict[str, ToolPolicy] = {}
-        self._allowed_set: Set[str] = set()
-        self._blocked_set: Set[str] = set()
+        self._tools: dict[str, ToolPolicy] = {}
+        self._allowed_set: set[str] = set()
+        self._blocked_set: set[str] = set()
 
     def allow(
         self,
         tool_name: str,
-        params: Optional[Dict[str, str]] = None,
-        allowed_dirs: Optional[list] = None,
+        params: dict[str, str] | None = None,
+        allowed_dirs: list | None = None,
         max_calls_per_minute: int = 60,
         risk_level: str = "medium",
     ) -> ToolPolicy:
@@ -86,21 +86,21 @@ class ToolRegistry:
         """Check if tool is blacklisted."""
         return tool_name in self._blocked_set
 
-    def get_policy(self, tool_name: str) -> Optional[ToolPolicy]:
+    def get_policy(self, tool_name: str) -> ToolPolicy | None:
         """Get security policy for a tool."""
         return self._tools.get(tool_name)
 
-    def get_allowed_tools(self) -> Set[str]:
+    def get_allowed_tools(self) -> set[str]:
         """Get all whitelisted tools."""
         return self._allowed_set.copy()
 
-    def get_blocked_tools(self) -> Set[str]:
+    def get_blocked_tools(self) -> set[str]:
         """Get all blacklisted tools."""
         return self._blocked_set.copy()
 
     def validate_parameter_types(
-        self, tool_name: str, params: Dict[str, Any]
-    ) -> tuple[bool, Optional[str]]:
+        self, tool_name: str, params: dict[str, Any]
+    ) -> tuple[bool, str | None]:
         """
         Validate parameter types against schema.
 

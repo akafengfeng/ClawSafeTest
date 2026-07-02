@@ -1,6 +1,6 @@
 """LangChain integration for ClawSafe agent security."""
 
-from typing import Any, Optional
+from typing import Any
 
 from clawsafe import AgentGuard, AgentGuardConfig
 from clawsafe.integrations.base_adapter import BaseAgentAdapter
@@ -25,7 +25,7 @@ class LangChainAdapter(BaseAgentAdapter):
         >>> protected_agent = adapter.wrap_agent(agent)
     """
 
-    def __init__(self, guard: Optional[AgentGuard] = None, config: Optional[AgentGuardConfig] = None):
+    def __init__(self, guard: AgentGuard | None = None, config: AgentGuardConfig | None = None):
         """Initialize LangChain adapter."""
         super().__init__(guard, config)
         self.tools = {}
@@ -57,7 +57,7 @@ class LangChainAdapter(BaseAgentAdapter):
 
                 try:
                     parsed_params = json.loads(params) if isinstance(params, str) else params
-                except:
+                except (ValueError, TypeError):
                     parsed_params = {"input": params}
 
                 user_id = kwargs.get("user_id", "langchain-agent")
@@ -100,7 +100,6 @@ class LangChainAdapter(BaseAgentAdapter):
         """
         for tool in tools:
             tool_name = tool.name
-            description = tool.description or ""
 
             # Try to extract parameters from description or schema
             params = {}

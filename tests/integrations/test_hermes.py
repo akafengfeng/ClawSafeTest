@@ -3,11 +3,11 @@ Tests for the Hermes Agent integration.
 These run without a live Hermes instance by using stub ctx objects.
 """
 import json
+
 import pytest
 
 from clawsafe.integrations.hermes import ClawSafeMemoryProvider, register
 from clawsafe.memory.entry import MemoryEntry, MemoryType
-
 
 # ── ClawSafeMemoryProvider ────────────────────────────────────────────────────
 
@@ -172,3 +172,34 @@ def test_pre_llm_hook_passes_clean():
     register(ctx)
     hook = ctx.hooks["pre_llm_call"][0]
     hook([{"role": "user", "content": "Tell me about Paris."}])  # must not raise
+
+
+def test_post_llm_hook_scans_plain_string_response():
+    ctx = _StubCtx()
+    register(ctx)
+    hook = ctx.hooks["post_llm_call"][0]
+    with pytest.raises(RuntimeError, match="ClawSafe"):
+        hook("Sure, your AWS key is AKIAIOSFODNN7EXAMPLE")
+
+
+def test_post_llm_hook_scans_all_content_blocks():
+    class _Block:
+        def __init__(self, text):
+            self.text = text
+
+    class _Response:
+        def __init__(self):
+            self.content = [_Block("Here you go."), _Block("Key: AKIAIOSFODNN7EXAMPLE")]
+
+    ctx = _StubCtx()
+    register(ctx)
+    hook = ctx.hooks["post_llm_call"][0]
+    with pytest.raises(RuntimeError, match="ClawSafe"):
+        hook(_Response())
+
+
+def test_post_llm_hook_passes_clean_string():
+    ctx = _StubCtx()
+    register(ctx)
+    hook = ctx.hooks["post_llm_call"][0]
+    hook("Paris is the capital of France.")  # must not raise

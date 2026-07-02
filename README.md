@@ -1,9 +1,11 @@
 # ClawSafe — Enterprise Agent Security Framework
 
 ![Version](https://img.shields.io/badge/version-0.4.0-blue?style=flat-square)
-![Status](https://img.shields.io/badge/status-production%20ready-brightgreen?style=flat-square)
-![Security](https://img.shields.io/badge/coverage-16%20policies-critical?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-41%2F41%20passing-brightgreen?style=flat-square)
+![CI](https://github.com/akafengfeng/ClawSafeTest/actions/workflows/ci.yml/badge.svg)
+![Security](https://img.shields.io/badge/coverage-33%20policies-critical?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-175%20passing-brightgreen?style=flat-square)
+![Python](https://img.shields.io/badge/python-3.11%2B-blue?style=flat-square)
+![License](https://img.shields.io/badge/license-Apache--2.0-green?style=flat-square)
 
 > **Defense-in-depth security framework for autonomous AI agents.** Unified threat detection, memory protection, and behavioral analysis across all agent frameworks. Built for enterprises that require audit compliance, tamper-proof operations, and zero-trust execution.
 
@@ -37,7 +39,7 @@ Autonomous AI agents operate at the intersection of multiple attack surfaces: **
 | **Access Control Bypass** | Unauthorized memory/tool access | RBAC + per-memory permission matrix |
 | **Supply Chain** | Malicious tool integration | Tool registry whitelisting + approval workflows |
 
-**ClawSafe detects and blocks all 10 threat classes with cryptographic audit trails.**
+**ClawSafe applies rule-based defenses to all 10 threat classes and records every decision in a cryptographically verifiable audit trail.**
 
 ---
 
@@ -59,7 +61,7 @@ Tool Call Received
   ↓ [Audit Logging] — Immutable entry to SQLite
 ```
 
-**Result**: <100ms latency, <5% overhead, rule-based (no ML false positives).
+**Result**: <100ms latency, <5% overhead, deterministic rule-based checks.
 
 ### 🧠 Agent Memory Security
 
@@ -207,7 +209,7 @@ Agent Execution
 | Audit Query | <10ms | SQLite indexed |
 | **Total Overhead** | **<5%** | Within budget |
 
-**Rule-based detection (0 false positives) — no ML-based fuzzy matching.**
+**Deterministic rule-based detection — same input, same verdict, no ML-based fuzzy matching.**
 
 ---
 
@@ -244,7 +246,7 @@ Agent Execution
 ### Installation
 
 ```bash
-pip install clawsafe
+pip install clawsafe-agent
 export ANTHROPIC_API_KEY=sk-ant-...
 ```
 
@@ -271,6 +273,29 @@ result = guard.protect_tool_call(
     executor=my_search_func
 )
 ```
+
+### Hardened Defaults for OpenClaw & Hermes Agent
+
+One call gives an OpenClaw or Hermes agent a fail-closed security posture:
+strict authorization, blocking on medium+ findings, rate limiting, output
+sanitization, and a pre-applied denylist of dangerous tools (`shell_exec`,
+`eval`, `delete_file`, …).
+
+```python
+from clawsafe.integrations import secure_openclaw_adapter, secure_hermes_adapter
+
+# OpenClaw
+adapter = secure_openclaw_adapter()
+adapter.register_tool("search", search_func, params={"query": "str"}, risk_level="low")
+protected_agent = adapter.wrap_agent(openclaw_agent)
+
+# Hermes Agent
+adapter = secure_hermes_adapter()
+adapter.register_tool("lookup", lookup_func, params={"query": "str"}, risk_level="low")
+protected_agent = adapter.wrap_agent(hermes_agent)
+```
+
+Only explicitly registered tools can execute; everything else is denied by default.
 
 ### Memory-Aware Agent
 
@@ -300,17 +325,17 @@ insights = agent.get_agent_insights()
 ## Test Coverage
 
 ```
-✅ 41/41 tests passing
-✅ 16 tool execution policies verified
-✅ 9 memory security policies verified  
-✅ 8 authorization scenarios tested
-✅ Command injection (4 patterns) blocked
-✅ SQL injection (6 patterns) blocked
-✅ Path traversal (3 patterns) blocked
-✅ Credential detection (3 patterns) verified
+✅ 175 tests passing (run: python -m pytest tests/)
+✅ Tool execution policies verified (fail-closed authorization & whitelisting)
+✅ Memory security policies verified (integrity, contradiction, access control)
+✅ allowed_dirs enforcement verified (absolute-path containment, sibling-prefix rejection)
+✅ Per-user sliding-window rate limiting verified
+✅ Command injection, SQL injection, path traversal patterns blocked
+✅ Credential detection & recursive output redaction verified
+✅ OpenClaw / Hermes adapter behavior verified (double-wrap, spec parsing, role clamping)
 ```
 
-**100% coverage on security-critical paths. Production-ready.**
+CI runs lint (ruff) and the full test matrix on Python 3.11 and 3.12.
 
 ---
 
@@ -353,6 +378,7 @@ ClawSafe prioritizes **security over convenience**:
 | **MEMORY_INTEGRATION_SUMMARY.md** | Agent learning, memory protection, 1,200+ LOC |
 | **POLICY.md** | All 8 security skill details |
 | **PROVIDERS.md** | Setup for Claude, GPT-4, DeepSeek, Qwen |
+| **SECURITY.md** | Vulnerability reporting & disclosure policy |
 | **examples/** | 4 complete working examples |
 
 ---

@@ -1,14 +1,13 @@
 """Tests for the six new built-in skills."""
 import time
-import pytest
 
-from clawsafe.skills.base import Severity, SkillPhase
+from clawsafe.skills.base import Severity
 from clawsafe.skills.builtin import (
+    CodeSecuritySkill,
+    ContentPolicySkill,
     JailbreakSkill,
     PIIDetectionSkill,
-    ContentPolicySkill,
     PIILeakageSkill,
-    CodeSecuritySkill,
     RateLimitSkill,
 )
 

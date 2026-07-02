@@ -14,8 +14,9 @@ Providers handle:
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Any, Iterator, Optional
+from typing import Any
 
 
 @dataclass
@@ -42,7 +43,7 @@ class LLMProvider(ABC):
 
     provider_name: str = "unknown"
 
-    def __init__(self, model: str, api_key: Optional[str] = None, **kwargs: Any):
+    def __init__(self, model: str, api_key: str | None = None, **kwargs: Any):
         """Initialize provider.
 
         Args:
@@ -111,8 +112,9 @@ class AnthropicProvider(LLMProvider):
     provider_name = "Anthropic"
 
     def _init_client(self, **kwargs: Any) -> None:
-        import anthropic
         import os
+
+        import anthropic
 
         api_key = self.api_key or os.environ.get("ANTHROPIC_API_KEY")
         self._client = anthropic.Anthropic(api_key=api_key)
@@ -155,8 +157,7 @@ class AnthropicProvider(LLMProvider):
             max_tokens=max_tokens,
             **kwargs,
         ) as stream:
-            for text in stream.text_stream:
-                yield text
+            yield from stream.text_stream
 
 
 class OpenAIProvider(LLMProvider):
@@ -165,8 +166,9 @@ class OpenAIProvider(LLMProvider):
     provider_name = "OpenAI"
 
     def _init_client(self, **kwargs: Any) -> None:
-        from openai import OpenAI
         import os
+
+        from openai import OpenAI
 
         api_key = self.api_key or os.environ.get("OPENAI_API_KEY")
         self._client = OpenAI(api_key=api_key)
@@ -229,8 +231,9 @@ class TogetherAIProvider(LLMProvider):
     provider_name = "TogetherAI"
 
     def _init_client(self, **kwargs: Any) -> None:
-        from together import Together
         import os
+
+        from together import Together
 
         api_key = self.api_key or os.environ.get("TOGETHER_API_KEY")
         self._client = Together(api_key=api_key)
@@ -286,7 +289,7 @@ class TogetherAIProvider(LLMProvider):
                 yield chunk.choices[0].delta.content
 
 
-def get_provider(provider_type: str, model: str, api_key: Optional[str] = None, **kwargs: Any) -> LLMProvider:
+def get_provider(provider_type: str, model: str, api_key: str | None = None, **kwargs: Any) -> LLMProvider:
     """Factory function to get an LLM provider.
 
     Args:

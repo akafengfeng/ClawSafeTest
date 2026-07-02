@@ -1,16 +1,25 @@
 """Main AgentGuard security orchestrator."""
 
-from dataclasses import dataclass
-from datetime import datetime, timedelta
-from typing import Any, Callable, Optional
+import os
 import time
+from collections import deque
+from collections.abc import Callable
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any
 
 from clawsafe.core.agent_config import AgentGuardConfig
 from clawsafe.core.auth import ActionAuthorizer, ActionRequest, AuthContext
-from clawsafe.core.memory_integration import MemoryAwareAgentState, MemoryLearningLoop
-from clawsafe.core.memory_security import MemoryGuard, AgentMemory, MemoryType as MemorySecurityType
+from clawsafe.core.memory_integration import MemoryAwareAgentState
+from clawsafe.core.memory_security import AgentMemory, MemoryGuard
+from clawsafe.core.memory_security import MemoryType as MemorySecurityType
 from clawsafe.core.tools import ToolRegistry
-from clawsafe.core.validator import FindingSeverity, InputValidator, OutputValidator, ValidationFinding
+from clawsafe.core.validator import (
+    FindingSeverity,
+    InputValidator,
+    OutputValidator,
+    ValidationFinding,
+)
 from clawsafe.memory import MemoryStore
 from clawsafe.memory.entry import MemoryEntry, MemoryType
 
@@ -29,8 +38,8 @@ class ToolCallResult:
 
     tool_name: str
     success: bool
-    output: Optional[Any] = None
-    error: Optional[str] = None
+    output: Any | None = None
+    error: str | None = None
     findings: list[ValidationFinding] = None
     execution_time_ms: float = 0.0
 
@@ -52,7 +61,7 @@ class AgentGuard:
     - Comprehensive audit logging
     """
 
-    def __init__(self, config: Optional[AgentGuardConfig] = None, agent_id: str = "agent-default"):
+    def __init__(self, config: AgentGuardConfig | None = None, agent_id: str = "agent-default"):
         self.config = config or AgentGuardConfig()
         self.agent_id = agent_id
         self.memory = MemoryStore(
@@ -65,7 +74,8 @@ class AgentGuard:
         self.output_validator = OutputValidator()
         self.memory_guard = MemoryGuard()  # Memory security
         self.agent_state = MemoryAwareAgentState(agent_id, self.memory_guard)  # Memory integration
-        self._call_counts: dict[str, int] = {}
+        # Sliding-window call history keyed by (user_id, tool_name).
+        self._call_history: dict[tuple[str, str], deque] = {}
         self._tool_registry = self.config.tool_registry or ToolRegistry()
 
     def protect_tool_call(
@@ -101,8 +111,10 @@ class AgentGuard:
             risk_level=self._get_tool_risk_level(tool_name),
         )
 
+        # Authorization denials always block (fail closed) — block_on_* flags
+        # only tune validation findings, never bypass authorization.
         auth_decision = self.authorizer.authorize(auth_request)
-        if not auth_decision.allowed and self.config.block_on_high_severity:
+        if not auth_decision.allowed:
             error_msg = f"Authorization denied: {auth_decision.reason}"
             self.memory.save(
                 MemoryEntry(
@@ -124,7 +136,27 @@ class AgentGuard:
                 error_msg,
             )
 
-        # Phase 2: Tool Registry Check
+        # Calls that require explicit human approval are blocked when the
+        # deployment mandates it (no approval channel exists at this layer).
+        if auth_decision.requires_approval and self.config.require_explicit_approval:
+            error_msg = f"Tool '{tool_name}' requires explicit approval"
+            self.memory.save(
+                MemoryEntry(
+                    type=MemoryType.SECURITY_EVENT,
+                    content={"phase": "authorization", "tool": tool_name, "reason": error_msg},
+                )
+            )
+            raise SecurityBlockedError(
+                ValidationFinding(
+                    policy_name="approval_required",
+                    severity=FindingSeverity.HIGH,
+                    message=error_msg,
+                ),
+                error_msg,
+            )
+
+        # Phase 2: Tool Registry Check — non-whitelisted tools always block
+        # (fail closed): deny-by-default is the core guarantee of the registry.
         if not self._tool_registry.is_allowed(tool_name):
             error_msg = f"Tool '{tool_name}' is not whitelisted"
             findings.append(
@@ -134,14 +166,13 @@ class AgentGuard:
                     message=error_msg,
                 )
             )
-            if self.config.block_on_high_severity:
-                self.memory.save(
-                    MemoryEntry(
-                        type=MemoryType.SECURITY_EVENT,
-                        content={"phase": "tool_registry", "tool": tool_name, "reason": error_msg},
-                    )
+            self.memory.save(
+                MemoryEntry(
+                    type=MemoryType.SECURITY_EVENT,
+                    content={"phase": "tool_registry", "tool": tool_name, "reason": error_msg},
                 )
-                raise SecurityBlockedError(findings[0], error_msg)
+            )
+            raise SecurityBlockedError(findings[0], error_msg)
 
         # Phase 3: Parameter Type Validation
         is_valid, error_msg = self._tool_registry.validate_parameter_types(tool_name, params)
@@ -178,9 +209,23 @@ class AgentGuard:
             )
             raise SecurityBlockedError(finding, f"Input validation failed: {finding.message}")
 
+        # Phase 4b: Allowed-Directory Enforcement — path params must resolve
+        # inside the policy's allowed_dirs. Violations always block.
+        dir_findings = self._check_allowed_dirs(tool_name, params)
+        if dir_findings:
+            findings.extend(dir_findings)
+            finding = dir_findings[0]
+            self.memory.save(
+                MemoryEntry(
+                    type=MemoryType.SECURITY_EVENT,
+                    content={"phase": "allowed_dirs", "tool": tool_name, "finding": finding.message},
+                )
+            )
+            raise SecurityBlockedError(finding, finding.message)
+
         # Phase 5: Rate Limiting
         if self.config.enable_rate_limiting:
-            rate_findings = self._check_rate_limit(tool_name)
+            rate_findings = self._check_rate_limit(tool_name, auth_context.user_id)
             findings.extend(rate_findings)
             if rate_findings and self.config.block_on_high_severity:
                 finding = rate_findings[0]
@@ -190,7 +235,7 @@ class AgentGuard:
                         content={"phase": "rate_limiting", "tool": tool_name},
                     )
                 )
-                raise SecurityBlockedError(finding, f"Rate limit exceeded")
+                raise SecurityBlockedError(finding, "Rate limit exceeded")
 
         # Phase 6: Execute Tool
         try:
@@ -205,7 +250,7 @@ class AgentGuard:
                 ValidationFinding(
                     policy_name="execution_error",
                     severity=FindingSeverity.MEDIUM,
-                    message=f"Tool execution failed: {str(e)}",
+                    message=f"Tool execution failed: {e!s}",
                 )
             )
 
@@ -258,21 +303,88 @@ class AgentGuard:
         policy = self._tool_registry.get_policy(tool_name)
         return policy.risk_level if policy else "medium"
 
-    def _check_rate_limit(self, tool_name: str) -> list[ValidationFinding]:
-        """Check rate limit for a tool."""
+    def _check_rate_limit(self, tool_name: str, user_id: str = "agent") -> list[ValidationFinding]:
+        """Check the sliding-window rate limit for a (user, tool) pair."""
         findings = []
-        current_count = self._call_counts.get(tool_name, 0) + 1
-        self._call_counts[tool_name] = current_count
+        now = time.monotonic()
+        key = (user_id, tool_name)
+        history = self._call_history.setdefault(key, deque())
+
+        # Drop calls that have aged out of the one-minute window.
+        while history and now - history[0] > 60.0:
+            history.popleft()
+
+        history.append(now)
 
         policy = self._tool_registry.get_policy(tool_name)
-        if policy and current_count > policy.max_calls_per_minute:
+        if policy and len(history) > policy.max_calls_per_minute:
             findings.append(
                 ValidationFinding(
                     policy_name="rate_limiting",
                     severity=FindingSeverity.MEDIUM,
-                    message=f"Tool {tool_name} rate limit exceeded ({current_count} calls/min)",
+                    message=(
+                        f"Tool {tool_name} rate limit exceeded for user {user_id} "
+                        f"({len(history)} calls in the last minute, "
+                        f"limit {policy.max_calls_per_minute})"
+                    ),
                 )
             )
+
+        return findings
+
+    def _check_allowed_dirs(self, tool_name: str, params: dict) -> list[ValidationFinding]:
+        """Enforce the policy's allowed_dirs on path-like parameters.
+
+        Paths are normalized lexically (symlinks are not resolved) so the
+        check works for paths that do not exist yet; combine with the input
+        validator's traversal patterns for defense in depth.
+        """
+        policy = self._tool_registry.get_policy(tool_name)
+        if not policy or not policy.allowed_dirs:
+            return []
+
+        findings = []
+        path_key_markers = ("path", "file", "dir")
+        for param_name, param_value in params.items():
+            if not isinstance(param_value, str):
+                continue
+            if not any(marker in param_name.lower() for marker in path_key_markers):
+                continue
+
+            # Relative paths resolve against the tool's cwd, which this layer
+            # cannot see — reject them rather than guess (fail closed).
+            if not os.path.isabs(param_value):
+                findings.append(
+                    ValidationFinding(
+                        policy_name="allowed_dirs_enforcement",
+                        severity=FindingSeverity.HIGH,
+                        message=(
+                            f"Relative path '{param_value}' for tool {tool_name} is not "
+                            f"permitted when allowed_dirs is set; use an absolute path"
+                        ),
+                        details=f"Allowed: {sorted(policy.allowed_dirs)}",
+                    )
+                )
+                continue
+
+            normalized = os.path.normpath(param_value)
+            allowed = any(
+                normalized == os.path.normpath(base)
+                or normalized.startswith(os.path.normpath(base) + os.sep)
+                for base in policy.allowed_dirs
+            )
+            if not allowed:
+                findings.append(
+                    ValidationFinding(
+                        policy_name="allowed_dirs_enforcement",
+                        severity=FindingSeverity.HIGH,
+                        message=(
+                            f"Path '{param_value}' for tool {tool_name} is outside "
+                            f"the allowed directories"
+                        ),
+                        details=f"Allowed: {sorted(policy.allowed_dirs)}",
+                    )
+                )
 
         return findings
 
@@ -289,14 +401,14 @@ class AgentGuard:
 
         return protected_run
 
-    def query_findings(self, tool_name: Optional[str] = None) -> list[dict]:
+    def query_findings(self, tool_name: str | None = None) -> list[dict]:
         """Query security findings from audit log."""
         events = self.memory.query(type=MemoryType.SECURITY_EVENT)
         if tool_name:
             return [e.content for e in events if e.content.get("tool") == tool_name]
         return [e.content for e in events]
 
-    def query_tool_calls(self, tool_name: Optional[str] = None) -> list[dict]:
+    def query_tool_calls(self, tool_name: str | None = None) -> list[dict]:
         """Query tool calls from audit log."""
         calls = self.memory.query(type=MemoryType.TOOL_CALL)
         if tool_name:
@@ -312,7 +424,7 @@ class AgentGuard:
         source: str,
         confidence: float = 0.8,
         user_id: str = "system",
-        expires_in_hours: Optional[int] = None,
+        expires_in_hours: int | None = None,
     ) -> tuple[bool, list]:
         """Store a protected agent memory.
 
@@ -362,7 +474,7 @@ class AgentGuard:
 
     def retrieve_agent_memory(
         self, memory_id: str, user_id: str = "system"
-    ) -> Optional[dict]:
+    ) -> dict | None:
         """Retrieve a protected agent memory.
 
         Returns:
@@ -414,7 +526,7 @@ class AgentGuard:
             for f in findings
         ]
 
-    def detect_memory_contradictions(self, memory_id: str) -> Optional[dict]:
+    def detect_memory_contradictions(self, memory_id: str) -> dict | None:
         """Detect contradictions in agent memory.
 
         Returns:
@@ -465,7 +577,7 @@ class AgentGuard:
         executor: Callable,
     ) -> Any:
         """Execute tool and learn from results."""
-        result, learned = self.agent_state.tool_executor.execute_with_learning(
+        result, _learned = self.agent_state.tool_executor.execute_with_learning(
             tool_name=tool_name,
             params=params,
             executor=executor,

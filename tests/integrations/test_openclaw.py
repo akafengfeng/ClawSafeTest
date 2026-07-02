@@ -1,7 +1,6 @@
 """
 Tests for the OpenClaw integration.
 """
-import pathlib
 
 from clawsafe.integrations.openclaw import get_skill_manifest, install
 

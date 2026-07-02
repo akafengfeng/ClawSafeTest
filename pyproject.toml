@@ -74,7 +74,10 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "RUF"]
-ignore = ["E501"]
+# E501: line length is handled by black.
+# UP042: str+Enum mixin is intentional — enum values serialize as plain
+# strings in the audit log and JSON payloads.
+ignore = ["E501", "UP042"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["clawsafe"]

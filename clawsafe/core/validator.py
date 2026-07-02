@@ -3,7 +3,7 @@
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 
 class FindingSeverity(str, Enum):
@@ -23,7 +23,7 @@ class ValidationFinding:
     policy_name: str
     severity: FindingSeverity
     message: str
-    details: Optional[str] = None
+    details: str | None = None
 
 
 class InputValidator:
@@ -101,7 +101,7 @@ class InputValidator:
                     ValidationFinding(
                         policy_name="command_injection_detection",
                         severity=FindingSeverity.HIGH,
-                        message=f"Potential command injection detected",
+                        message="Potential command injection detected",
                         details=f"Value contains shell metacharacters: {value[:50]}",
                     )
                 )
@@ -173,20 +173,22 @@ class OutputValidator:
         """
         Validate tool output for security issues.
 
+        Recursively scans strings inside nested dicts, lists, and tuples so
+        credentials cannot hide in structured results.
+
         Returns:
             List of ValidationFinding objects
         """
         findings = []
 
         if isinstance(output, str):
-            cred_findings = self._check_credentials(output)
-            findings.extend(cred_findings)
-
+            findings.extend(self._check_credentials(output))
         elif isinstance(output, dict):
-            for key, value in output.items():
-                if isinstance(value, str):
-                    cred_findings = self._check_credentials(value)
-                    findings.extend(cred_findings)
+            for value in output.values():
+                findings.extend(self.validate_output(value))
+        elif isinstance(output, (list, tuple)):
+            for item in output:
+                findings.extend(self.validate_output(item))
 
         return findings
 
@@ -210,6 +212,9 @@ class OutputValidator:
         """
         Sanitize output to remove sensitive information.
 
+        Recursively redacts credentials in strings nested inside dicts,
+        lists, and tuples.
+
         Returns:
             Sanitized output
         """
@@ -219,18 +224,11 @@ class OutputValidator:
                 sanitized = re.sub(pattern, "[REDACTED]", sanitized, flags=re.IGNORECASE)
             return sanitized
 
-        elif isinstance(output, dict):
-            sanitized = {}
-            for key, value in output.items():
-                if isinstance(value, str):
-                    sanitized[key] = re.sub(
-                        "|".join(self.credential_patterns),
-                        "[REDACTED]",
-                        value,
-                        flags=re.IGNORECASE,
-                    )
-                else:
-                    sanitized[key] = value
-            return sanitized
+        if isinstance(output, dict):
+            return {key: self.sanitize_output(value) for key, value in output.items()}
+
+        if isinstance(output, (list, tuple)):
+            sanitized_items = [self.sanitize_output(item) for item in output]
+            return type(output)(sanitized_items) if isinstance(output, tuple) else sanitized_items
 
         return output

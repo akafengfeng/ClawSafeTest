@@ -113,6 +113,37 @@ def _handle_scan_output(args: dict, **_: Any) -> str:
 
 # ── Lifecycle hooks ───────────────────────────────────────────────────────────
 
+def _extract_response_text(response: Any) -> str:
+    """Flatten a Hermes/Anthropic-style response into scannable text.
+
+    Handles plain strings, objects with a string ``content``, and content
+    lists whose blocks are strings, dicts, or objects with a ``text`` field.
+    Every block is included so nothing escapes the POST scan.
+    """
+    if isinstance(response, str):
+        return response
+
+    content = getattr(response, "content", None)
+    if content is None and isinstance(response, dict):
+        content = response.get("content")
+
+    if isinstance(content, str):
+        return content
+
+    if isinstance(content, list):
+        parts = []
+        for block in content:
+            if isinstance(block, str):
+                parts.append(block)
+            elif isinstance(block, dict):
+                parts.append(str(block.get("text", block)))
+            else:
+                parts.append(str(getattr(block, "text", block)))
+        return "\n".join(parts)
+
+    return str(response)
+
+
 def _register_hooks(ctx: Any) -> None:
     inj_skill = PromptInjectionSkill()
     inp_skill = InputGuardSkill()
@@ -126,10 +157,8 @@ def _register_hooks(ctx: Any) -> None:
                 raise RuntimeError(f"[ClawSafe] Blocked by {skill.name}: {'; '.join(highs)}")
 
     def post_llm_call(response: Any, **kwargs: Any) -> None:
-        text = getattr(response, "content", [{}])
-        if isinstance(text, list) and text:
-            text = getattr(text[0], "text", str(text[0]))
-        result = out_skill.run({"response": str(text)})
+        text = _extract_response_text(response)
+        result = out_skill.run({"response": text})
         if not result.passed:
             highs = [f.message for f in result.findings if f.severity.value == "high"]
             raise RuntimeError(f"[ClawSafe] Output blocked by {out_skill.name}: {'; '.join(highs)}")

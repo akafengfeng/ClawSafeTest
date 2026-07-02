@@ -4,7 +4,7 @@ import json
 import sqlite3
 import threading
 import time
-from typing import Any, Optional
+from typing import Any
 
 from .entry import MemoryEntry, MemoryType
 
@@ -90,7 +90,7 @@ class MemoryStore:
 
     # ------------------------------------------------------------------ read
 
-    def get(self, entry_id: str) -> Optional[MemoryEntry]:
+    def get(self, entry_id: str) -> MemoryEntry | None:
         with self._lock:
             if self._backend == "sqlite":
                 row = self._conn.execute(
@@ -110,11 +110,11 @@ class MemoryStore:
     def query(
         self,
         *,
-        type: Optional[MemoryType] = None,
-        session_id: Optional[str] = None,
-        tags: Optional[list[str]] = None,
+        type: MemoryType | None = None,
+        session_id: str | None = None,
+        tags: list[str] | None = None,
         limit: int = 100,
-        since: Optional[float] = None,
+        since: float | None = None,
     ) -> list[MemoryEntry]:
         now = time.time()
         with self._lock:

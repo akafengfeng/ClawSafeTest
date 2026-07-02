@@ -1,7 +1,8 @@
 """Deep integration of memory security with tool execution."""
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Optional
+from typing import Any
 
 from clawsafe.core.auth import AuthContext
 from clawsafe.core.memory_security import AgentMemory, MemoryGuard, MemoryType
@@ -19,7 +20,7 @@ class ToolExecutionMemory:
     session_id: str
     timestamp: float
     learned_facts: list[AgentMemory] = None  # Facts learned from execution
-    user_feedback: Optional[str] = None
+    user_feedback: str | None = None
 
 
 class MemoryEnabledToolExecutor:
@@ -49,11 +50,10 @@ class MemoryEnabledToolExecutor:
         try:
             result = executor(tool_name, params)
             success = True
-            error = None
         except Exception as e:
             result = None
             success = False
-            error = str(e)
+            str(e)
 
         # Extract learnable facts from execution
         learned = self._extract_learnable_facts(tool_name, params, result, success)
@@ -69,7 +69,7 @@ class MemoryEnabledToolExecutor:
                 confidence=0.8,
             )
 
-            mem_success, findings = self.memory_guard.store_memory(memory, auth_context.user_id)
+            mem_success, _findings = self.memory_guard.store_memory(memory, auth_context.user_id)
             if mem_success:
                 stored_memories.append(memory)
 
@@ -133,7 +133,7 @@ class MemoryEnabledToolExecutor:
             facts.append(f"User searches for information about: {params.get('query', '')}")
 
         if "path" in params:
-            facts.append(f"User accesses files in directory patterns")
+            facts.append("User accesses files in directory patterns")
 
         # Learn from results
         if isinstance(result, str) and len(result) > 0:
@@ -293,7 +293,7 @@ class MemoryAwareAgentState:
         self.memory_profile = AgentMemoryProfile(agent_id, memory_guard)
         self.tool_executor = MemoryEnabledToolExecutor(memory_guard)
         self.learning_loop = MemoryLearningLoop(memory_guard, self.tool_executor)
-        self.last_activity: Optional[float] = None
+        self.last_activity: float | None = None
 
     def update_from_interaction(
         self,

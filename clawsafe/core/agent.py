@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-import os
 import time
-from typing import Any, Iterator, Optional
+from collections.abc import Iterator
+from typing import Any
 
-from .config import ClawSafeConfig
-from .provider import LLMProvider, LLMResponse, get_provider
 from ..memory.entry import MemoryEntry, MemoryType
 from ..memory.store import MemoryStore
 from ..skills.base import Severity, SkillPhase, SkillResult
 from ..skills.registry import SkillRegistry
 from ..utils.token_budget import TokenBudget
+from .config import ClawSafeConfig
+from .provider import LLMProvider, LLMResponse, get_provider
 
 
 class SecurityBlockedError(Exception):
@@ -72,10 +72,10 @@ class ClawSafeAgent:
 
     def __init__(
         self,
-        config: Optional[ClawSafeConfig] = None,
-        provider: Optional[LLMProvider] = None,
-        registry: Optional[SkillRegistry] = None,
-        memory: Optional[MemoryStore] = None,
+        config: ClawSafeConfig | None = None,
+        provider: LLMProvider | None = None,
+        registry: SkillRegistry | None = None,
+        memory: MemoryStore | None = None,
     ):
         self.config = config or ClawSafeConfig()
         self.budget = TokenBudget(self.config.security_token_budget_fraction)
@@ -106,7 +106,7 @@ class ClawSafeAgent:
         messages: list[dict],
         *,
         system: str = "",
-        session_id: Optional[str] = None,
+        session_id: str | None = None,
         **kwargs: Any,
     ) -> LLMResponse:
         """Send messages to LLM with security guards in PRE and POST phases.
@@ -187,7 +187,7 @@ class ClawSafeAgent:
         messages: list[dict],
         *,
         system: str = "",
-        session_id: Optional[str] = None,
+        session_id: str | None = None,
         **kwargs: Any,
     ) -> Iterator[str]:
         """Stream response from LLM with security guards in PRE and POST phases.
@@ -257,9 +257,15 @@ class ClawSafeAgent:
 
     def _default_registry(self) -> SkillRegistry:
         from ..skills.builtin import (
-            InputGuardSkill, OutputGuardSkill, PromptInjectionSkill,
-            JailbreakSkill, PIIDetectionSkill, ContentPolicySkill,
-            PIILeakageSkill, CodeSecuritySkill, RateLimitSkill,
+            CodeSecuritySkill,
+            ContentPolicySkill,
+            InputGuardSkill,
+            JailbreakSkill,
+            OutputGuardSkill,
+            PIIDetectionSkill,
+            PIILeakageSkill,
+            PromptInjectionSkill,
+            RateLimitSkill,
         )
         registry = SkillRegistry()
         cfg = self.config
@@ -296,7 +302,7 @@ class ClawSafeAgent:
             raise SecurityBlockedError(blocking)
 
     def _record_results(
-        self, results: list[SkillResult], session_id: Optional[str], phase: str
+        self, results: list[SkillResult], session_id: str | None, phase: str
     ) -> None:
         for result in results:
             if not result.findings:

@@ -1,11 +1,9 @@
 """Memory security for evolving AI agents."""
 
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from enum import Enum
-from typing import Any, Optional, Set
-
 import hashlib
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
 
 
 class MemorySeverity(str, Enum):
@@ -35,8 +33,8 @@ class MemoryFinding:
     policy_name: str
     severity: MemorySeverity
     message: str
-    memory_id: Optional[str] = None
-    memory_type: Optional[MemoryType] = None
+    memory_id: str | None = None
+    memory_type: MemoryType | None = None
     timestamp: float = field(default_factory=lambda: datetime.now().timestamp())
 
 
@@ -52,9 +50,9 @@ class AgentMemory:
     created_at: float = field(default_factory=lambda: datetime.now().timestamp())
     updated_at: float = field(default_factory=lambda: datetime.now().timestamp())
     access_count: int = 0
-    last_accessed: Optional[float] = None
+    last_accessed: float | None = None
     content_hash: str = ""  # For tamper detection
-    expires_at: Optional[float] = None  # TTL for memories
+    expires_at: float | None = None  # TTL for memories
 
     def compute_hash(self) -> str:
         """Compute hash of memory content for integrity verification."""
@@ -174,7 +172,7 @@ class MemoryValidator:
 
     def validate_confidence_change(
         self, old_confidence: float, new_confidence: float, memory_id: str
-    ) -> Optional[MemoryFinding]:
+    ) -> MemoryFinding | None:
         """Detect suspicious confidence changes.
 
         Returns:
@@ -201,7 +199,7 @@ class MemoryGuard:
         self.validator = MemoryValidator()
         self.memory_store: dict[str, AgentMemory] = {}
         self.access_log: list[dict] = []
-        self.access_control: dict[str, Set[str]] = {}  # memory_id -> allowed_users
+        self.access_control: dict[str, set[str]] = {}  # memory_id -> allowed_users
 
     def store_memory(self, memory: AgentMemory, user_id: str) -> tuple[bool, list[MemoryFinding]]:
         """Store a memory with security checks.
@@ -230,7 +228,7 @@ class MemoryGuard:
 
         return True, findings
 
-    def retrieve_memory(self, memory_id: str, user_id: str) -> Optional[AgentMemory]:
+    def retrieve_memory(self, memory_id: str, user_id: str) -> AgentMemory | None:
         """Retrieve a memory with access control."""
         # Check access control
         if memory_id in self.access_control:
@@ -264,7 +262,7 @@ class MemoryGuard:
             return False, []
 
         # Validate confidence change if applicable
-        old_hash = memory.compute_hash()
+        memory.compute_hash()
 
         # Create updated memory for validation
         updated = AgentMemory(
@@ -320,7 +318,7 @@ class MemoryGuard:
         self.access_control[memory_id].discard(user_id)
         return True
 
-    def detect_contradictions(self, memory_id: str) -> Optional[MemoryFinding]:
+    def detect_contradictions(self, memory_id: str) -> MemoryFinding | None:
         """Detect contradictory memories."""
         memory = self.memory_store.get(memory_id)
         if not memory:

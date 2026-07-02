@@ -1,7 +1,5 @@
 import time
 
-import pytest
-
 from clawsafe.memory.entry import MemoryEntry, MemoryType
 from clawsafe.memory.store import MemoryStore
 

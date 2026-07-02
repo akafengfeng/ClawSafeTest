@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Security
+- **Fail-closed authorization**: authorization denials and non-whitelisted tools now
+  always block, regardless of `block_on_high_severity`. Previously, setting that flag
+  to `False` allowed unauthorized and unregistered tools to execute.
+- **`allowed_dirs` is now enforced**: path-like parameters must resolve inside the
+  tool policy's allowed directories (absolute paths only; sibling-prefix directories
+  like `/database` vs `/data` are rejected). The policy field previously existed but
+  was never checked.
+- **Rate limiting rewritten as a per-user sliding window**: the previous implementation
+  was a lifetime counter that never reset (tools became permanently blocked after the
+  limit) and was not scoped per user.
+- **Recursive output scanning**: credential detection and redaction now traverse nested
+  dicts, lists, and tuples instead of only strings and flat dict values.
+- **Hermes plugin `post_llm_call` fail-open fixed**: plain-string LLM responses were
+  never scanned (they were coerced to `"{}"`); all content blocks are now scanned,
+  not just the first.
+- **Adapter role clamping**: untrusted agent state / caller context can no longer
+  claim privileged roles when routed through the OpenClaw and Hermes adapters.
+- **Shared tool-table bug fixed**: `BaseAgentAdapter.tools` was a class-level mutable
+  default that could bleed tool registrations across adapter instances.
+- `require_explicit_approval` is now honored: approval-flagged calls block when the
+  config demands explicit approval.
+
+### Added
+- `clawsafe.integrations.presets` — hardened one-call setup for OpenClaw and Hermes
+  (`secure_openclaw_adapter()`, `secure_hermes_adapter()`, `hardened_config()`,
+  `DEFAULT_DENYLIST`).
+- Hermes adapter: support for OpenAI-style nested tool specs (`{"function": {...}}`);
+  nameless specs are skipped and nameless tools are filtered out (fail closed).
+- OpenClaw adapter: auto-registration skips high-risk tool names (shell/exec/delete);
+  double-wrap protection on both adapters.
+- `SECURITY.md` vulnerability disclosure policy.
+- 27 new tests covering fail-closed behavior, `allowed_dirs`, sliding-window rate
+  limits, recursive sanitization, and adapter hardening (175 total).
+- Ruff lint job in CI.
+
+### Changed
+- Install command corrected across docs: the package name is `clawsafe-agent`.
+- README claims aligned with reality (test counts, enforcement status).
+
 ## [0.3.0] — 2026-06-11
 
 ### Added

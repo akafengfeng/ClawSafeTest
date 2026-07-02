@@ -1,4 +1,4 @@
-from .base import Skill, SkillResult, SkillPhase
+from .base import Skill, SkillPhase, SkillResult
 from .registry import SkillRegistry
 
-__all__ = ["Skill", "SkillResult", "SkillPhase", "SkillRegistry"]
+__all__ = ["Skill", "SkillPhase", "SkillRegistry", "SkillResult"]

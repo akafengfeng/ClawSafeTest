@@ -11,7 +11,6 @@ import os
 import pathlib
 import textwrap
 
-
 _SKILL_MANIFEST = textwrap.dedent("""\
     # ClawSafe Security Skills
 
@@ -51,7 +50,7 @@ _SKILL_MANIFEST = textwrap.dedent("""\
     ## Installation
 
     ```bash
-    pip install clawsafe
+    pip install clawsafe-agent
     python -c "from clawsafe.integrations.openclaw import install; install()"
     ```
 
@@ -68,7 +67,7 @@ _SKILL_MANIFEST = textwrap.dedent("""\
     ## Requirements
 
     - Python 3.11+
-    - `pip install clawsafe`
+    - `pip install clawsafe-agent`
 """)
 
 

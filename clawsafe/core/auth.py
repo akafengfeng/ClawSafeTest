@@ -2,7 +2,6 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Set
 
 
 class AuthorizationMode(str, Enum):
@@ -51,12 +50,12 @@ class ActionAuthorizer:
 
     def __init__(self, mode: AuthorizationMode = AuthorizationMode.STANDARD):
         self.mode = mode
-        self._role_permissions: dict[str, Set[str]] = {
+        self._role_permissions: dict[str, set[str]] = {
             "admin": set(),
             "user": set(),
             "guest": set(),
         }
-        self._high_risk_tools: Set[str] = {
+        self._high_risk_tools: set[str] = {
             "shell_exec",
             "delete_file",
             "modify_permissions",

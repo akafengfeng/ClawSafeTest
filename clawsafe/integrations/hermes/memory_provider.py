@@ -9,12 +9,10 @@ from __future__ import annotations
 
 import json
 import threading
-import time
-from typing import Any, Optional
+from typing import Any
 
 from clawsafe.memory.entry import MemoryEntry, MemoryType
 from clawsafe.memory.store import MemoryStore
-from clawsafe.skills.base import Severity
 
 
 class ClawSafeMemoryProvider:
@@ -22,7 +20,7 @@ class ClawSafeMemoryProvider:
     Hermes MemoryProvider that stores and surfaces ClawSafe security events.
 
     Drop-in for the Hermes MemoryProvider ABC. Install via:
-        pip install clawsafe
+        pip install clawsafe-agent
     Then add to hermes config: memory_provider = "clawsafe"
     """
 
@@ -30,7 +28,7 @@ class ClawSafeMemoryProvider:
 
     def __init__(self, db_path: str = "clawsafe.db"):
         self._db_path = db_path
-        self._store: Optional[MemoryStore] = None
+        self._store: MemoryStore | None = None
         self._session_id: str = ""
         self._queue: list[dict] = []
         self._lock = threading.Lock()
@@ -129,7 +127,7 @@ class ClawSafeMemoryProvider:
         user_content: str,
         assistant_content: str,
         session_id: str = "",
-        messages: Optional[list] = None,
+        messages: list | None = None,
     ) -> None:
         if not self._store:
             return

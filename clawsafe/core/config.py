@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 @dataclass
@@ -61,7 +60,7 @@ class ClawSafeConfig:
     # LLM Provider
     provider: str = "anthropic"  # "anthropic" | "openai" | "togetherai"
     model: str = "claude-sonnet-4-6"
-    api_key: Optional[str] = None
+    api_key: str | None = None
 
     # Token budget: fraction of total tokens reserved for security overhead.
     # Target is 5% — keep skills fast and lightweight to stay within this.
