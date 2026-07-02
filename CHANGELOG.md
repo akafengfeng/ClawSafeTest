@@ -10,6 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Security
+- **Memory TTL enforced at read time**: expired memories were returned until
+  `cleanup_expired()` happened to run; `retrieve_memory` now purges and
+  refuses them immediately.
+- **Tampered-memory reads and denied accesses are now logged** as
+  `tamper_detected` / `denied` events instead of failing silently.
+- **Learned-memory ID collisions fixed**: facts stored in the same millisecond
+  overwrote each other; IDs now carry a uuid suffix.
+- **Feedback ratings validated**: out-of-range ratings are rejected (fail
+  closed) instead of silently adjusting confidence.
+- **Unbounded growth capped**: memory access log, execution history, and
+  learning events are trimmed so long-running agents don't leak memory.
+- Fixed a crash in `AgentMemoryProfile.resolve_contradictions` (subscripting a
+  dataclass) and a permanently-flagged `observed` memory source.
 - **Fail-closed authorization**: authorization denials and non-whitelisted tools now
   always block, regardless of `block_on_high_severity`. Previously, setting that flag
   to `False` allowed unauthorized and unregistered tools to execute.
@@ -33,6 +46,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   config demands explicit approval.
 
 ### Added
+- **`clawsafe.lite` — one-line integration layer**: `protect_agent(agent, tools=...)`
+  auto-detects the framework (OpenClaw/Hermes style) and applies the hardened
+  preset; `@guarded` protects any single Python function with no framework at
+  all; `scan_messages()` / `scan_output()` are standalone scanners for custom
+  agent loops. All exported at top level (`from clawsafe import guarded, ...`).
+- **Verified memory persistence**: `MemoryGuard.export_memories()` /
+  `import_memories()` (and `AgentGuard.export_agent_memories()` /
+  `import_agent_memories()`) — protected memories survive restarts; on import
+  every record is re-hashed and re-validated through the write gate, so
+  tampered or poisoned exports are rejected.
+- Architecture doc: new "Framework Integration Mechanics" and "Memory Security
+  Design" sections with two new house-style diagrams
+  (`integration-mechanics.svg`, `memory-gates.svg`).
 - `clawsafe.integrations.presets` — hardened one-call setup for OpenClaw and Hermes
   (`secure_openclaw_adapter()`, `secure_hermes_adapter()`, `hardened_config()`,
   `DEFAULT_DENYLIST`).

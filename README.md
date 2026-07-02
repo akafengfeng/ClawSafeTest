@@ -40,6 +40,7 @@ Detection is **deterministic and rule-based**: the same input always produces th
 | | |
 |---|---|
 | **Fail-closed by design** | Unauthorized, unregistered, or policy-violating calls are blocked — severity flags tune warnings, never bypass authorization |
+| **One-line integration** | `protect_agent(agent, tools=...)` auto-detects the framework; `@guarded` protects a single function with no framework at all |
 | **One-call hardening** | `secure_openclaw_adapter()` / `secure_hermes_adapter()` give an agent strict mode + a pre-applied denylist of 13 dangerous tools |
 | **Path containment** | File tools are confined to `allowed_dirs`; traversal patterns, sibling-prefix tricks, and relative paths are rejected |
 | **Sliding-window rate limits** | Per-user, per-tool quotas that actually reset — flooding one identity never blocks another |
@@ -52,6 +53,40 @@ Detection is **deterministic and rule-based**: the same input always produces th
 
 ```bash
 pip install clawsafe-agent
+```
+
+### One line, whole agent
+
+```python
+from clawsafe import protect_agent
+
+agent = protect_agent(agent, tools={"search": search_func})
+```
+
+The framework is auto-detected (OpenClaw-style `execute_tool`, Hermes-style `call_function`), the hardened preset is applied, and anything you didn't register is denied.
+
+### One decorator, single function
+
+No agent, no adapter — guard any Python function directly:
+
+```python
+from clawsafe import guarded
+
+@guarded(params={"path": "str"}, allowed_dirs=["/data"])
+def read_file(path: str) -> str:
+    ...
+
+read_file(path="/data/notes.txt")   # validated, rate limited, audited
+read_file(path="/etc/passwd")       # raises SecurityBlockedError
+```
+
+And for frameworks without an adapter, the standalone scanners drop into any loop:
+
+```python
+from clawsafe import scan_messages, scan_output
+
+findings = scan_messages([{"role": "user", "content": user_input}])  # pre-LLM
+findings = scan_output(model_response)                               # post-LLM
 ```
 
 ### Protect a tool-calling agent

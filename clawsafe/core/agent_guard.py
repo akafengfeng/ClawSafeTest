@@ -612,3 +612,44 @@ class AgentGuard:
     def export_agent_state(self) -> dict:
         """Export agent's complete state for persistence."""
         return self.agent_state.export_memory_state()
+
+    def export_agent_memories(self) -> list[dict]:
+        """Serialize all protected memories (hashes + ACLs) for persistence.
+
+        Pair with :meth:`import_agent_memories` to survive restarts.
+        """
+        return self.memory_guard.export_memories()
+
+    def import_agent_memories(self, records: list[dict]) -> tuple[int, list[dict]]:
+        """Restore memories from an export, re-verifying every record.
+
+        Tampered or policy-violating records are rejected (fail closed).
+
+        Returns:
+            (imported_count, rejection_findings)
+        """
+        imported, findings = self.memory_guard.import_memories(records)
+
+        for finding in findings:
+            self.memory.save(
+                MemoryEntry(
+                    type=MemoryType.SECURITY_EVENT,
+                    content={
+                        "phase": "memory_import",
+                        "policy": finding.policy_name,
+                        "severity": finding.severity.value,
+                        "message": finding.message,
+                        "memory_id": finding.memory_id,
+                    },
+                )
+            )
+
+        return imported, [
+            {
+                "policy": f.policy_name,
+                "severity": f.severity.value,
+                "message": f.message,
+                "memory_id": f.memory_id,
+            }
+            for f in findings
+        ]

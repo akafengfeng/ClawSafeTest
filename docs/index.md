@@ -381,6 +381,17 @@ layout: default
     <pre><code>pip install clawsafe-agent
 export ANTHROPIC_API_KEY=sk-ant-...</code></pre>
 
+    <h3 style="color: var(--primary);">One-Line Integration</h3>
+    <pre><code>from clawsafe import protect_agent, guarded
+
+# Whole agent — framework auto-detected, hardened preset applied
+agent = protect_agent(agent, tools={"search": search_func})
+
+# Or guard a single function, no framework required
+@guarded(params={"path": "str"}, allowed_dirs=["/data"])
+def read_file(path: str) -> str:
+    ...</code></pre>
+
     <h3 style="color: var(--primary);">Basic Protection</h3>
     <pre><code>from clawsafe import AgentGuard, AgentGuardConfig, AuthContext, ToolRegistry
 

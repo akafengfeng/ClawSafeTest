@@ -26,6 +26,10 @@ class ToolExecutionMemory:
 class MemoryEnabledToolExecutor:
     """Tool executor that learns and remembers patterns."""
 
+    # Executions kept in memory; older entries are trimmed so long-running
+    # agents don't grow without bound.
+    MAX_EXECUTION_HISTORY = 5_000
+
     def __init__(self, memory_guard: MemoryGuard):
         """Initialize with a MemoryGuard instance."""
         self.memory_guard = memory_guard
@@ -45,24 +49,29 @@ class MemoryEnabledToolExecutor:
             (result, learned_memories)
         """
         import time
+        import uuid
 
         # Execute tool
         try:
             result = executor(tool_name, params)
             success = True
+            error_message = None
         except Exception as e:
             result = None
             success = False
-            str(e)
+            error_message = str(e)
 
         # Extract learnable facts from execution
-        learned = self._extract_learnable_facts(tool_name, params, result, success)
+        learned = self._extract_learnable_facts(
+            tool_name, params, result, success, error_message
+        )
 
-        # Store learned facts in memory
+        # Store learned facts in memory — IDs get a uuid suffix so facts
+        # stored within the same millisecond can never overwrite each other.
         stored_memories = []
         for fact in learned:
             memory = AgentMemory(
-                id=f"{tool_name}_{int(time.time() * 1000)}",
+                id=f"{tool_name}_{int(time.time() * 1000)}_{uuid.uuid4().hex[:8]}",
                 type=MemoryType.BEHAVIOR,
                 content=fact,
                 source="learned",
@@ -86,6 +95,8 @@ class MemoryEnabledToolExecutor:
         )
 
         self.execution_history.append(execution)
+        if len(self.execution_history) > self.MAX_EXECUTION_HISTORY:
+            del self.execution_history[: len(self.execution_history) - self.MAX_EXECUTION_HISTORY]
 
         return result, stored_memories
 
@@ -116,13 +127,21 @@ class MemoryEnabledToolExecutor:
         }
 
     def _extract_learnable_facts(
-        self, tool_name: str, params: dict, result: Any, success: bool
+        self,
+        tool_name: str,
+        params: dict,
+        result: Any,
+        success: bool,
+        error_message: str | None = None,
     ) -> list[str]:
         """Extract learnable facts from tool execution."""
         facts = []
 
         if not success:
-            facts.append(f"Tool {tool_name} failed with params: {list(params.keys())}")
+            detail = f": {error_message[:120]}" if error_message else ""
+            facts.append(
+                f"Tool {tool_name} failed with params {list(params.keys())}{detail}"
+            )
             return facts
 
         # Learn from successful executions
@@ -195,11 +214,13 @@ class AgentMemoryProfile:
         """Identify and suggest resolutions for contradictions."""
         resolutions = []
 
-        for memory_id in self.memory_guard.memory_store.keys():
+        # Iterate over a snapshot — detect_contradictions must not race a
+        # store that changes size mid-scan.
+        for memory_id in list(self.memory_guard.memory_store.keys()):
             contradiction = self.memory_guard.detect_contradictions(memory_id)
             if contradiction:
                 resolutions.append(
-                    f"Contradiction in {memory_id}: {contradiction['message']}"
+                    f"Contradiction in {memory_id}: {contradiction.message}"
                 )
 
         return resolutions
@@ -222,6 +243,12 @@ class MemoryLearningLoop:
         user_id: str,
     ) -> bool:
         """Process user feedback on a memory to improve confidence."""
+        # Out-of-range ratings are rejected, not clamped — a caller sending
+        # rating=100 is either buggy or probing, and neither should move
+        # confidence (fail closed).
+        if not isinstance(rating, (int, float)) or not (0.0 <= rating <= 1.0):
+            return False
+
         memory = self.memory_guard.retrieve_memory(memory_id, user_id)
 
         if not memory:
@@ -251,6 +278,8 @@ class MemoryLearningLoop:
                 "user_id": user_id,
             }
         )
+        if len(self.learning_events) > 5_000:
+            del self.learning_events[: len(self.learning_events) - 5_000]
 
         return True
 

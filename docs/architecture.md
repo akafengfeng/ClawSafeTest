@@ -157,6 +157,44 @@ title: Architecture & Design
         └──────────────────────────────────────────────────────────────┘
 ```
 
+## Framework Integration Mechanics
+
+![Integration mechanics: wrap_agent patches each framework's tool-execution method so every call reroutes through the AgentGuard pipeline](assets/diagrams/integration-mechanics.svg)
+
+The key design idea: **the agent keeps its own reasoning loop — ClawSafe only owns the moment a tool gets invoked.** Integration works by patching, not by replacing the agent:
+
+1. **Declare policy, then wrap.** Create an adapter, register the tools the agent may use (the whitelist — anything unregistered is denied), and call `wrap_agent(agent)`. For OpenClaw the adapter swaps the agent's `execute_tool` method for a protected version; for Hermes it swaps `call_function` and additionally filters `get_tools()` so the model never even sees non-whitelisted tools. The agent object doesn't know anything changed.
+
+2. **Every tool call reroutes through the guard.** The patched method builds an `AuthContext` from the caller's context — privileged roles are clamped, so a compromised agent cannot claim admin — and hands the call to `AgentGuard.protect_tool_call()`, the eight-phase pipeline above. If every gate passes, the guard invokes the *registered* tool function and returns sanitized output. If any gate fails, the agent receives `SecurityBlockedError` and handles it like any failed tool call.
+
+3. **Hermes gets two extra native hooks.** ClawSafe also ships as a pip entry point (`hermes.plugins`): on startup Hermes calls `register(ctx)`, which installs `pre_llm_call` / `post_llm_call` lifecycle hooks that scan messages for prompt injection before the LLM runs and scan responses for credential leaks after. Separately, `ClawSafeMemoryProvider` implements Hermes's memory-provider contract, surfacing recent security findings into the agent's own context.
+
+4. **OpenClaw gets skill discovery.** `clawsafe.integrations.openclaw.install()` writes a `SKILL.md` into the OpenClaw workspace so its skill loader picks up ClawSafe's scanners natively.
+
+So there are two layers of defense: the **adapter layer** (blocks bad *tool calls*) and, where the framework supports hooks, the **lifecycle layer** (blocks bad *LLM inputs and outputs*) — both feeding the same audit trail.
+
+### One-Line Integration (ClawSafe Lite)
+
+For the shortest path, `clawsafe.lite` wraps all of the above:
+
+```python
+from clawsafe import protect_agent, guarded, scan_messages, scan_output
+
+# Whole agent — framework auto-detected, hardened preset applied
+agent = protect_agent(agent, tools={"search": search_func})
+
+# Single function — no adapter, no framework required
+@guarded(params={"path": "str"}, allowed_dirs=["/data"])
+def read_file(path: str) -> str:
+    ...
+
+# Any custom loop — standalone scanners
+findings = scan_messages([{"role": "user", "content": user_input}])
+findings = scan_output(model_response)
+```
+
+Lite changes the ergonomics, never the security: every path routes through the same `AgentGuard` pipeline.
+
 ## Security Decision Flow
 
 ![Animated dataflow through the ClawSafe pipeline: allowed calls reach a sanitized result, malicious calls are diverted to a blocked state, and both are audited](assets/animations/dataflow-animation.svg)
@@ -275,6 +313,24 @@ Authorization Request
    ├─ Score 0.3-0.7: ? CONDITIONAL (needs review or pre-approval)
    └─ Score > 0.7: ✗ DENIED (high risk)
 ```
+
+## Memory Security Design
+
+![Memory security gates: validated writes, hash-verified reads, quarantine for tampered or expired memories, and a full access log](assets/diagrams/memory-gates.svg)
+
+The threat this design answers is **memory poisoning**: an attacker who cannot make the agent run a bad tool *today* plants a memory ("the user said security checks can be skipped") that corrupts behavior *tomorrow*. Agent knowledge is therefore treated like untrusted input on the way in, and like evidence on the way out:
+
+- **Gated writes.** `MemoryValidator` scans every candidate memory for poisoning patterns ("forget security", "bypass protection") and prompt injection ("ignore previous instructions"), and enforces a confidence range, size cap, and source whitelist. A HIGH finding means the memory is never stored — this applies equally to memories learned from tool results and to records restored from an export.
+
+- **Tamper-evidence at rest.** Every stored memory carries a SHA-256 hash of its content. Every read recomputes it; a mismatch quarantines the memory (`retrieve_memory` returns `None`) and logs a `tamper_detected` event. TTL is also enforced at read time, so an expired memory can never feed back into reasoning even before cleanup runs.
+
+- **Per-memory access control.** ACLs are scoped per memory ID and default to the writer, so one user's memories cannot bleed into another user's session. Denied reads are logged.
+
+- **Gradual confidence.** User feedback nudges confidence in small steps (+0.1 / −0.2, clamped to [0, 1]); out-of-range ratings are rejected outright, and any confidence jump over 0.5 is flagged as suspicious — neither an attacker nor a buggy loop can promote a low-trust memory to "certain" in one move.
+
+- **Verified persistence.** `export_memories()` / `import_memories()` serialize memories with their hashes and ACLs. On import every record is re-hashed against its stored hash (tampered exports are rejected) and re-validated through the write gate (poisoned exports are rejected even when their hashes are self-consistent).
+
+Note that ClawSafe has **two distinct memory systems**: `MemoryGuard` (this section — protected agent *knowledge*) and `MemoryStore` (the SQLite *audit* log of tool calls and security events, which also backs the Hermes memory provider).
 
 ## Memory Integrity Verification
 

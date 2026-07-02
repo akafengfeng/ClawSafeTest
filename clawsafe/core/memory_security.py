@@ -157,7 +157,7 @@ class MemoryValidator:
                 break
 
         # Validate source is legitimate
-        valid_sources = {"user", "system", "learned", "inferred"}
+        valid_sources = {"user", "system", "learned", "inferred", "observed"}
         if memory.source not in valid_sources:
             findings.append(
                 MemoryFinding(
@@ -195,6 +195,10 @@ class MemoryValidator:
 class MemoryGuard:
     """Protects agent memories from tampering and poisoning."""
 
+    # Access-log entries kept in memory; older entries are trimmed so
+    # long-running agents don't grow without bound.
+    MAX_ACCESS_LOG_ENTRIES = 10_000
+
     def __init__(self):
         self.validator = MemoryValidator()
         self.memory_store: dict[str, AgentMemory] = {}
@@ -229,17 +233,26 @@ class MemoryGuard:
         return True, findings
 
     def retrieve_memory(self, memory_id: str, user_id: str) -> AgentMemory | None:
-        """Retrieve a memory with access control."""
+        """Retrieve a memory with access control, integrity, and TTL checks."""
         # Check access control
         if memory_id in self.access_control:
             if user_id not in self.access_control[memory_id]:
+                self._log_access("denied", memory_id, user_id)
                 return None
 
         memory = self.memory_store.get(memory_id)
         if memory:
-            # Verify integrity
+            # TTL is enforced at read time — an expired memory must never
+            # feed back into the agent, even before cleanup_expired() runs.
+            if memory.is_expired():
+                self.memory_store.pop(memory_id, None)
+                self.access_control.pop(memory_id, None)
+                self._log_access("expired", memory_id, user_id)
+                return None
+
+            # Verify integrity — a tampered memory is quarantined, never returned.
             if not memory.verify_integrity():
-                # Memory was tampered with!
+                self._log_access("tamper_detected", memory_id, user_id)
                 return None
 
             # Update access tracking
@@ -260,9 +273,6 @@ class MemoryGuard:
         # Check access control
         if user_id not in self.access_control.get(memory_id, set()):
             return False, []
-
-        # Validate confidence change if applicable
-        memory.compute_hash()
 
         # Create updated memory for validation
         updated = AgentMemory(
@@ -296,8 +306,8 @@ class MemoryGuard:
         if user_id not in self.access_control.get(memory_id, set()):
             return False
 
-        del self.memory_store[memory_id]
-        del self.access_control[memory_id]
+        self.memory_store.pop(memory_id, None)
+        self.access_control.pop(memory_id, None)
 
         self._log_access("delete", memory_id, user_id)
         return True
@@ -371,6 +381,8 @@ class MemoryGuard:
                 "timestamp": datetime.now().timestamp(),
             }
         )
+        if len(self.access_log) > self.MAX_ACCESS_LOG_ENTRIES:
+            del self.access_log[: len(self.access_log) - self.MAX_ACCESS_LOG_ENTRIES]
 
     def _are_contradictory(self, content1: str, content2: str) -> bool:
         """Check if two memory contents are contradictory."""
@@ -400,14 +412,110 @@ class MemoryGuard:
         ]
 
         for mid in expired:
-            del self.memory_store[mid]
-            del self.access_control[mid]
+            self.memory_store.pop(mid, None)
+            self.access_control.pop(mid, None)
 
         return len(expired)
 
     def get_memory_audit_log(self) -> list[dict]:
         """Get audit log of all memory operations."""
         return self.access_log.copy()
+
+    def export_memories(self) -> list[dict]:
+        """Serialize all memories (with hashes and ACLs) for persistence.
+
+        Returns:
+            List of memory records suitable for JSON serialization.
+        """
+        records = []
+        for memory in self.memory_store.values():
+            records.append(
+                {
+                    "id": memory.id,
+                    "type": memory.type.value,
+                    "content": memory.content,
+                    "source": memory.source,
+                    "confidence": memory.confidence,
+                    "created_at": memory.created_at,
+                    "updated_at": memory.updated_at,
+                    "content_hash": memory.content_hash,
+                    "expires_at": memory.expires_at,
+                    "allowed_users": sorted(self.access_control.get(memory.id, set())),
+                }
+            )
+        return records
+
+    def import_memories(self, records: list[dict]) -> tuple[int, list[MemoryFinding]]:
+        """Restore memories from an export, re-verifying every record.
+
+        Each record's content is re-hashed against its stored hash (tampered
+        exports are rejected) and re-validated through the write gate, so a
+        poisoned export cannot smuggle bad memories past the validator.
+
+        Returns:
+            (imported_count, findings) — findings explain every rejection.
+        """
+        imported = 0
+        findings: list[MemoryFinding] = []
+
+        for record in records:
+            try:
+                memory = AgentMemory(
+                    id=str(record["id"]),
+                    type=MemoryType(record["type"]),
+                    content=str(record["content"]),
+                    source=str(record["source"]),
+                    confidence=float(record["confidence"]),
+                    created_at=float(record.get("created_at", 0.0)),
+                    updated_at=float(record.get("updated_at", 0.0)),
+                    content_hash=str(record.get("content_hash", "")),
+                    expires_at=record.get("expires_at"),
+                )
+            except (KeyError, ValueError, TypeError) as e:
+                findings.append(
+                    MemoryFinding(
+                        policy_name="import_malformed_record",
+                        severity=MemorySeverity.MEDIUM,
+                        message=f"Malformed memory record skipped: {e}",
+                        memory_id=str(record.get("id", "?")),
+                    )
+                )
+                continue
+
+            # Integrity: the exported hash must match the exported content.
+            if not memory.verify_integrity():
+                findings.append(
+                    MemoryFinding(
+                        policy_name="import_integrity_failure",
+                        severity=MemorySeverity.CRITICAL,
+                        message="Imported memory failed integrity check — rejected",
+                        memory_id=memory.id,
+                        memory_type=memory.type,
+                    )
+                )
+                continue
+
+            # Expired records are dropped silently — they'd be purged on read anyway.
+            if memory.is_expired():
+                continue
+
+            # Re-validate through the write gate (fail closed on HIGH/CRITICAL).
+            record_findings = self.validator.validate_memory(memory)
+            findings.extend(record_findings)
+            if any(
+                f.severity in (MemorySeverity.HIGH, MemorySeverity.CRITICAL)
+                for f in record_findings
+            ):
+                continue
+
+            memory.content_hash = memory.compute_hash()
+            self.memory_store[memory.id] = memory
+            allowed = record.get("allowed_users") or []
+            self.access_control[memory.id] = set(allowed) if allowed else {"system"}
+            imported += 1
+
+        self._log_access("import", f"{imported} record(s)", "system")
+        return imported, findings
 
     def get_memory_statistics(self) -> dict:
         """Get statistics about stored memories."""

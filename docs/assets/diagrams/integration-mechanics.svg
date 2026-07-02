@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 900 660" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Integration mechanics: wrap_agent patches OpenClaw's execute_tool and Hermes's call_function so every tool call reroutes through the AgentGuard pipeline; passing calls return sanitized results, failing calls raise SecurityBlockedError, and every verdict is audited.">
+  <defs>
+    <style>
+      .box { fill: #1a1f3a; stroke: #3a4555; stroke-width: 1.5; }
+      .box-title { font: 700 14px 'Inter', -apple-system, 'Segoe UI', sans-serif; fill: #e8f0fe; text-anchor: middle; }
+      .box-sub { font: 400 11px 'Inter', -apple-system, 'Segoe UI', sans-serif; fill: #7a8ab0; text-anchor: middle; }
+      .mono { font: 500 11px 'JetBrains Mono', 'SF Mono', Consolas, monospace; fill: #7a8ab0; text-anchor: middle; }
+      .edge { stroke: #00d9ff; stroke-width: 1.5; fill: none; marker-end: url(#im-ar); opacity: 0.7; }
+      .label { font: 500 11px 'Inter', -apple-system, 'Segoe UI', sans-serif; fill: #a0b0d4; }
+      .title { font: 800 22px 'Inter', -apple-system, 'Segoe UI', sans-serif; fill: #00d9ff; text-anchor: middle; }
+      .item { font: 500 11.5px 'Inter', -apple-system, 'Segoe UI', sans-serif; fill: #a0b0d4; }
+    </style>
+    <marker id="im-ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <polygon points="0 0, 7 3, 0 6" fill="#00d9ff"/>
+    </marker>
+    <marker id="im-ar-gray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <polygon points="0 0, 7 3, 0 6" fill="#7a8ab0"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="660" fill="#0a0e27"/>
+
+  <text x="450" y="36" class="title">Integration Mechanics — The Agent Keeps Its Loop</text>
+
+  <!-- framework agents -->
+  <rect x="70" y="70" width="320" height="64" rx="8" class="box" stroke="#00d9ff"/>
+  <text x="230" y="94" class="box-title">OpenClaw agent</text>
+  <text x="230" y="114" class="mono">agent.execute_tool(name, params)</text>
+
+  <rect x="510" y="70" width="320" height="64" rx="8" class="box" stroke="#00d9ff"/>
+  <text x="670" y="94" class="box-title">Hermes agent</text>
+  <text x="670" y="114" class="mono">agent.call_function(name, params)</text>
+
+  <!-- patch arrows -->
+  <line x1="230" y1="134" x2="230" y2="178" class="edge"/>
+  <line x1="670" y1="134" x2="670" y2="178" class="edge"/>
+  <text x="240" y="162" class="label">wrap_agent() replaced this method</text>
+  <text x="680" y="162" class="label">wrap_agent() replaced this method</text>
+
+  <!-- adapters -->
+  <rect x="70" y="182" width="320" height="64" rx="8" class="box" stroke="#00ff88" stroke-opacity="0.7"/>
+  <text x="230" y="206" class="box-title">OpenClawAdapter</text>
+  <text x="230" y="226" class="box-sub">clamps roles · builds AuthContext · never double-wraps</text>
+
+  <rect x="510" y="182" width="320" height="64" rx="8" class="box" stroke="#00ff88" stroke-opacity="0.7"/>
+  <text x="670" y="206" class="box-title">HermesAdapter</text>
+  <text x="670" y="226" class="box-sub">same, plus get_tools() filtered to the whitelist</text>
+
+  <!-- converge -->
+  <path d="M 230 246 L 230 276 L 440 276 L 440 300" class="edge"/>
+  <path d="M 670 246 L 670 276 L 460 276 L 460 300" class="edge" style="marker-end:none"/>
+
+  <!-- guard core -->
+  <rect x="150" y="304" width="600" height="150" rx="10" fill="#101736" stroke="#00d9ff" stroke-width="2"/>
+  <text x="450" y="330" class="box-title" style="font-size:16px">AgentGuard.protect_tool_call()</text>
+  <line x1="180" y1="342" x2="720" y2="342" stroke="#3a4555" stroke-width="1"/>
+  <text x="190" y="366" class="item">1. authorize — RBAC + risk score</text>
+  <text x="190" y="390" class="item">2. whitelist — deny by default</text>
+  <text x="190" y="414" class="item">3. validate parameter types</text>
+  <text x="190" y="438" class="item">4. scan input — injection, credentials</text>
+  <text x="480" y="366" class="item">5. contain paths — allowed_dirs</text>
+  <text x="480" y="390" class="item">6. rate limit — per-user window</text>
+  <text x="480" y="414" class="item">7. execute the registered tool</text>
+  <text x="480" y="438" class="item">8. scan + redact output</text>
+
+  <!-- verdicts -->
+  <path d="M 300 454 L 300 494" class="edge" style="stroke:#00ff88"/>
+  <path d="M 600 454 L 600 494" class="edge" style="stroke:#ff3333"/>
+  <text x="310" y="482" class="label">all gates pass</text>
+  <text x="610" y="482" class="label">any gate fails</text>
+
+  <rect x="150" y="498" width="300" height="60" rx="8" fill="#00ff88" fill-opacity="0.10" stroke="#00ff88" stroke-width="1.5"/>
+  <text x="300" y="522" class="box-title" fill="#00ff88">sanitized result → agent</text>
+  <text x="300" y="542" class="box-sub">the agent loop continues normally</text>
+
+  <rect x="460" y="498" width="290" height="60" rx="8" fill="#ff3333" fill-opacity="0.10" stroke="#ff3333" stroke-width="1.5"/>
+  <text x="605" y="522" class="box-title" fill="#ff3333">SecurityBlockedError → agent</text>
+  <text x="605" y="542" class="box-sub">the tool never runs</text>
+
+  <!-- audit -->
+  <line x1="300" y1="558" x2="300" y2="592" stroke="#7a8ab0" stroke-width="1.2" stroke-dasharray="2 5" marker-end="url(#im-ar-gray)"/>
+  <line x1="605" y1="558" x2="605" y2="592" stroke="#7a8ab0" stroke-width="1.2" stroke-dasharray="2 5" marker-end="url(#im-ar-gray)"/>
+  <rect x="150" y="596" width="600" height="42" rx="8" fill="#1a1f3a" stroke="#00d9ff" stroke-width="1" stroke-opacity="0.5"/>
+  <text x="450" y="622" class="box-sub" style="font-size:12px; fill:#a0b0d4">immutable audit trail — every verdict recorded</text>
+</svg>

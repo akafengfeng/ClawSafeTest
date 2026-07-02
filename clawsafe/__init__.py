@@ -28,6 +28,7 @@ from .integrations import (
     LangChainAdapter,
     OpenClawAdapter,
 )
+from .lite import guarded, protect_agent, scan_messages, scan_output
 from .memory.store import MemoryStore
 from .skills.registry import SkillRegistry
 
@@ -69,4 +70,9 @@ __all__ = [
     "ToolRegistry",
     "ValidationFinding",
     "get_provider",
+    # Lite one-line integration
+    "guarded",
+    "protect_agent",
+    "scan_messages",
+    "scan_output",
 ]

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 900 700" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Memory security gates: every write passes a validation gate that rejects poisoning and injection; memories rest with a SHA-256 hash, per-memory ACL, TTL, and confidence; every read re-checks the ACL, TTL, and hash so tampered or expired memories are never returned; all operations are logged.">
+  <defs>
+    <style>
+      .box { fill: #1a1f3a; stroke: #3a4555; stroke-width: 1.5; }
+      .box-title { font: 700 14px 'Inter', -apple-system, 'Segoe UI', sans-serif; fill: #e8f0fe; text-anchor: middle; }
+      .box-sub { font: 400 11.5px 'Inter', -apple-system, 'Segoe UI', sans-serif; fill: #7a8ab0; text-anchor: middle; }
+      .edge { stroke: #00d9ff; stroke-width: 1.5; fill: none; marker-end: url(#mg-ar); opacity: 0.7; }
+      .edge-red { stroke: #ff3333; stroke-width: 1.5; fill: none; marker-end: url(#mg-ar-red); opacity: 0.6; }
+      .label { font: 500 11px 'Inter', -apple-system, 'Segoe UI', sans-serif; fill: #a0b0d4; }
+      .title { font: 800 22px 'Inter', -apple-system, 'Segoe UI', sans-serif; fill: #00d9ff; text-anchor: middle; }
+    </style>
+    <marker id="mg-ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <polygon points="0 0, 7 3, 0 6" fill="#00d9ff"/>
+    </marker>
+    <marker id="mg-ar-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <polygon points="0 0, 7 3, 0 6" fill="#ff3333"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="700" fill="#0a0e27"/>
+
+  <text x="450" y="36" class="title">Memory Security — Gated Writes, Verified Reads</text>
+
+  <!-- write source -->
+  <rect x="130" y="66" width="440" height="56" rx="8" class="box" stroke="#00d9ff"/>
+  <text x="350" y="89" class="box-title">memory write</text>
+  <text x="350" y="108" class="box-sub">learned fact · user interaction · feedback · restored export</text>
+
+  <line x1="350" y1="122" x2="350" y2="152" class="edge"/>
+
+  <!-- write gate -->
+  <rect x="130" y="156" width="440" height="96" rx="8" class="box" stroke="#00ff88" stroke-opacity="0.7"/>
+  <text x="350" y="180" class="box-title">write gate — MemoryValidator</text>
+  <text x="350" y="204" class="box-sub">poisoning + prompt-injection patterns in content</text>
+  <text x="350" y="224" class="box-sub">confidence in 0–1 · size cap · trusted source whitelist</text>
+
+  <path d="M 570 200 L 640 200" class="edge-red"/>
+  <rect x="644" y="172" width="196" height="56" rx="8" fill="#ff3333" fill-opacity="0.10" stroke="#ff3333" stroke-width="1.5"/>
+  <text x="742" y="196" class="box-title" fill="#ff3333">write rejected</text>
+  <text x="742" y="215" class="box-sub">HIGH finding — fail closed</text>
+
+  <line x1="350" y1="252" x2="350" y2="288" class="edge"/>
+  <text x="360" y="276" class="label">SHA-256 hash computed · ACL set to writer</text>
+
+  <!-- at rest -->
+  <rect x="130" y="292" width="440" height="88" rx="8" class="box"/>
+  <text x="350" y="316" class="box-title">memory at rest — AgentMemory</text>
+  <text x="350" y="338" class="box-sub">content hash · per-memory ACL · TTL · confidence</text>
+  <text x="350" y="358" class="box-sub">fact · behavior · relationship · system · ephemeral</text>
+
+  <!-- persistence side loop -->
+  <path d="M 570 336 L 640 336" class="edge" style="opacity:0.5"/>
+  <rect x="644" y="300" width="196" height="72" rx="8" class="box" stroke-dasharray="6 4"/>
+  <text x="742" y="326" class="box-title">export / import</text>
+  <text x="742" y="345" class="box-sub">survives restarts — every record</text>
+  <text x="742" y="361" class="box-sub">re-hashed + re-validated on import</text>
+
+  <line x1="350" y1="380" x2="350" y2="416" class="edge"/>
+  <text x="360" y="404" class="label">retrieve_memory(id, user)</text>
+
+  <!-- read gate -->
+  <rect x="130" y="420" width="440" height="112" rx="8" class="box" stroke="#00ff88" stroke-opacity="0.7"/>
+  <text x="350" y="444" class="box-title">read gate</text>
+  <text x="350" y="468" class="box-sub">ACL — requester must be granted access</text>
+  <text x="350" y="488" class="box-sub">TTL — expired memories are purged, never returned</text>
+  <text x="350" y="508" class="box-sub">integrity — hash recomputed on every single read</text>
+
+  <path d="M 570 476 L 640 476" class="edge-red"/>
+  <rect x="644" y="448" width="196" height="56" rx="8" fill="#ff3333" fill-opacity="0.10" stroke="#ff3333" stroke-width="1.5"/>
+  <text x="742" y="472" class="box-title" fill="#ff3333">quarantined</text>
+  <text x="742" y="491" class="box-sub">tampered / denied / expired → None</text>
+
+  <line x1="350" y1="532" x2="350" y2="566" class="edge" style="stroke:#00ff88"/>
+
+  <!-- returned -->
+  <rect x="130" y="570" width="440" height="56" rx="8" fill="#00ff88" fill-opacity="0.10" stroke="#00ff88" stroke-width="1.5"/>
+  <text x="350" y="593" class="box-title" fill="#00ff88">memory returned to agent</text>
+  <text x="350" y="612" class="box-sub">access counted · confidence moves only in small validated steps</text>
+
+  <!-- log -->
+  <line x1="350" y1="626" x2="350" y2="650" stroke="#7a8ab0" stroke-width="1.2" stroke-dasharray="2 5"/>
+  <path d="M 742 504 L 742 540 L 866 540 L 866 672 L 844 672" fill="none" stroke="#7a8ab0" stroke-width="1" stroke-dasharray="2 5"/>
+  <rect x="130" y="652" width="710" height="40" rx="8" fill="#1a1f3a" stroke="#00d9ff" stroke-width="1" stroke-opacity="0.5"/>
+  <text x="485" y="677" class="box-sub" style="font-size:12px; fill:#a0b0d4">memory access log — every read, write, update, delete, denial, and tamper event</text>
+</svg>
