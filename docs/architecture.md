@@ -7,6 +7,8 @@ title: Architecture & Design
 
 ## System Architecture Overview
 
+![Framework integration topology: OpenClaw, Hermes Agent, LangChain, CrewAI, and custom frameworks all route tool calls through the central AgentGuard](assets/diagrams/framework-integrations.svg)
+
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                         Agent Application Layer                              │
@@ -157,6 +159,10 @@ title: Architecture & Design
 
 ## Security Decision Flow
 
+![Animated dataflow through the ClawSafe pipeline: allowed calls reach a sanitized result, malicious calls are diverted to a blocked state, and both are audited](assets/animations/dataflow-animation.svg)
+
+![ClawSafe 8-phase security pipeline](assets/diagrams/architecture-pipeline.svg)
+
 ```
 Tool Call Request
        │
@@ -243,6 +249,8 @@ Tool Call Request
 
 ## Authorization Decision Tree
 
+![Authorization decision flow](assets/diagrams/authorization-decision.svg)
+
 ```
 Authorization Request
 │
@@ -269,6 +277,8 @@ Authorization Request
 ```
 
 ## Memory Integrity Verification
+
+![Memory security architecture](assets/diagrams/memory-security.svg)
 
 ```
 Store Memory Request
@@ -373,6 +383,8 @@ Retrieval Request
 
 ## Threat Detection Patterns
 
+![Threat model overview](assets/diagrams/threat-model.svg)
+
 ### Command Injection Patterns
 ```
 Detectable patterns (blocked):
@@ -401,6 +413,8 @@ Protected tools:
 ```
 
 ### Path Traversal Patterns
+
+![Path containment verdicts under allowed_dirs enforcement](assets/diagrams/path-containment.svg)
 ```
 Detectable patterns (blocked):
 • Directory traversal: ../ ..\\ ..\\
@@ -429,6 +443,8 @@ Action: Extract from output, log with redaction, alert on findings
 ## Design Principles
 
 ### 1. Defense-in-Depth
+
+![Defense-in-depth layers](assets/diagrams/defense-in-depth.svg)
 - Multiple layers of validation
 - No single point of failure
 - Fail-closed (block by default)
@@ -461,6 +477,8 @@ Action: Extract from output, log with redaction, alert on findings
 ---
 
 ## Performance Targets
+
+![Per-user sliding-window rate limiting](assets/diagrams/rate-limit-window.svg)
 
 | Component | Latency | Overhead |
 |---|---|---|

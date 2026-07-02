@@ -157,8 +157,124 @@ layout: default
 
 <section style="background: var(--bg-secondary);">
   <div class="container">
-    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6); border: none; padding-bottom: 0;">Supported Frameworks</h2>
-    
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 3); border: none; padding-bottom: 0;">See It in Action</h2>
+    <p style="text-align: center; color: var(--text-secondary); margin-bottom: calc(var(--spacing-unit) * 6);">Dataflow, control flow, and a live guard session — this is what every tool call goes through.</p>
+
+    <div class="demo-grid">
+      <figure class="demo-figure" style="margin: 0;">
+        <img src="assets/animations/dataflow-animation.svg" alt="Animated dataflow: a legitimate tool call flows through the pipeline to a sanitized result while a malicious call is diverted to a blocked state; both are written to the audit trail" loading="lazy">
+        <figcaption><strong>Dataflow.</strong> A legitimate call travels the full pipeline to a sanitized result; a malicious one is diverted to <code>SecurityBlockedError</code>. Both land in the audit trail.</figcaption>
+      </figure>
+      <figure class="demo-figure" style="margin: 0;">
+        <img src="assets/animations/controlflow-animation.svg" alt="Animated control flow: four fail-closed gates — authorization, whitelist, input validation, rate limit — light up in sequence before execution" loading="lazy">
+        <figcaption><strong>Control flow.</strong> Four fail-closed gates fire in sequence. An error at any gate means the call does not run.</figcaption>
+      </figure>
+    </div>
+
+    <div class="demo-grid">
+      <figure class="demo-figure" style="margin: 0;">
+        <img src="assets/diagrams/path-containment.svg" alt="Path containment: with allowed_dirs set to /data, inside paths are allowed while outside paths, sibling prefixes, relative paths, and traversal attempts are blocked" loading="lazy">
+        <figcaption><strong>Path containment.</strong> <code>allowed_dirs</code> verdicts, including the sibling-prefix and relative-path edge cases.</figcaption>
+      </figure>
+      <figure class="demo-figure" style="margin: 0;">
+        <img src="assets/diagrams/rate-limit-window.svg" alt="Sliding-window rate limiting: the seventh call in the window is blocked, old calls age out, and other users are unaffected" loading="lazy">
+        <figcaption><strong>Rate limiting.</strong> Per-user sliding windows — calls age out continuously and one user can never lock a tool for another.</figcaption>
+      </figure>
+    </div>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="terminal-dot" style="background:#ff5f57"></span>
+        <span class="terminal-dot" style="background:#febc2e"></span>
+        <span class="terminal-dot" style="background:#28c840"></span>
+        <span style="margin-left: 8px;">clawsafe — live guard session</span>
+      </div>
+      <pre class="terminal-body" id="cs-terminal" aria-live="off"></pre>
+    </div>
+
+    <script>
+    (function () {
+      var LINES = [
+        [["t-dim", "$ "], ["t-cmd", "python demo.py"]],
+        [["t-cmd", ">>> guard.protect_tool_call(\"search\", {\"query\": \"quarterly report\"})"]],
+        [["t-ok", "  \u2713 ALLOWED"], ["t-dim", " \u2014 authorized \u00b7 whitelisted \u00b7 input clean \u00b7 under limit"]],
+        [["t-dim", "  \u2192 executed in 11 ms \u00b7 output sanitized \u00b7 audit entry #4821"]],
+        [["t-cmd", ">>> guard.protect_tool_call(\"shell_exec\", {\"cmd\": \"rm -rf /\"})"]],
+        [["t-bad", "  \u2717 SecurityBlockedError"], ["t-dim", ": Tool 'shell_exec' is not whitelisted"]],
+        [["t-cmd", ">>> guard.protect_tool_call(\"read_file\", {\"path\": \"/etc/passwd\"})"]],
+        [["t-bad", "  \u2717 SecurityBlockedError"], ["t-dim", ": Path '/etc/passwd' is outside the allowed directories"]],
+        [["t-dim", "  \u2192 3 calls \u00b7 1 allowed \u00b7 2 blocked \u00b7 all recorded in the audit trail"]]
+      ];
+      var el = document.getElementById("cs-terminal");
+      if (!el) return;
+
+      var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduced) {
+        LINES.forEach(function (line) {
+          line.forEach(function (seg) {
+            var s = document.createElement("span");
+            s.className = seg[0];
+            s.textContent = seg[1];
+            el.appendChild(s);
+          });
+          el.appendChild(document.createTextNode("\n"));
+        });
+        return;
+      }
+
+      var cursor = document.createElement("span");
+      cursor.className = "terminal-cursor";
+
+      function typeAll() {
+        el.textContent = "";
+        el.appendChild(cursor);
+        var li = 0, si = 0, ci = 0;
+        var current = null;
+
+        function tick() {
+          if (li >= LINES.length) {
+            setTimeout(typeAll, 4000);
+            return;
+          }
+          var seg = LINES[li][si];
+          if (!current) {
+            current = document.createElement("span");
+            current.className = seg[0];
+            el.insertBefore(current, cursor);
+          }
+          current.textContent += seg[1].charAt(ci);
+          ci += 1;
+          var delay = 18;
+          if (ci >= seg[1].length) {
+            ci = 0;
+            si += 1;
+            current = null;
+            if (si >= LINES[li].length) {
+              si = 0;
+              li += 1;
+              el.insertBefore(document.createTextNode("\n"), cursor);
+              delay = LINES[li - 1][0][0] === "t-cmd" ? 350 : 550;
+            }
+          }
+          setTimeout(tick, delay);
+        }
+        tick();
+      }
+
+      typeAll();
+    })();
+    </script>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6);">Supported Frameworks</h2>
+
+    <figure class="demo-figure" style="margin: 0 auto calc(var(--spacing-unit) * 6); max-width: 860px;">
+      <img src="assets/diagrams/framework-integrations.svg" alt="Framework integration topology: OpenClaw, Hermes Agent, LangChain, CrewAI, and custom frameworks all route tool calls through the central AgentGuard, which returns verdicts" loading="lazy">
+    </figure>
+
     <div style="overflow-x: auto;">
       <table>
         <thead>
@@ -206,9 +322,9 @@ layout: default
   </div>
 </section>
 
-<section>
+<section style="background: var(--bg-secondary);">
   <div class="container">
-    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6);">Performance & Compliance</h2>
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6); border: none; padding-bottom: 0;">Performance & Compliance</h2>
     
     <div class="two-col" style="margin-bottom: calc(var(--spacing-unit) * 8);">
       <div>
@@ -257,9 +373,9 @@ layout: default
   </div>
 </section>
 
-<section style="background: var(--bg-secondary);">
+<section>
   <div class="container">
-    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6); border: none; padding-bottom: 0;">Quick Start</h2>
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6);">Quick Start</h2>
 
     <h3 style="color: var(--primary);">Installation</h3>
     <pre><code>pip install clawsafe-agent
@@ -318,9 +434,9 @@ insights = agent.get_agent_insights()</code></pre>
   </div>
 </section>
 
-<section>
+<section style="background: var(--bg-secondary);">
   <div class="container">
-    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 8);">Why ClawSafe?</h2>
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 8); border: none; padding-bottom: 0;">Why ClawSafe?</h2>
     
     <div class="two-col">
       <div>
@@ -349,9 +465,9 @@ insights = agent.get_agent_insights()</code></pre>
   </div>
 </section>
 
-<section style="background: var(--bg-secondary);">
+<section>
   <div class="container">
-    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6); border: none; padding-bottom: 0;">Documentation</h2>
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6);">Documentation</h2>
     
     <div class="features">
       <div class="feature-card">

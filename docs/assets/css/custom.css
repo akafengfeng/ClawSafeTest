@@ -208,6 +208,97 @@ pre code {
   gap: calc(var(--spacing-unit) * 6);
 }
 
+/* Demo figures — animated SVGs and diagrams */
+.demo-figure {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.demo-figure:hover {
+  border-color: var(--primary);
+  box-shadow: 0 8px 30px rgba(0, 217, 255, 0.15);
+}
+
+.demo-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.demo-figure figcaption {
+  padding: calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 3);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-light);
+}
+
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: calc(var(--spacing-unit) * 4);
+  margin: calc(var(--spacing-unit) * 6) 0;
+}
+
+/* Live terminal demo */
+.terminal {
+  max-width: 860px;
+  margin: calc(var(--spacing-unit) * 6) auto;
+  background: #0f1428;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 30px rgba(0, 217, 255, 0.06);
+  overflow: hidden;
+}
+
+.terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+}
+
+.terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.terminal-body {
+  padding: calc(var(--spacing-unit) * 3);
+  font-family: 'JetBrains Mono', 'SF Mono', Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.8;
+  min-height: 220px;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-secondary);
+}
+
+.terminal-body .t-cmd { color: var(--text-primary); }
+.terminal-body .t-ok { color: var(--success); }
+.terminal-body .t-bad { color: var(--danger); }
+.terminal-body .t-dim { color: var(--text-tertiary); }
+
+.terminal-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1em;
+  background: var(--primary);
+  vertical-align: text-bottom;
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+
 /* Header / Navigation */
 header {
   background: linear-gradient(180deg, var(--bg) 0%, rgba(10, 14, 39, 0.8) 100%);

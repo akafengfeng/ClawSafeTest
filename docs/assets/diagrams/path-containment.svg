@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 900 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Path containment examples: with allowed_dirs set to /data, a path inside /data is allowed while paths outside it, sibling-prefix directories, relative paths, and traversal attempts are blocked.">
+  <defs>
+    <style>
+      .title { font: 800 22px 'Inter', -apple-system, 'Segoe UI', sans-serif; fill: #00d9ff; text-anchor: middle; }
+      .policy { font: 600 13px 'JetBrains Mono', 'SF Mono', Consolas, monospace; fill: #00d9ff; }
+      .path { font: 500 14px 'JetBrains Mono', 'SF Mono', Consolas, monospace; fill: #e8f0fe; }
+      .why { font: 400 11.5px 'Inter', -apple-system, 'Segoe UI', sans-serif; fill: #7a8ab0; }
+      .pill-ok-text { font: 700 12px 'Inter', -apple-system, 'Segoe UI', sans-serif; fill: #00ff88; text-anchor: middle; }
+      .pill-bad-text { font: 700 12px 'Inter', -apple-system, 'Segoe UI', sans-serif; fill: #ff3333; text-anchor: middle; }
+      .caption { font: 500 12px 'Inter', -apple-system, 'Segoe UI', sans-serif; fill: #a0b0d4; text-anchor: middle; }
+      .row-line { stroke: #2a3040; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <rect width="900" height="440" fill="#0a0e27"/>
+
+  <text x="450" y="38" class="title">Path Containment — allowed_dirs Enforcement</text>
+
+  <!-- policy chip -->
+  <rect x="60" y="60" width="780" height="38" rx="8" fill="#1a1f3a" stroke="#00d9ff" stroke-width="1" stroke-opacity="0.5"/>
+  <text x="80" y="84" class="policy">tools.allow("read_file", params={"path": "str"}, allowed_dirs=["/data"])</text>
+
+  <!-- rows -->
+  <g>
+    <text x="80" y="142" class="path">/data/reports/q2.txt</text>
+    <rect x="620" y="124" width="110" height="26" rx="13" fill="#00ff88" fill-opacity="0.12" stroke="#00ff88" stroke-width="1.2"/>
+    <text x="675" y="141" class="pill-ok-text">✓ ALLOWED</text>
+    <text x="745" y="141" class="why">inside /data</text>
+    <line x1="60" y1="158" x2="840" y2="158" class="row-line"/>
+  </g>
+  <g>
+    <text x="80" y="192" class="path">/etc/passwd</text>
+    <rect x="620" y="174" width="110" height="26" rx="13" fill="#ff3333" fill-opacity="0.10" stroke="#ff3333" stroke-width="1.2"/>
+    <text x="675" y="191" class="pill-bad-text">✗ BLOCKED</text>
+    <text x="745" y="191" class="why">outside allowed dirs</text>
+    <line x1="60" y1="208" x2="840" y2="208" class="row-line"/>
+  </g>
+  <g>
+    <text x="80" y="242" class="path">/database/dump.sql</text>
+    <rect x="620" y="224" width="110" height="26" rx="13" fill="#ff3333" fill-opacity="0.10" stroke="#ff3333" stroke-width="1.2"/>
+    <text x="675" y="241" class="pill-bad-text">✗ BLOCKED</text>
+    <text x="745" y="241" class="why">shared prefix ≠ containment</text>
+    <line x1="60" y1="258" x2="840" y2="258" class="row-line"/>
+  </g>
+  <g>
+    <text x="80" y="292" class="path">notes.txt</text>
+    <rect x="620" y="274" width="110" height="26" rx="13" fill="#ff3333" fill-opacity="0.10" stroke="#ff3333" stroke-width="1.2"/>
+    <text x="675" y="291" class="pill-bad-text">✗ BLOCKED</text>
+    <text x="745" y="291" class="why">relative path — cwd unknown</text>
+    <line x1="60" y1="308" x2="840" y2="308" class="row-line"/>
+  </g>
+  <g>
+    <text x="80" y="342" class="path">/data/../../etc/shadow</text>
+    <rect x="620" y="324" width="110" height="26" rx="13" fill="#ff3333" fill-opacity="0.10" stroke="#ff3333" stroke-width="1.2"/>
+    <text x="675" y="341" class="pill-bad-text">✗ BLOCKED</text>
+    <text x="745" y="341" class="why">traversal pattern</text>
+  </g>
+
+  <text x="450" y="404" class="caption">Lexical normalization + fail-closed verdicts — violations block the call before the tool ever runs.</text>
+</svg>

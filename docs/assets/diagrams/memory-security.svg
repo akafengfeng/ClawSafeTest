@@ -23,7 +23,7 @@
 
   <!-- Title -->
   <text x="600" y="40" text-anchor="middle" style="font-size: 24px; font-weight: bold; fill: #00d9ff;">
-    ClawSafe Memory Security: Store & Retrieve with Integrity
+    ClawSafe Memory Security: Store &amp; Retrieve with Integrity
   </text>
 
   <!-- STORE PHASE -->

@@ -44,6 +44,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 27 new tests covering fail-closed behavior, `allowed_dirs`, sliding-window rate
   limits, recursive sanitization, and adapter hardening (175 total).
 - Ruff lint job in CI.
+- Animated dataflow and control-flow SVGs (SMIL/CSS — play on GitHub and in
+  `<img>` tags) embedded in the README and website.
+- Three new framework figures: integration topology, `allowed_dirs` path
+  containment, and per-user sliding-window rate limiting.
+- "See It in Action" section on the website with a live typed terminal demo
+  (respects `prefers-reduced-motion`).
+- Architecture doc now embeds all nine diagrams at the relevant sections.
 
 ### Changed
 - Install command corrected across docs: the package name is `clawsafe-agent`.

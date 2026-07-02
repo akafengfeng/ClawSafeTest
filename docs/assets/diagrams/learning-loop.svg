@@ -40,7 +40,7 @@
   <!-- Step 2: Tool Execution with Learning -->
   <g>
     <rect x="340" y="300" width="220" height="140" rx="5" class="cycle-box"/>
-    <text x="450" y="325" text-anchor="middle" class="cycle-title">2. Execute & Learn</text>
+    <text x="450" y="325" text-anchor="middle" class="cycle-title">2. Execute &amp; Learn</text>
     <text x="360" y="345" class="cycle-text">✓ Call tool</text>
     <text x="360" y="358" class="cycle-text">✓ Capture result</text>
     <text x="360" y="371" class="cycle-text">✓ Extract facts</text>
@@ -136,7 +136,7 @@
   <text x="600" y="833" style="font-size: 10px; fill: #a0b0d4;">✓ Per-user isolation (alice ≠ bob)</text>
   <text x="600" y="848" style="font-size: 10px; fill: #a0b0d4;">✓ RBAC enforcement (authorized access only)</text>
 
-  <text x="590" y="875" style="font-size: 11px; fill: #a0b0d4; font-weight: bold;">Audit & Compliance:</text>
+  <text x="590" y="875" style="font-size: 11px; fill: #a0b0d4; font-weight: bold;">Audit &amp; Compliance:</text>
   <text x="600" y="893" style="font-size: 10px; fill: #a0b0d4;">✓ Complete audit trail (every operation logged)</text>
   <text x="600" y="908" style="font-size: 10px; fill: #a0b0d4;">✓ Non-repudiation (user attribution)</text>
 

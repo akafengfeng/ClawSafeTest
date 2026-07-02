@@ -119,23 +119,43 @@ More complete, runnable examples live in [`examples/`](examples/).
 
 ## ⚙️ How It Works
 
-Every tool call passes through an eight-phase pipeline. Authorization and registry checks are **always fail-closed**; validation phases are configurable.
+Every tool call passes through an eight-phase pipeline. Authorization and registry checks are **always fail-closed**; validation phases are configurable. Watch a legitimate call reach a sanitized result while a malicious one gets diverted:
 
-```text
- Tool Call
-    │
-    ├─ 1. Authorization ······· RBAC + risk scoring          (always blocks on deny)
-    ├─ 2. Registry Check ······ deny-by-default whitelist    (always blocks unknown tools)
-    ├─ 3. Param Validation ···· type & schema checking
-    ├─ 4. Input Scanning ······ command/SQL injection, path traversal, credentials
-    ├─ 5. Path Containment ···· allowed_dirs enforcement     (always blocks violations)
-    ├─ 6. Rate Limiting ······· per-user sliding window
-    │
-    ├─ ▶ EXECUTE
-    │
-    ├─ 7. Output Validation ··· credential leak detection + recursive redaction
-    └─ 8. Audit Logging ······· immutable entry (allow or block, with findings)
-```
+<div align="center">
+
+![Animated dataflow: a legitimate tool call flows through authorize, validate, rate limit, and execute to a sanitized result, while a malicious call is diverted to a blocked state — both land in the audit trail](docs/assets/animations/dataflow-animation.svg)
+
+</div>
+
+<details>
+<summary><strong>⛩️ Control flow — the four fail-closed gates</strong></summary>
+<br>
+<div align="center">
+
+![Animated control flow: authorization, whitelist, input validation, and rate-limit gates light up in sequence; any "no" edge raises SecurityBlockedError](docs/assets/animations/controlflow-animation.svg)
+
+</div>
+</details>
+
+<details>
+<summary><strong>📁 Path containment — <code>allowed_dirs</code> in practice</strong></summary>
+<br>
+<div align="center">
+
+![Path containment examples: /data paths allowed; outside paths, sibling prefixes, relative paths, and traversal attempts blocked](docs/assets/diagrams/path-containment.svg)
+
+</div>
+</details>
+
+<details>
+<summary><strong>⏱️ Rate limiting — per-user sliding window</strong></summary>
+<br>
+<div align="center">
+
+![Sliding-window rate limiting: user A's seventh call in the window is blocked, old calls age out, user B is unaffected](docs/assets/diagrams/rate-limit-window.svg)
+
+</div>
+</details>
 
 <div align="center">
 
@@ -144,6 +164,12 @@ Every tool call passes through an eight-phase pipeline. Authorization and regist
 </div>
 
 ## 🔌 Framework Integrations
+
+<div align="center">
+
+![Framework integration topology: OpenClaw, Hermes Agent, LangChain, CrewAI, and custom frameworks all route tool calls through the central AgentGuard](docs/assets/diagrams/framework-integrations.svg)
+
+</div>
 
 | Framework | Integration point | Hardened preset |
 |---|---|---|
