@@ -337,7 +337,7 @@ config = ClawSafeConfig(
 
 ## Next Steps
 
-- [Getting Started →](./getting-started.md)
-- [Providers →](./providers.md)
-- [Security Policies →](../features/policies.md)
+- [Getting Started →](./getting-started.html)
+- [Providers →](./providers.html)
+- [Security Policies →](../features/policies.html)
 - [GitHub Repository →](https://github.com/akafengfeng/ClawSafeTest)

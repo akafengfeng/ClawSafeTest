@@ -129,7 +129,7 @@ Advantages:
 | **Production ready** | ✓ Yes | Risky (non-deterministic) |
 | **Best for** | Security | Anomaly detection |
 
-**ClawSafe Decision**: Rule-based for security (0 false positives), behavioral ML for anomaly detection (optional).
+**ClawSafe Decision**: Rule-based for security (deterministic verdicts), behavioral ML for anomaly detection (optional).
 
 ---
 

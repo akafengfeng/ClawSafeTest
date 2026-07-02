@@ -131,7 +131,7 @@ print(f"Within budget: {report['within_budget']}")
 
 ## Next Steps
 
-- [Choose a Provider →](./providers.md)
-- [Review Security Policies →](../features/policies.md)
-- [Full Configuration →](./configuration.md)
+- [Choose a Provider →](./providers.html)
+- [Review Security Policies →](../features/policies.html)
+- [Full Configuration →](./configuration.html)
 - [GitHub Repository →](https://github.com/akafengfeng/ClawSafeTest)

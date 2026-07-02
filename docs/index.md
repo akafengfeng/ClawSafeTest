@@ -11,20 +11,20 @@ layout: default
     </p>
     
     <div class="cta-buttons">
-      <a href="./guides/getting-started.md" class="btn btn-primary">Get Started in 5 Min</a>
+      <a href="guides/getting-started.html" class="btn btn-primary">Get Started in 5 Min</a>
       <a href="https://github.com/akafengfeng/ClawSafeTest" class="btn btn-secondary">View on GitHub</a>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: calc(var(--spacing-unit) * 3); margin-top: calc(var(--spacing-unit) * 10); text-align: center; max-width: 900px; margin-left: auto; margin-right: auto;">
+    <div class="stats-grid" style="margin-top: calc(var(--spacing-unit) * 10); max-width: 900px; margin-left: auto; margin-right: auto;">
       <div>
         <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: calc(var(--spacing-unit) * 1);">33</div>
-        <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Total Policies</div>
-        <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">8 pre + 8 post + 9 memory + 8 integration</div>
+        <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Security Policies</div>
+        <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">Pre, post, memory, integration &amp; behavioral</div>
       </div>
       <div>
-        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: calc(var(--spacing-unit) * 1);">41</div>
+        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: calc(var(--spacing-unit) * 1);">175</div>
         <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Tests Passing</div>
-        <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">100% coverage on security paths</div>
+        <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">CI on Python 3.11 &amp; 3.12</div>
       </div>
       <div>
         <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: calc(var(--spacing-unit) * 1);">&lt;100ms</div>
@@ -32,9 +32,9 @@ layout: default
         <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">Per tool call overhead</div>
       </div>
       <div>
-        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: calc(var(--spacing-unit) * 1);">0</div>
-        <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">False Positives</div>
-        <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">Rule-based, no ML fuzz</div>
+        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: calc(var(--spacing-unit) * 1);">5</div>
+        <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Frameworks</div>
+        <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">OpenClaw, Hermes, LangChain, CrewAI, custom</div>
       </div>
     </div>
   </div>
@@ -43,7 +43,7 @@ layout: default
 <section style="background: var(--bg-secondary);">
   <div class="container">
     <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 3); border: none; padding-bottom: 0;">Threat Model</h2>
-    <p style="text-align: center; color: var(--text-secondary); margin-bottom: calc(var(--spacing-unit) * 6);">ClawSafe protects against 10 major attack classes with cryptographic audit trails.</p>
+    <p style="text-align: center; color: var(--text-secondary); margin-bottom: calc(var(--spacing-unit) * 6);">ClawSafe applies rule-based defenses to 10 major attack classes and records every decision in a verifiable audit trail.</p>
     
     <div style="overflow-x: auto;">
       <table>
@@ -149,7 +149,7 @@ layout: default
       <div class="feature-card">
         <div class="feature-icon">⚡</div>
         <h3>Deterministic & Fast</h3>
-        <p>Rule-based policies (0 false positives), &lt;100ms per tool call, &lt;5% overhead, no heavy ML models.</p>
+        <p>Rule-based policies — same input, same verdict. &lt;100ms per tool call, &lt;5% overhead, no ML inference in the hot path.</p>
       </div>
     </div>
   </div>
@@ -210,7 +210,7 @@ layout: default
   <div class="container">
     <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6);">Performance & Compliance</h2>
     
-    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: calc(var(--spacing-unit) * 4); margin-bottom: calc(var(--spacing-unit) * 8);">
+    <div class="two-col" style="margin-bottom: calc(var(--spacing-unit) * 8);">
       <div>
         <h3 style="color: var(--primary); margin-top: 0;">Performance</h3>
         <ul style="list-style: none; padding: 0; color: var(--text-secondary);">
@@ -235,22 +235,22 @@ layout: default
 
     <div style="background: var(--bg-secondary); border-radius: 8px; padding: calc(var(--spacing-unit) * 4); border: 1px solid var(--border); text-align: center;">
       <h3 style="color: var(--primary); margin-top: 0; border: none; padding-bottom: 0;">Test Coverage</h3>
-      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: calc(var(--spacing-unit) * 2); margin-top: calc(var(--spacing-unit) * 4);">
+      <div class="stats-grid" style="margin-top: calc(var(--spacing-unit) * 4);">
         <div>
-          <div style="font-size: 2rem; font-weight: 700; color: var(--success);">41</div>
+          <div style="font-size: 2rem; font-weight: 700; color: var(--success);">175</div>
           <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: calc(var(--spacing-unit) * 1);">Tests Passing</div>
         </div>
         <div>
-          <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">16</div>
-          <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: calc(var(--spacing-unit) * 1);">Tool Policies Verified</div>
+          <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">27</div>
+          <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: calc(var(--spacing-unit) * 1);">Fail-Closed Hardening Tests</div>
         </div>
         <div>
-          <div style="font-size: 2rem; font-weight: 700; color: var(--success);">9</div>
-          <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: calc(var(--spacing-unit) * 1);">Memory Policies Verified</div>
+          <div style="font-size: 2rem; font-weight: 700; color: var(--success);">2</div>
+          <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: calc(var(--spacing-unit) * 1);">Python Versions in CI</div>
         </div>
         <div>
-          <div style="font-size: 2rem; font-weight: 700; color: var(--success);">100%</div>
-          <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: calc(var(--spacing-unit) * 1);">Critical Path Coverage</div>
+          <div style="font-size: 2rem; font-weight: 700; color: var(--success);">Lint + Tests</div>
+          <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: calc(var(--spacing-unit) * 1);">On Every Push &amp; PR</div>
         </div>
       </div>
     </div>
@@ -266,42 +266,52 @@ layout: default
 export ANTHROPIC_API_KEY=sk-ant-...</code></pre>
 
     <h3 style="color: var(--primary);">Basic Protection</h3>
-    <pre><code>from clawsafe import AgentGuard, ToolRegistry, AuthContext
+    <pre><code>from clawsafe import AgentGuard, AgentGuardConfig, AuthContext, ToolRegistry
 
-# Define security policy
+# Declare what the agent may do — everything else is denied
 tools = ToolRegistry()
 tools.allow("search", params={"query": "str"}, risk_level="low")
 tools.allow("read_file", params={"path": "str"}, allowed_dirs=["/data"])
 tools.deny("shell_exec")
 
-# Create protected agent
-guard = AgentGuard(tool_registry=tools)
+# Create the guard
+guard = AgentGuard(AgentGuardConfig(tool_registry=tools))
 
-# Execute with full protection
-auth = AuthContext(user_id="user123", role="user")
+# Route every tool call through it
+auth = AuthContext(user_id="user-123", role="user")
 result = guard.protect_tool_call(
     tool_name="search",
     params={"query": "python security"},
     auth_context=auth,
-    executor=my_search_func
+    executor=my_search_func,
 )</code></pre>
 
+    <h3 style="color: var(--primary);">Hardened Defaults for OpenClaw &amp; Hermes</h3>
+    <pre><code>from clawsafe.integrations import secure_openclaw_adapter, secure_hermes_adapter
+
+adapter = secure_openclaw_adapter()   # or secure_hermes_adapter()
+adapter.register_tool("search", search_func, params={"query": "str"}, risk_level="low")
+
+protected_agent = adapter.wrap_agent(agent)
+# Strict mode, blocks on medium+ findings, rate limiting, output
+# sanitization, and 13 dangerous tools pre-denied — in one call.</code></pre>
+
     <h3 style="color: var(--primary);">Memory-Aware Agent</h3>
-    <pre><code>agent = AgentGuard(agent_id="assistant-001")
+    <pre><code>agent = AgentGuard(config, agent_id="assistant-001")
 
 # Track interactions
-agent.process_interaction("Tell me about security", user_id="user123")
+agent.process_interaction("Tell me about security", user_id="user-123", session_id="sess-1")
 
 # Execute tools with learning
 result = agent.execute_tool_with_learning(
     "search",
     {"query": "cybersecurity"},
     auth,
-    executor=search_func
+    executor=search_func,
 )
 
 # Improve from feedback
-agent.process_user_feedback(memory_id, feedback="Good!", rating=0.95, user_id="user123")
+agent.process_user_feedback(memory_id, feedback="Good!", rating=0.95, user_id="user-123")
 
 # Get insights
 insights = agent.get_agent_insights()</code></pre>
@@ -312,13 +322,13 @@ insights = agent.get_agent_insights()</code></pre>
   <div class="container">
     <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 8);">Why ClawSafe?</h2>
     
-    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: calc(var(--spacing-unit) * 6);">
+    <div class="two-col">
       <div>
         <h3 style="color: var(--primary);">Security First</h3>
         <ul style="list-style: none; padding: 0; color: var(--text-secondary); line-height: 2;">
           <li>✓ Deny by default, whitelist approach</li>
-          <li>✓ Block on HIGH findings (fail-closed)</li>
-          <li>✓ Rule-based detection (0 false positives)</li>
+          <li>✓ Fail-closed authorization &amp; registry checks</li>
+          <li>✓ Deterministic rule-based detection</li>
           <li>✓ Immutable audit trails</li>
           <li>✓ SHA-256 integrity verification</li>
           <li>✓ Per-memory access control</li>
@@ -347,37 +357,37 @@ insights = agent.get_agent_insights()</code></pre>
       <div class="feature-card">
         <div style="font-size: 1.5rem; margin-bottom: calc(var(--spacing-unit) * 1);">📖</div>
         <h3>Getting Started</h3>
-        <p><a href="./guides/getting-started.md">5-minute quickstart</a> covering tool registry, configuration, and protection workflow.</p>
+        <p><a href="guides/getting-started.html">5-minute quickstart</a> covering tool registry, configuration, and protection workflow.</p>
       </div>
 
       <div class="feature-card">
         <div style="font-size: 1.5rem; margin-bottom: calc(var(--spacing-unit) * 1);">🏗️</div>
         <h3>Architecture</h3>
-        <p><a href="./features/architecture.md">Complete reference</a> with 2,600+ lines covering all 16 security policies.</p>
+        <p><a href="architecture.html">Complete design reference</a> — the security pipeline, core components, and diagrams.</p>
       </div>
 
       <div class="feature-card">
-        <div style="font-size: 1.5rem; margin-bottom: calc(var(--spacing-unit) * 1);">🧠</div>
-        <h3>Memory Integration</h3>
-        <p><a href="./features/memory.md">Full guide</a> to agent learning, memory protection, and evolution.</p>
+        <div style="font-size: 1.5rem; margin-bottom: calc(var(--spacing-unit) * 1);">🎯</div>
+        <h3>Threat Modeling</h3>
+        <p><a href="threat-modeling.html">Threat modeling guide</a> mapping attack classes to ClawSafe controls.</p>
       </div>
 
       <div class="feature-card">
         <div style="font-size: 1.5rem; margin-bottom: calc(var(--spacing-unit) * 1);">🔧</div>
         <h3>Configuration</h3>
-        <p><a href="./guides/configuration.md">Setup reference</a> for all authorization modes and policy options.</p>
+        <p><a href="guides/configuration.html">Setup reference</a> for all authorization modes and policy options.</p>
       </div>
 
       <div class="feature-card">
         <div style="font-size: 1.5rem; margin-bottom: calc(var(--spacing-unit) * 1);">🤖</div>
         <h3>Providers</h3>
-        <p><a href="./guides/providers.md">LLM setup</a> for Claude, GPT-4, DeepSeek, Qwen, and custom models.</p>
+        <p><a href="guides/providers.html">LLM setup</a> for Claude, GPT-4, DeepSeek, Qwen, and custom models.</p>
       </div>
 
       <div class="feature-card">
         <div style="font-size: 1.5rem; margin-bottom: calc(var(--spacing-unit) * 1);">🔒</div>
         <h3>Security Policies</h3>
-        <p><a href="./features/policies.md">All 33 policies</a> documented with threat models and responses.</p>
+        <p><a href="features/policies.html">All 33 policies</a> documented with threat models and responses.</p>
       </div>
     </div>
   </div>

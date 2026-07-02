@@ -6,29 +6,48 @@
     <meta name="description" content="{{ site.description | default: site.github.project_tagline }}">
     <title>{% if page.title %}{{ page.title }} — {% endif %}{{ site.title }}</title>
 
+    <!-- Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
     <!-- Link Slate theme stylesheets -->
     <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
 
     <!-- Link custom professional CSS -->
     <link rel="stylesheet" href="{{ '/assets/css/custom.css' | relative_url }}">
 
-    <meta name="theme-color" content="#0066ff">
+    <!-- Social sharing metadata -->
+    <meta property="og:title" content="{% if page.title %}{{ page.title }} — {% endif %}{{ site.title }}">
+    <meta property="og:description" content="{{ site.description }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ page.url | absolute_url }}">
+
+    <meta name="theme-color" content="#0a0e27">
 </head>
 <body>
 
 <header>
     <div class="header-content">
-        <div class="logo">ClawSafe</div>
+        <div class="logo">🛡️ ClawSafe</div>
         <ul class="nav-links">
             <li><a href="{{ '/' | relative_url }}">Home</a></li>
-            <li><a href="{{ '/guides/getting-started.md' | relative_url }}">Docs</a></li>
+            <li><a href="{{ '/guides/getting-started.html' | relative_url }}">Get Started</a></li>
+            <li><a href="{{ '/architecture.html' | relative_url }}">Architecture</a></li>
+            <li><a href="{{ '/features/policies.html' | relative_url }}">Policies</a></li>
             <li><a href="https://github.com/akafengfeng/ClawSafeTest">GitHub</a></li>
         </ul>
     </div>
 </header>
 
 <main>
+    {% if page.url == "/" or page.url == "/index.html" %}
     {{ content }}
+    {% else %}
+    <article class="doc-content">
+        {{ content }}
+    </article>
+    {% endif %}
 </main>
 
 <footer>
@@ -37,10 +56,19 @@
             <div>
                 <h4 style="color: white; margin-top: 0;">Documentation</h4>
                 <ul style="list-style: none; padding: 0;">
-                    <li><a href="{{ '/guides/getting-started.md' | relative_url }}">Getting Started</a></li>
-                    <li><a href="{{ '/guides/providers.md' | relative_url }}">Providers</a></li>
-                    <li><a href="{{ '/features/policies.md' | relative_url }}">Security Policies</a></li>
-                    <li><a href="{{ '/guides/configuration.md' | relative_url }}">Configuration</a></li>
+                    <li><a href="{{ '/guides/getting-started.html' | relative_url }}">Getting Started</a></li>
+                    <li><a href="{{ '/guides/configuration.html' | relative_url }}">Configuration</a></li>
+                    <li><a href="{{ '/guides/providers.html' | relative_url }}">Providers</a></li>
+                    <li><a href="{{ '/features/policies.html' | relative_url }}">Security Policies</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="color: white; margin-top: 0;">Reference</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li><a href="{{ '/architecture.html' | relative_url }}">Architecture</a></li>
+                    <li><a href="{{ '/threat-modeling.html' | relative_url }}">Threat Modeling</a></li>
+                    <li><a href="{{ '/security-principles.html' | relative_url }}">Security Principles</a></li>
+                    <li><a href="{{ '/patterns.html' | relative_url }}">Design Patterns</a></li>
                 </ul>
             </div>
             <div>
@@ -55,8 +83,9 @@
                 <h4 style="color: white; margin-top: 0;">Project</h4>
                 <ul style="list-style: none; padding: 0;">
                     <li><a href="https://github.com/akafengfeng/ClawSafeTest/blob/main/CHANGELOG.md">Changelog</a></li>
+                    <li><a href="https://github.com/akafengfeng/ClawSafeTest/blob/main/SECURITY.md">Security Policy</a></li>
                     <li><a href="https://github.com/akafengfeng/ClawSafeTest/blob/main/CODE_OF_CONDUCT.md">Code of Conduct</a></li>
-                    <li><a href="mailto:fengfeng.wf@gmail.com">Security Contact</a></li>
+                    <li><a href="https://github.com/akafengfeng/ClawSafeTest/blob/main/LICENSE">License (Apache 2.0)</a></li>
                 </ul>
             </div>
         </div>

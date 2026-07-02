@@ -185,7 +185,7 @@ agent = ClawSafeAgent(config)
 
 ## Next Steps
 
-- [Getting Started →](./getting-started.md)
-- [Security Policies →](../features/policies.md)
-- [Configuration →](./configuration.md)
+- [Getting Started →](./getting-started.html)
+- [Security Policies →](../features/policies.html)
+- [Configuration →](./configuration.html)
 - [GitHub Repository →](https://github.com/akafengfeng/ClawSafeTest)

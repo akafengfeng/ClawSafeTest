@@ -1,447 +1,261 @@
-# ClawSafe — Enterprise Agent Security Framework
+<div align="center">
+
+# 🛡️ ClawSafe
+
+### Defense-in-depth security for autonomous AI agents
+
+Tool-execution guarding, memory protection, and behavioral analysis<br>
+for OpenClaw, Hermes Agent, LangChain, CrewAI, and custom frameworks.
 
 ![Version](https://img.shields.io/badge/version-0.4.0-blue?style=flat-square)
 ![CI](https://github.com/akafengfeng/ClawSafeTest/actions/workflows/ci.yml/badge.svg)
-![Security](https://img.shields.io/badge/coverage-33%20policies-critical?style=flat-square)
 ![Tests](https://img.shields.io/badge/tests-175%20passing-brightgreen?style=flat-square)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue?style=flat-square)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green?style=flat-square)
 
-> **Defense-in-depth security framework for autonomous AI agents.** Unified threat detection, memory protection, and behavioral analysis across all agent frameworks. Built for enterprises that require audit compliance, tamper-proof operations, and zero-trust execution.
+[Quick Start](#-quick-start) •
+[How It Works](#-how-it-works) •
+[Integrations](#-framework-integrations) •
+[Threat Model](#-threat-model) •
+[Documentation](#-documentation) •
+[Contributing](#-contributing)
+
+</div>
 
 ---
 
-## Executive Summary
+## Overview
 
-Autonomous AI agents operate at the intersection of multiple attack surfaces: **tool execution, memory corruption, behavioral drift, and supply-chain compromise**. ClawSafe provides enterprise-grade security spanning:
+Autonomous agents call tools, store memories, and act on untrusted input — every one of those steps is an attack surface. **ClawSafe** sits between your agent and its tools and applies deny-by-default, fail-closed security controls:
 
-- **Tool Execution** — Whitelist enforcement, parameter validation, injection detection
-- **Agent Memory** — Tamper-proof storage, contradiction detection, feedback loops
-- **Behavioral Analysis** — Anomaly detection, decision pattern tracking, learning integrity
-- **Audit & Compliance** — Immutable trail, cryptographic verification, access control
+- 🛠️ **Tool execution** — whitelist enforcement, parameter validation, injection detection, `allowed_dirs` containment, per-user rate limiting
+- 🧠 **Agent memory** — SHA-256 integrity hashing, contradiction detection, per-memory access control, TTL expiration
+- 📈 **Behavior** — baseline profiling, anomaly detection, learning-loop integrity
+- 🧾 **Audit** — every decision (allow *and* block) recorded in a queryable SQLite trail
 
-**16 pre-execution policies + 8 post-execution policies + 9 memory security policies = 33 total protective layers.**
+Detection is **deterministic and rule-based**: the same input always produces the same verdict, with no ML inference in the hot path.
 
----
+## ✨ Highlights
 
-## Threat Model
+| | |
+|---|---|
+| **Fail-closed by design** | Unauthorized, unregistered, or policy-violating calls are blocked — severity flags tune warnings, never bypass authorization |
+| **One-call hardening** | `secure_openclaw_adapter()` / `secure_hermes_adapter()` give an agent strict mode + a pre-applied denylist of 13 dangerous tools |
+| **Path containment** | File tools are confined to `allowed_dirs`; traversal patterns, sibling-prefix tricks, and relative paths are rejected |
+| **Sliding-window rate limits** | Per-user, per-tool quotas that actually reset — flooding one identity never blocks another |
+| **Recursive output redaction** | Credentials are detected and `[REDACTED]` even when nested deep inside structured tool results |
+| **33 documented policies** | Pre-execution, post-execution, memory, integration, and behavioral controls ([full list](docs/features/policies.md)) |
 
-| Threat Class | Attack Vector | ClawSafe Response |
-|---|---|---|
-| **Prompt Injection** | User input tricks agent into unauthorized tool calls | Pre-execution validation + pattern detection |
-| **Memory Poisoning** | Adversarial data corrupts agent knowledge | Contradiction detection + integrity hashing |
-| **Privilege Escalation** | Unauthorized access to high-risk tools | Fine-grained authorization + risk scoring |
-| **Command Injection** | Shell metacharacters in tool parameters | Regex-based pattern blocking |
-| **Path Traversal** | Directory escape in file operations | Whitelist validation + allowed_dirs enforcement |
-| **Credential Leakage** | API keys exposed in requests/responses | SHA-256 pattern matching + redaction |
-| **Behavioral Drift** | Agent decision patterns change unexpectedly | Baseline profiling + statistical anomaly detection |
-| **Rate-Based DOS** | Tool call flooding depletes resources | Per-tool, per-user rate limiting |
-| **Access Control Bypass** | Unauthorized memory/tool access | RBAC + per-memory permission matrix |
-| **Supply Chain** | Malicious tool integration | Tool registry whitelisting + approval workflows |
+## 🚀 Quick Start
 
-**ClawSafe applies rule-based defenses to all 10 threat classes and records every decision in a cryptographically verifiable audit trail.**
-
----
-
-## Core Components
-
-### 🛡️ Tool Execution Security
-
-```
-Tool Call Received
-  ↓ [Authorization Check] — RBAC + risk scoring
-  ↓ [Registry Validation] — Whitelist enforcement
-  ↓ [Parameter Validation] — Schema + type checking
-  ↓ [Input Scanning] — Command/SQL injection, path traversal, credentials
-  ↓ [Rate Limiting] — Per-tool, per-user quotas
-  ↓ EXECUTE
-  ↓ [Output Validation] — Response schema verification
-  ↓ [Credential Leak Detection] — Scan results for secrets
-  ↓ [Memory Learning] — Extract & validate facts
-  ↓ [Audit Logging] — Immutable entry to SQLite
-```
-
-**Result**: <100ms latency, <5% overhead, deterministic rule-based checks.
-
-### 🧠 Agent Memory Security
-
-```
-Memory Store Request
-  ↓ [Pre-validation] — Contradiction detection
-  ↓ [Content Scan] — Prompt injection, poisoning patterns
-  ↓ [Confidence Check] — Valid range (0.0-1.0)
-  ↓ STORE with SHA-256 hash
-  ↓ [Access Control] — Per-user permissions
-  ↓ [TTL Management] — Ephemeral memory expiration
-  ↓ [Integrity Verification] — Tamper detection
-  ↓ [Audit Trail] — Complete operation history
-```
-
-**Result**: Memories that improve with feedback, contradict-proof, tamper-evident.
-
-### 📊 Behavioral Analysis
-
-```
-Agent Execution
-  ↓ [Baseline] — Learn normal patterns
-  ↓ [Decision Tracking] — Log every tool choice
-  ↓ [Confidence Tracking] — Monitor memory certainty
-  ↓ [Rate Analysis] — Tool call frequency
-  ↓ [Anomaly Detection] — Statistical deviation
-  ↓ [Contradiction Flag] — Knowledge conflicts
-  ↓ [Learning Rate] — Confidence change velocity
-  ↓ [Alert & Block] — On threshold breach
-```
-
-**Result**: Early detection of compromise, drift, or data corruption.
-
----
-
-## Security Specifications
-
-### 33 Total Protective Policies
-
-**Pre-Execution (8)**
-1. Tool Authorization — RBAC enforcement
-2. Parameter Validation — Type & schema checking
-3. Command Injection — Shell metacharacter blocking
-4. SQL Injection — SQL pattern detection
-5. Path Traversal — Directory escape prevention
-6. Credential Detection — API key scanning
-7. Privilege Escalation — Risk-level blocking
-8. Rate Limiting — Call quota enforcement
-
-**Post-Execution (8)**
-9. Output Validation — Response schema check
-10. Error Detection — Failure identification
-11. Credential Leakage — Secret detection in results
-12. Output Sanitization — Credential redaction
-13. Memory Integrity — State tampering detection
-14. Anomaly Detection — Pattern analysis
-15. Behavior Drift — Decision change detection
-16. Resource Audit — Cost & usage tracking
-
-**Memory Security (9)**
-17. Memory Poisoning — Contradiction detection
-18. Prompt Injection (Memory) — Attack pattern detection
-19. Invalid Confidence — Range validation
-20. Suspicious Jumps — >0.5 change detection
-21. Tampering Detection — SHA-256 integrity
-22. Access Control — Per-memory RBAC
-23. Contradiction Detection — Knowledge conflict detection
-24. TTL Management — Ephemeral memory cleanup
-25. Audit Trail — Operation history
-
-**Framework Integration (5)**
-26. Tool Registry Whitelist — Approved tools only
-27. Fine-Grained Authorization — Risk-based decisions
-28. Session Tracking — User attribution
-29. Compliance Logging — Audit trail for regulations
-30. State Export — Persistence & recovery
-
-**Advanced (3)**
-31. Behavioral Baselines — Anomaly detection foundation
-32. Feedback Loops — Confidence improvement
-33. Learning Gap Identification — Knowledge assessment
-
----
-
-## Supported Frameworks
-
-| Framework | Status | Integration |
-|---|---|---|
-| **OpenClaw** | ✅ Production | Multi-agent orchestration |
-| **Hermes Agent** | ✅ Production | Function calling |
-| **LangChain** | ✅ Production | Agent toolkit |
-| **CrewAI** | ✅ Production | Agent crews |
-| **Custom** | ✅ Supported | Adapter pattern |
-
----
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    AgentGuard Orchestrator                  │
-│                                                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │ ToolRegistry │  │ Authorizer   │  │  Validators  │     │
-│  │              │  │              │  │              │     │
-│  │ Whitelist    │  │ RBAC + Risk  │  │ Input/Output │     │
-│  │ Blacklist    │  │ Scoring      │  │ Scanning     │     │
-│  └──────────────┘  └──────────────┘  └──────────────┘     │
-│                                                             │
-│  ┌────────────────────────────────────────────────────┐   │
-│  │          Memory Security & Learning System        │   │
-│  │                                                    │   │
-│  │  ┌─────────────────┐  ┌──────────────────┐       │   │
-│  │  │ MemoryGuard     │  │ Learning Loop    │       │   │
-│  │  │                 │  │                  │       │   │
-│  │  │ • Validation    │  │ • Feedback       │       │   │
-│  │  │ • Hashing       │  │ • Gap Detection  │       │   │
-│  │  │ • Access Control│  │ • Confidence Adj │       │   │
-│  │  │ • Contradiction │  │ • Metrics        │       │   │
-│  │  └─────────────────┘  └──────────────────┘       │   │
-│  │                                                    │   │
-│  └────────────────────────────────────────────────────┘   │
-│                                                             │
-│  ┌──────────────────────────────────────────────────┐     │
-│  │  Audit Trail (SQLite) — Immutable Event Log     │     │
-│  │  - Every tool call                               │     │
-│  │  - Every memory operation                        │     │
-│  │  - Every security finding                        │     │
-│  │  - Cryptographic verification                    │     │
-│  └──────────────────────────────────────────────────┘     │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Performance Specifications
-
-| Metric | Value | Notes |
-|---|---|---|
-| Tool Call Latency | <100ms | Per-tool overhead |
-| Memory Operation | <1ms | Store/retrieve/verify |
-| Integrity Check | <0.5ms | SHA-256 per memory |
-| Contradiction Scan | <2ms | Full store analysis |
-| Anomaly Detection | <5ms | Baseline comparison |
-| Audit Query | <10ms | SQLite indexed |
-| **Total Overhead** | **<5%** | Within budget |
-
-**Deterministic rule-based detection — same input, same verdict, no ML-based fuzzy matching.**
-
----
-
-## Compliance & Audit
-
-✅ **SOC 2 Ready**
-- Immutable audit trail
-- Access control matrix
-- Change tracking
-- Incident logging
-
-✅ **HIPAA Compatible**
-- Credential protection
-- PII detection & redaction
-- Access restrictions
-- Compliance reporting
-
-✅ **GDPR Aligned**
-- Memory access control
-- Data deletion support (TTL)
-- Audit trail
-- User attribution
-
-✅ **Enterprise Governance**
-- Zero-trust execution
-- Approval workflows
-- Risk-based decisions
-- Comprehensive logging
-
----
-
-## Quick Start
-
-### Installation
+### Install
 
 ```bash
 pip install clawsafe-agent
-export ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-### Basic Protection
+### Protect a tool-calling agent
 
 ```python
-from clawsafe import AgentGuard, ToolRegistry, AuthContext
+from clawsafe import AgentGuard, AgentGuardConfig, AuthContext, ToolRegistry
 
-# Define security policy
+# 1. Declare what the agent may do — everything else is denied
 tools = ToolRegistry()
 tools.allow("search", params={"query": "str"}, risk_level="low")
 tools.allow("read_file", params={"path": "str"}, allowed_dirs=["/data"])
 tools.deny("shell_exec")
 
-# Create protected agent
-guard = AgentGuard(tool_registry=tools)
+# 2. Create the guard
+guard = AgentGuard(AgentGuardConfig(tool_registry=tools))
 
-# Execute with full protection
-auth = AuthContext(user_id="user123", role="user")
+# 3. Route every tool call through it
+auth = AuthContext(user_id="user-123", role="user")
 result = guard.protect_tool_call(
     tool_name="search",
     params={"query": "python security"},
     auth_context=auth,
-    executor=my_search_func
+    executor=my_search_func,
 )
+print(result.output)          # tool result (sanitized)
+print(result.findings)        # any security findings raised along the way
 ```
 
-### Hardened Defaults for OpenClaw & Hermes Agent
+A blocked call raises `SecurityBlockedError` with the policy that fired:
 
-One call gives an OpenClaw or Hermes agent a fail-closed security posture:
-strict authorization, blocking on medium+ findings, rate limiting, output
-sanitization, and a pre-applied denylist of dangerous tools (`shell_exec`,
-`eval`, `delete_file`, …).
+```python
+guard.protect_tool_call("read_file", {"path": "/etc/passwd"}, auth, executor=read_file)
+# SecurityBlockedError: Path '/etc/passwd' for tool read_file is outside the allowed directories
+```
+
+### Harden OpenClaw or Hermes Agent in one call
 
 ```python
 from clawsafe.integrations import secure_openclaw_adapter, secure_hermes_adapter
 
-# OpenClaw
-adapter = secure_openclaw_adapter()
+adapter = secure_openclaw_adapter()   # or secure_hermes_adapter()
 adapter.register_tool("search", search_func, params={"query": "str"}, risk_level="low")
-protected_agent = adapter.wrap_agent(openclaw_agent)
 
-# Hermes Agent
-adapter = secure_hermes_adapter()
-adapter.register_tool("lookup", lookup_func, params={"query": "str"}, risk_level="low")
-protected_agent = adapter.wrap_agent(hermes_agent)
+protected_agent = adapter.wrap_agent(agent)
 ```
 
-Only explicitly registered tools can execute; everything else is denied by default.
+The hardened preset enables strict authorization, blocks on medium+ severity findings, turns on rate limiting and output sanitization, and pre-denies `shell_exec`, `eval`, `delete_file`, and ten other dangerous tool names. Only tools you explicitly register can run.
 
-### Memory-Aware Agent
+### Memory-aware agent with protected learning
 
 ```python
-agent = AgentGuard(agent_id="assistant-001")
+agent = AgentGuard(config, agent_id="assistant-001")
 
-# Track interactions
-agent.process_interaction("Tell me about security", user_id="user123")
+agent.process_interaction("Tell me about security", user_id="user-123", session_id="sess-1")
 
-# Execute tools with learning
 result = agent.execute_tool_with_learning(
-    "search",
-    {"query": "cybersecurity"},
-    auth,
-    executor=search_func
+    "search", {"query": "cybersecurity"}, auth, executor=search_func,
 )
 
-# Improve from feedback
-agent.process_user_feedback(memory_id, feedback="Good!", rating=0.95, user_id="user123")
-
-# Get insights
-insights = agent.get_agent_insights()
+agent.process_user_feedback(memory_id, feedback="Good!", rating=0.95, user_id="user-123")
+insights = agent.get_agent_insights()   # profile, learning progress, tool effectiveness
 ```
 
----
+More complete, runnable examples live in [`examples/`](examples/).
 
-## Test Coverage
+## ⚙️ How It Works
 
+Every tool call passes through an eight-phase pipeline. Authorization and registry checks are **always fail-closed**; validation phases are configurable.
+
+```text
+ Tool Call
+    │
+    ├─ 1. Authorization ······· RBAC + risk scoring          (always blocks on deny)
+    ├─ 2. Registry Check ······ deny-by-default whitelist    (always blocks unknown tools)
+    ├─ 3. Param Validation ···· type & schema checking
+    ├─ 4. Input Scanning ······ command/SQL injection, path traversal, credentials
+    ├─ 5. Path Containment ···· allowed_dirs enforcement     (always blocks violations)
+    ├─ 6. Rate Limiting ······· per-user sliding window
+    │
+    ├─ ▶ EXECUTE
+    │
+    ├─ 7. Output Validation ··· credential leak detection + recursive redaction
+    └─ 8. Audit Logging ······· immutable entry (allow or block, with findings)
 ```
-✅ 175 tests passing (run: python -m pytest tests/)
-✅ Tool execution policies verified (fail-closed authorization & whitelisting)
-✅ Memory security policies verified (integrity, contradiction, access control)
-✅ allowed_dirs enforcement verified (absolute-path containment, sibling-prefix rejection)
-✅ Per-user sliding-window rate limiting verified
-✅ Command injection, SQL injection, path traversal patterns blocked
-✅ Credential detection & recursive output redaction verified
-✅ OpenClaw / Hermes adapter behavior verified (double-wrap, spec parsing, role clamping)
-```
 
-CI runs lint (ruff) and the full test matrix on Python 3.11 and 3.12.
+<div align="center">
 
----
+**Architecture:** [`ToolRegistry`](clawsafe/core/tools.py) + [`ActionAuthorizer`](clawsafe/core/auth.py) + [`Validators`](clawsafe/core/validator.py) orchestrated by [`AgentGuard`](clawsafe/core/agent_guard.py), with [`MemoryGuard`](clawsafe/core/memory_security.py) protecting agent knowledge — see the [architecture guide](docs/architecture.md) and [diagrams](docs/assets/diagrams/).
 
-## Security vs. Convenience
+</div>
 
-ClawSafe prioritizes **security over convenience**:
+## 🔌 Framework Integrations
 
-| Decision | Why |
-|---|---|
-| Deny by default | Whitelist approach, not blacklist |
-| Block HIGH findings | Fail-closed, not fail-open |
-| Rule-based detection | 0 false positives > recall |
-| Immutable audit trail | Non-repudiation mandatory |
-| SHA-256 hashing | Tamper detection on every read |
-| Per-memory RBAC | No permission bleed-through |
-
-**Security is the default, not an option.**
-
----
-
-## Enterprise Features
-
-- ✅ **Multi-tenant isolation** — Per-user access control
-- ✅ **Compliance reporting** — Export audit trails for regulators
-- ✅ **Role-based authorization** — Admin, user, guest modes
-- ✅ **Rate limiting** — DOS prevention at tool level
-- ✅ **Resource budgets** — Memory & CPU limits per tool
-- ✅ **State persistence** — Export/import agent knowledge
-- ✅ **Behavioral baselines** — Anomaly alerting
-- ✅ **Incident response** — Complete audit reconstruction
-
----
-
-## Documentation
-
-| Resource | Coverage |
-|---|---|
-| **GETTING_STARTED.md** | 5-minute quickstart, all providers |
-| **CORE_SUMMARY.md** | Architecture, 16 policies, 2,600+ LOC |
-| **MEMORY_INTEGRATION_SUMMARY.md** | Agent learning, memory protection, 1,200+ LOC |
-| **POLICY.md** | All 8 security skill details |
-| **PROVIDERS.md** | Setup for Claude, GPT-4, DeepSeek, Qwen |
-| **SECURITY.md** | Vulnerability reporting & disclosure policy |
-| **examples/** | 4 complete working examples |
-
----
-
-## What Makes ClawSafe Different
-
-| Feature | ClawSafe | Alternatives |
+| Framework | Integration point | Hardened preset |
 |---|---|---|
-| **Multi-provider** | ✅ 4 frameworks + custom | Single-LLM focused |
-| **Memory security** | ✅ Tamper-proof learning | Stateless only |
-| **Rule-based** | ✅ 0 false positives | ML-based fuzzy |
-| **Pre+Post execution** | ✅ 16 total policies | Input-only |
-| **Behavioral analysis** | ✅ Anomaly + drift detection | Request-level only |
-| **Audit compliance** | ✅ Immutable trail + RBAC | Basic logging |
-| **Tool effectiveness** | ✅ Track & optimize | Static configuration |
+| **OpenClaw** | `execute_tool` interception + skill manifest install | `secure_openclaw_adapter()` |
+| **Hermes Agent** | Function-call interception, plugin entry point, memory provider | `secure_hermes_adapter()` |
+| **LangChain** | Tool-executor replacement | — |
+| **CrewAI** | Per-agent wrapping | — |
+| **Custom** | Subclass [`BaseAgentAdapter`](clawsafe/integrations/base_adapter.py) | — |
 
----
+Adapter hardening applies across the board: untrusted agent state cannot claim privileged roles, agents are never double-wrapped, OpenAI-style nested tool specs are parsed correctly, and tools without a resolvable name are dropped (fail closed).
 
-## Status & Roadmap
+## 🎯 Threat Model
 
-**Current: v0.4.0 (Production Ready)**
-- ✅ 33 security policies
-- ✅ 4 framework integrations
-- ✅ Memory learning system
-- ✅ 41 comprehensive tests
-- ✅ Enterprise audit logging
+| Threat | Attack vector | ClawSafe response |
+|---|---|---|
+| **Prompt injection** | Input tricks agent into unauthorized calls | Pre-execution validation + pattern detection |
+| **Memory poisoning** | Adversarial data corrupts agent knowledge | Contradiction detection + integrity hashing |
+| **Privilege escalation** | Unauthorized access to high-risk tools | Fine-grained authorization + role clamping |
+| **Command injection** | Shell metacharacters in parameters | Pattern blocking |
+| **Path traversal** | Directory escape in file operations | Traversal patterns + `allowed_dirs` containment |
+| **Credential leakage** | Secrets in requests or responses | Detection + recursive redaction |
+| **Behavioral drift** | Decision patterns change unexpectedly | Baseline profiling + anomaly detection |
+| **Rate-based DoS** | Tool-call flooding | Per-user sliding-window limits |
+| **Access-control bypass** | Unauthorized memory/tool access | RBAC + per-memory permissions |
+| **Supply chain** | Malicious tool registration | Whitelisting + high-risk-name quarantine |
 
-**Future:**
-- Distributed learning across agents
-- Advanced behavioral ML baselines
-- Differential privacy modes
-- Hardware security module (HSM) support
-- Real-time threat intelligence feeds
+Every threat class maps to specific policies with recorded audit evidence — see [threat modeling guide](docs/threat-modeling.md).
 
----
+<details>
+<summary><strong>📋 All 33 security policies</strong></summary>
 
-## Contributing
+**Pre-execution (8):** tool authorization · parameter validation · command injection · SQL injection · path traversal · credential detection · privilege escalation · rate limiting
 
-This is a **security-first project**. Contributions must:
+**Post-execution (8):** output validation · error detection · credential leakage · output sanitization · memory integrity · anomaly detection · behavior drift · resource audit
+
+**Memory security (9):** memory poisoning · prompt injection (memory) · invalid confidence · suspicious confidence jumps · tampering detection · access control · contradiction detection · TTL management · audit trail
+
+**Framework integration (5):** tool registry whitelist · fine-grained authorization · session tracking · compliance logging · state export
+
+**Advanced (3):** behavioral baselines · feedback loops · learning-gap identification
+
+Full details with threat mappings: [docs/features/policies.md](docs/features/policies.md)
+
+</details>
+
+## 📊 Performance
+
+Designed for the agent hot path — all checks are rule-based, no model inference:
+
+| Operation | Target |
+|---|---|
+| Tool-call security overhead | < 100 ms |
+| Memory store / retrieve / verify | < 1 ms |
+| Integrity check (SHA-256) | < 0.5 ms |
+| Anomaly detection | < 5 ms |
+| Total overhead | < 5 % |
+
+## 🏢 Compliance Support
+
+ClawSafe's audit trail, access controls, and redaction are built to **support** compliance programs (they don't confer certification by themselves):
+
+- **SOC 2** — immutable audit trail, access-control matrix, incident logging
+- **HIPAA** — credential protection, PII detection and redaction, access restrictions
+- **GDPR** — per-memory access control, TTL-based deletion, user attribution
+
+## 📚 Documentation
+
+| Resource | Contents |
+|---|---|
+| [Getting Started](GETTING_STARTED.md) | 5-minute quickstart for all providers |
+| [Website](https://akafengfeng.github.io/ClawSafeTest/) | Guides, architecture, policies, diagrams |
+| [Architecture](docs/architecture.md) | Core design, pipeline, component reference |
+| [Security Policies](docs/features/policies.md) | Every policy with threat model and response |
+| [Providers](PROVIDERS.md) | Claude, GPT-4, DeepSeek, Qwen, custom LLMs |
+| [Memory Integration](MEMORY_INTEGRATION_SUMMARY.md) | Agent learning and memory protection |
+| [Security Policy](SECURITY.md) | Vulnerability reporting and disclosure |
+| [Examples](examples/) | Four complete, runnable examples |
+
+## 🧪 Development
+
+```bash
+git clone https://github.com/akafengfeng/ClawSafeTest.git
+cd ClawSafeTest
+pip install -e ".[dev]"
+
+python -m pytest tests/     # 175 tests
+ruff check clawsafe/ tests/ # lint
+```
+
+CI runs lint plus the full test matrix on Python 3.11 and 3.12 for every push and pull request.
+
+## 🤝 Contributing
+
+This is a security-first project. Contributions must:
 
 1. Pass security review for new threat vectors
-2. Include comprehensive tests (100% coverage on security code)
-3. Update threat model documentation
-4. Maintain backward compatibility
-5. Follow principle of least privilege
+2. Include tests for all security-relevant code paths
+3. Update the threat-model documentation when behavior changes
+4. Follow the principle of least privilege
 
-See **CONTRIBUTING.md** for details.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community standards.
 
----
+## 🔒 Reporting Security Issues
 
-## License
+Please report suspected vulnerabilities **privately** — see [SECURITY.md](SECURITY.md). Fail-open bugs (a call executing that policy says should block) are treated as highest severity.
 
-**Apache License 2.0** — See LICENSE file.
+## 📄 License
 
----
-
-## Support
-
-- 📖 **Docs**: [Full Documentation](./docs/index.md)
-- 🐛 **Issues**: [GitHub Issues](https://github.com/akafengfeng/ClawSafeTest/issues)
-- 🔒 **Security**: [Responsible Disclosure](mailto:fengfeng.wf@gmail.com)
-- 💬 **Discussions**: [Community Forum](https://github.com/akafengfeng/ClawSafeTest/discussions)
+Apache License 2.0 — see [LICENSE](LICENSE).
 
 ---
 
-**Built for enterprises that treat security as a requirement, not a feature.**
+<div align="center">
+<sub>Built for teams that treat agent security as a requirement, not a feature.</sub>
+</div>

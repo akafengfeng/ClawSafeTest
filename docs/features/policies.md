@@ -275,7 +275,7 @@ for event in events:
 
 ## Next Steps
 
-- [Getting Started →](../guides/getting-started.md)
-- [Providers →](../guides/providers.md)
-- [Configuration →](../guides/configuration.md)
+- [Getting Started →](../guides/getting-started.html)
+- [Providers →](../guides/providers.html)
+- [Configuration →](../guides/configuration.html)
 - [GitHub Repository →](https://github.com/akafengfeng/ClawSafeTest)

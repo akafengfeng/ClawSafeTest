@@ -352,7 +352,7 @@ README.md (What is ClawSafe?)
 3. **4 framework integrations** (OpenClaw, Hermes, LangChain, CrewAI)
 4. **9 design patterns** for common security scenarios
 5. **Compliance-ready** (SOC 2, HIPAA, GDPR)
-6. **Enterprise-grade** (<100ms overhead, 0 false positives)
+6. **Enterprise-grade** (<100ms overhead, deterministic rule-based checks)
 
 ### How to Use This Documentation
 - **Quick answers**: Skim the tables and code examples
