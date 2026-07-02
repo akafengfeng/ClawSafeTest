@@ -378,11 +378,11 @@ layout: default
     <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6);">Quick Start</h2>
 
     <h3 style="color: var(--primary);">Installation</h3>
-    <pre><code># Lite tier — zero dependencies, the instant taste
+    <pre><code># The whole framework — zero dependencies
 pip install clawsafe-agent
 
-# Full tier — adds LLM provider SDKs
-pip install "clawsafe-agent[full]"</code></pre>
+# Only if ClawSafeAgent makes your LLM calls (proxy mode)
+pip install "clawsafe-agent[providers]"</code></pre>
 
     <h3 style="color: var(--primary);">One-Line Integration</h3>
     <pre><code>from clawsafe import protect_agent, guarded

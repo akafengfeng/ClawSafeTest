@@ -119,7 +119,7 @@ class AnthropicProvider(LLMProvider):
         except ImportError as e:
             raise ImportError(
                 "AnthropicProvider needs the 'anthropic' SDK. "
-                "Install the full tier: pip install \"clawsafe-agent[full]\""
+                "Install the providers extra: pip install \"clawsafe-agent[providers]\""
             ) from e
 
         api_key = self.api_key or os.environ.get("ANTHROPIC_API_KEY")

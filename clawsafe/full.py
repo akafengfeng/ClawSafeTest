@@ -15,9 +15,11 @@ The lite tier (``from clawsafe import guarded, protect_agent, ...``) is the
 low-ceremony taste of the same pipeline — everything here is what it routes
 through under the hood.
 
-LLM provider classes need their SDKs, installed via the optional extra::
+Everything here is zero-dependency except the LLM provider classes, which
+are only used in proxy mode (``ClawSafeAgent`` making your LLM calls) and
+need their vendor SDKs::
 
-    pip install "clawsafe-agent[full]"
+    pip install "clawsafe-agent[providers]"
 """
 
 from clawsafe.core.agent import ClawSafeAgent

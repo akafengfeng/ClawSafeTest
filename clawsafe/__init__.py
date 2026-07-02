@@ -16,11 +16,13 @@ adapters, hardened presets, and LLM providers::
     # or keep importing names directly — they resolve lazily:
     from clawsafe import AgentGuard, OpenClawAdapter
 
-Selection happens purely by import: nothing from the full tier (and no LLM
-SDK) is loaded until you ask for it. LLM providers need the optional extra::
+Selection happens purely by import: nothing from the full tier is loaded
+until you ask for it, and both tiers are zero-dependency — the guard
+framework never calls an LLM itself. The optional extra is only for proxy
+mode, where ``ClawSafeAgent`` makes your LLM calls and needs vendor SDKs::
 
-    pip install clawsafe-agent          # lite — zero dependencies
-    pip install "clawsafe-agent[full]"  # + LLM provider SDKs
+    pip install clawsafe-agent               # the whole framework
+    pip install "clawsafe-agent[providers]"  # only for ClawSafeAgent proxy mode
 """
 
 import importlib

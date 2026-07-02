@@ -360,9 +360,12 @@ ModuleNotFoundError: No module named 'openai'
 
 Install the required SDK:
 ```bash
-pip install openai    # For OpenAI
-pip install together  # For TogetherAI
-pip install anthropic # For Anthropic (already in clawsafe deps)
+pip install openai                        # For OpenAI
+pip install together                      # For TogetherAI
+pip install "clawsafe-agent[providers]"   # For Anthropic
+
+# Note: the base clawsafe-agent install is zero-dependency — SDKs are only
+# needed when ClawSafeAgent makes the LLM calls for you (proxy mode).
 ```
 
 ---

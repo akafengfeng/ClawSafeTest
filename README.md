@@ -41,12 +41,12 @@ ClawSafe ships as a single package; you select what you load purely by import. T
 
 | | 🪶 Lite — the taste | 🏗️ Full — the framework |
 |---|---|---|
-| **Install** | `pip install clawsafe-agent` | `pip install "clawsafe-agent[full]"` |
+| **Install** | `pip install clawsafe-agent` | same install — tiers are selected by import |
 | **Import** | `from clawsafe import guarded, protect_agent, scan_messages` | `from clawsafe.full import AgentGuard, MemoryGuard, ...` |
 | **What you get** | A decorator for single functions, an auto-detecting agent wrapper, standalone input/output scanners | The eight-phase orchestrator, memory security + learning loop, framework adapters, hardened presets, LLM providers |
 | **When** | Demos, quick hardening, frameworks without adapters | Production deployments, audit requirements, memory-aware agents |
 
-Nothing from the full tier loads until you touch it — `from clawsafe import AgentGuard` lazily pulls in exactly that module and no more. The LLM SDKs (`anthropic`, etc.) are only needed for the provider classes, behind the `[full]` extra. And lite is not a different engine: it routes through the same pipeline the full tier uses.
+Nothing from the full tier loads until you touch it — `from clawsafe import AgentGuard` lazily pulls in exactly that module and no more. **Both tiers are zero-dependency**: the guard framework never calls an LLM itself. The optional `[providers]` extra is only needed for proxy mode, where `ClawSafeAgent` makes your LLM calls for you and therefore needs the vendor SDKs. And lite is not a different engine: it routes through the same pipeline the full tier uses.
 
 ## ✨ Highlights
 
@@ -66,8 +66,8 @@ Nothing from the full tier loads until you touch it — `from clawsafe import Ag
 ### Install
 
 ```bash
-pip install clawsafe-agent            # lite tier — zero dependencies
-pip install "clawsafe-agent[full]"    # + LLM provider SDKs for the full tier
+pip install clawsafe-agent                # the whole framework — zero dependencies
+pip install "clawsafe-agent[providers]"   # only if ClawSafeAgent makes your LLM calls
 ```
 
 ### One line, whole agent

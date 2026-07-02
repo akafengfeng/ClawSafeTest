@@ -35,15 +35,16 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
-# The base install is the zero-dependency lite tier. LLM provider SDKs
-# live behind the "full" extra so users select what they load.
+# The base install is zero-dependency and includes the whole guard framework.
+# Vendor SDKs are only needed for proxy mode (ClawSafeAgent making LLM calls);
+# "full" is kept as an alias of "providers" for compatibility.
 dependencies = []
 
 [project.optional-dependencies]
-full = [
+providers = [
     "anthropic>=0.30.0",
 ]
-providers = [
+full = [
     "anthropic>=0.30.0",
 ]
 dev = [
