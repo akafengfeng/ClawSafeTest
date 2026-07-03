@@ -54,6 +54,13 @@ from clawsafe.core.policy import (
     PolicyError,
     PolicyRule,
 )
+from clawsafe.core.policy_generation import (
+    GENERATED_MAX_PRIORITY,
+    DynamicPolicyManager,
+    GeneratedPolicy,
+    PolicyGenerator,
+    build_engine,
+)
 from clawsafe.core.provider import (
     AnthropicProvider,
     LLMProvider,
@@ -88,6 +95,7 @@ from clawsafe.skills.registry import SkillRegistry
 
 __all__ = [
     "DEFAULT_DENYLIST",
+    "GENERATED_MAX_PRIORITY",
     "GENERIC_RULES",
     "ActionAuthorizer",
     "ActionDecision",
@@ -103,8 +111,10 @@ __all__ = [
     "ClawSafeAgent",
     "ClawSafeConfig",
     "CrewAIAdapter",
+    "DynamicPolicyManager",
     "Finding",
     "FindingSeverity",
+    "GeneratedPolicy",
     "HermesAdapter",
     "InputValidator",
     "LLMProvider",
@@ -127,6 +137,7 @@ __all__ = [
     "PolicyDecision",
     "PolicyEngine",
     "PolicyError",
+    "PolicyGenerator",
     "PolicyRule",
     "SecurityBlockedError",
     "Severity",
@@ -139,6 +150,7 @@ __all__ = [
     "ToolPolicy",
     "ToolRegistry",
     "ValidationFinding",
+    "build_engine",
     "get_provider",
     "hardened_config",
     "hardened_registry",

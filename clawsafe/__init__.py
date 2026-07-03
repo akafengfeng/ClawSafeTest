@@ -49,6 +49,10 @@ _LAZY_EXPORTS = {
     "PolicyDecision": ("clawsafe.core.policy", "PolicyDecision"),
     "PolicyEngine": ("clawsafe.core.policy", "PolicyEngine"),
     "PolicyRule": ("clawsafe.core.policy", "PolicyRule"),
+    # LLM-generated / dynamic policies
+    "PolicyGenerator": ("clawsafe.core.policy_generation", "PolicyGenerator"),
+    "GeneratedPolicy": ("clawsafe.core.policy_generation", "GeneratedPolicy"),
+    "DynamicPolicyManager": ("clawsafe.core.policy_generation", "DynamicPolicyManager"),
     # Validation
     "InputValidator": ("clawsafe.core.validator", "InputValidator"),
     "OutputValidator": ("clawsafe.core.validator", "OutputValidator"),

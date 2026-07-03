@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added (SOTA alignment)
+- **LLM-generated and dynamic policies** (`clawsafe.core.policy_generation`),
+  completing Progent's automation half — the gap previously flagged as
+  ClawSafe's most significant relative to Progent. `PolicyGenerator` has an
+  injected LLM propose least-privilege rules; `DynamicPolicyManager` refines
+  them during execution. Generated policy is treated as **untrusted input,
+  not authority**: a prompt-injected model cannot widen access (generated
+  `allow` rules honored only for whitelisted, non-denied tools, never `*`),
+  generated rules are priority-clamped below human rules, and updates from
+  untrusted sources (tool output) may only tighten, never loosen. The LLM is
+  injected as a `prompt -> text` callable, so the core stays zero-dependency
+  and the adversarial tests run offline. Exported at top level and in
+  `clawsafe.full` (23 tests, heavy on adversarial cases).
 - **Argument-level policy engine** (`clawsafe.core.policy`), inspired by
   Progent (Shi et al., UC Berkeley, arXiv:2504.11703): declarative JSON rules
   with per-argument predicates (`eq/lt/lte/in_/regex/...` plus `all/any/not`),

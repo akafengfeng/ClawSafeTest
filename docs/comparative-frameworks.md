@@ -17,7 +17,15 @@ Two 2025–2026 systems define the current state of the art, and ClawSafe delibe
 
 [Progent](https://arxiv.org/abs/2504.11703) frames agent security as **least privilege over tool calls**, expressed in a JSON-based policy language: per-argument boolean predicates, allow/forbid effects, numeric priorities (forbid evaluated before allow), and explicit fallbacks (terminate, ask the user, or return an explanatory message to the agent). Policies can be LLM-generated per task and updated dynamically.
 
-ClawSafe's [`PolicyEngine`](https://github.com/akafengfeng/ClawSafeTest/blob/main/clawsafe/core/policy.py) implements the same core semantics — declarative JSON rules, argument-level predicates (`eq/lt/lte/in_/regex/startswith/...` plus `all/any/not` combinators), priority ordering with forbid-wins-ties, and `raise` / `message` / `require_approval` fallbacks — layered on top of ClawSafe's deny-by-default registry. What ClawSafe does **not** yet do is LLM-generated per-task policies with verified dynamic updates; that is the most valuable piece of Progent left to adopt.
+ClawSafe's [`PolicyEngine`](https://github.com/akafengfeng/ClawSafeTest/blob/main/clawsafe/core/policy.py) implements the same core semantics — declarative JSON rules, argument-level predicates (`eq/lt/lte/in_/regex/startswith/...` plus `all/any/not` combinators), priority ordering with forbid-wins-ties, and `raise` / `message` / `require_approval` fallbacks — layered on top of ClawSafe's deny-by-default registry.
+
+ClawSafe also adopts Progent's **automation**: [`PolicyGenerator`](https://github.com/akafengfeng/ClawSafeTest/blob/main/clawsafe/core/policy_generation.py) has an LLM propose least-privilege rules for a task, and `DynamicPolicyManager` refines them during execution. The security-critical difference from a naive implementation is that ClawSafe treats generated policy as **untrusted input, not authority**:
+
+- Every generated rule passes the same fail-closed validation, then a hard sanitizer. A prompt-injected model **cannot widen access** — generated `allow` rules are honored only for already-whitelisted tools, never for denied tools or the `*` wildcard; only tightening (`forbid`) is unconditionally kept.
+- Generated rules are clamped below a priority ceiling, so hand-written human rules always dominate at evaluation time.
+- Following Progent's two-step check, updates from **untrusted sources (tool output, which may be poisoned) may only tighten policy, never loosen it** — only explicit trusted (user) updates can add `allow` rules.
+
+This closes the gap that was previously ClawSafe's most significant one relative to Progent.
 
 Where ClawSafe goes further than Progent: memory security (integrity hashing, ACLs, poisoning gates, verified persistence) and the immutable audit trail are first-class, whereas Progent focuses on the tool-call decision itself.
 
@@ -34,7 +42,8 @@ ClawSafe adopts the taxonomy and metrics directly: [`benchmarks/run_benchmark.py
 | Deny-by-default tool whitelist | ✅ | ✅ (default-deny) | — (eval platform) |
 | Argument-level policy DSL | ✅ `PolicyEngine` | ✅ (origin of the design) | — |
 | Policy fallbacks (raise/message/approval) | ✅ | ✅ | — |
-| LLM-generated / dynamic policies | ❌ roadmap | ✅ | — |
+| LLM-generated / dynamic policies | ✅ (sanitized, untrusted-input model) | ✅ | — |
+| Prompt-injected LLM can't widen access | ✅ hard invariant | ✅ | — |
 | Memory integrity + poisoning gates | ✅ | ❌ | evaluated only |
 | Immutable audit trail | ✅ | ❌ | — |
 | Adversarial benchmark with ASR/utility | ✅ L1 (CI-gated) | external benchmarks | ✅ L1/L2/L3 |

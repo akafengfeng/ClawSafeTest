@@ -57,6 +57,7 @@ Nothing from the full tier loads until you touch it — `from clawsafe import Ag
 | **One-line integration** | `protect_agent(agent, tools=...)` auto-detects the framework; `@guarded` protects a single function with no framework at all |
 | **One-call hardening** | `secure_openclaw_adapter()` / `secure_hermes_adapter()` give an agent strict mode + a pre-applied denylist of 13 dangerous tools |
 | **Argument-level policies** | Progent-style declarative rules: allow `transfer_funds` only when `amount ≤ 100` and the recipient is allowlisted — with priorities and soft-block fallbacks |
+| **Safe LLM-generated policies** | A model can draft least-privilege rules, but a prompt-injected model *cannot widen access*: generated rules are sanitized, priority-clamped below human rules, and untrusted updates can only tighten |
 | **Benchmarked, not asserted** | Agent3Sigma-style L1 benchmark in CI: 0% attack success across 7 risk categories, 100% benign utility |
 | **Path containment** | File tools are confined to `allowed_dirs`; traversal patterns, sibling-prefix tricks, and relative paths are rejected |
 | **Sliding-window rate limits** | Per-user, per-tool quotas that actually reset — flooding one identity never blocks another |
@@ -173,6 +174,19 @@ guard = AgentGuard(AgentGuardConfig(tool_registry=tools, policy_engine=policy))
 ```
 
 Rules can also be loaded from JSON files (`policy.load_file("policies.json")`) so privilege policies live in version control next to your code.
+
+**LLM-generated policies** — let a model draft the least-privilege rules for a task, safely. ClawSafe treats generated policy as *untrusted input*: a prompt-injected model **cannot widen access** (generated `allow` rules are honored only for already-whitelisted tools, never denied ones or `*`), human rules always outrank generated ones, and updates from tool output can only *tighten* policy, never loosen it.
+
+```python
+from clawsafe import PolicyGenerator
+from clawsafe.core.policy_generation import build_engine
+
+gen = PolicyGenerator.from_provider(my_llm_provider)   # or any prompt->text callable
+generated = gen.generate(user_task, tool_specs, denied_tools=["shell_exec"])
+engine = build_engine(generated, generic_rules=my_human_rules)
+```
+
+Even a fully-compromised model can't grant itself a dangerous tool — the sanitizer drops it, the registry denies it, or the human rule outranks it (three independent layers).
 
 ### Memory-aware agent with protected learning
 
