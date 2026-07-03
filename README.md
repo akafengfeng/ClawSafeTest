@@ -315,6 +315,8 @@ python benchmarks/run_benchmark.py --level all   # L1 static + L2 multi-turn
 python benchmarks/run_l3.py                       # L3 live (opt-in, real model)
 python benchmarks/run_redteam.py                  # LLM red-team (opt-in): a model
                                                   # generates attacks; gaps are surfaced
+# L3 and red-team also use an LLM-as-judge (opt-in) to grade outcomes semantically
+# and filter generated attacks — evaluation only, never the guard runtime.
 ```
 
 | Tier | What it tests | Runs in |

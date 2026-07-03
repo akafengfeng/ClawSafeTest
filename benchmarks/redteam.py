@@ -64,13 +64,18 @@ def _extract_json_array(text: str) -> list:
 
 
 class RedTeamGenerator:
-    """Uses an injected LLM to synthesize adversarial test scenarios."""
+    """Uses an injected LLM to synthesize adversarial test scenarios.
 
-    def __init__(self, llm_fn: Callable[[str], str], *, max_per_category: int = 8):
+    An optional ``judge`` (an :class:`~judge.LLMJudge`) filters generated cases
+    down to genuine, realistic attacks, dropping degenerate generations.
+    """
+
+    def __init__(self, llm_fn: Callable[[str], str], *, max_per_category: int = 8, judge: Any = None):
         if not callable(llm_fn):
             raise TypeError("llm_fn must be callable (prompt -> text)")
         self.llm_fn = llm_fn
         self.max_per_category = max_per_category
+        self.judge = judge
 
     @classmethod
     def from_provider(cls, provider: Any, **create_kwargs: Any) -> RedTeamGenerator:
@@ -90,8 +95,12 @@ class RedTeamGenerator:
         scenarios = []
         for i, item in enumerate(_extract_json_array(raw)):
             scenario = self._validate(item, category, i, set(tools))
-            if scenario is not None:
-                scenarios.append(scenario)
+            if scenario is None:
+                continue
+            # Optional LLM-as-judge quality gate: keep only genuine attacks.
+            if self.judge is not None and not self.judge.judge_scenario_quality(scenario, category):
+                continue
+            scenarios.append(scenario)
             if len(scenarios) >= self.max_per_category:
                 break
         return scenarios

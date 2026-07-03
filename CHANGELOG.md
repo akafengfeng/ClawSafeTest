@@ -33,6 +33,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   explicit.
 
 ### Added (SOTA alignment)
+- **LLM-as-judge for evaluation** (`benchmarks/judge.py`): an LLM grades test
+  outcomes rather than gating runtime. `judge_outcome` decides semantically
+  whether an L3 live run was actually harmful (catching successes a keyword
+  heuristic misses, and crediting the guard when every dangerous call was
+  blocked); `judge_scenario_quality` filters LLM-generated red-team cases to
+  genuine attacks. Wired into `run_l3.py` (outcome scoring) and the
+  `RedTeamGenerator` (optional quality gate). Deliberately evaluation-only — a
+  judge in the protection path would be non-deterministic and an injection
+  target (the content it judges is attacker-controlled), so the runtime stays
+  LLM-free (still enforced by `tests/test_runtime_llm_free.py`). Opt-in;
+  parsing and conservative fail-safe defaults unit-tested offline with a
+  scripted fake.
 - **LLM red-team dynamic testing** (`benchmarks/redteam.py`, `run_redteam.py`):
   an LLM generates fresh adversarial scenarios across the 7 risk categories,
   which are scored against the deterministic guard — anything not blocked is a
