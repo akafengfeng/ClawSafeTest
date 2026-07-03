@@ -22,19 +22,19 @@ layout: default
         <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">Pre, post, memory, integration &amp; behavioral</div>
       </div>
       <div>
-        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: calc(var(--spacing-unit) * 1);">216</div>
+        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: calc(var(--spacing-unit) * 1);">310</div>
         <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Tests Passing</div>
         <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">CI on Python 3.11 &amp; 3.12</div>
       </div>
       <div>
-        <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: calc(var(--spacing-unit) * 1);">&lt;100ms</div>
-        <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Latency</div>
-        <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">Per tool call overhead</div>
+        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: calc(var(--spacing-unit) * 1);">0%</div>
+        <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Attack Success</div>
+        <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">L1+L2 benchmark, 100% utility</div>
       </div>
       <div>
-        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: calc(var(--spacing-unit) * 1);">5</div>
-        <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Frameworks</div>
-        <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">OpenClaw, Hermes, LangChain, CrewAI, custom</div>
+        <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: calc(var(--spacing-unit) * 1);">0</div>
+        <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">LLM Calls at Runtime</div>
+        <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">Deterministic guard; LLM only tests</div>
       </div>
     </div>
   </div>
@@ -142,14 +142,14 @@ layout: default
 
       <div class="feature-card">
         <div class="feature-icon">🔐</div>
-        <h3>Authorization Control</h3>
-        <p>Role-based access control (RBAC), risk-based decision making, fine-grained permissions, and zero-trust execution model.</p>
+        <h3>Argument-Level Policies</h3>
+        <p>Progent-style declarative rules — allow <code>transfer_funds</code> only when <code>amount ≤ 100</code> and the recipient is allowlisted — with priorities, soft-block fallbacks, and safe LLM-drafted policies that a prompt-injected model can't widen.</p>
       </div>
 
       <div class="feature-card">
         <div class="feature-icon">⚡</div>
-        <h3>Deterministic & Fast</h3>
-        <p>Rule-based policies — same input, same verdict. &lt;100ms per tool call, &lt;5% overhead, no ML inference in the hot path.</p>
+        <h3>Deterministic, LLM-Free Runtime</h3>
+        <p>Same input, same verdict. &lt;100ms per tool call, no ML inference in the hot path, and <strong>zero LLM calls</strong> while protecting an agent — fast, offline-capable, and immune to a compromised model. The LLM's role is testing and authoring, never the protection path.</p>
       </div>
     </div>
   </div>
@@ -269,7 +269,36 @@ layout: default
 
 <section>
   <div class="container">
-    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6);">Supported Frameworks</h2>
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 3);">Aligned with State-of-the-Art Research</h2>
+    <p style="text-align: center; color: var(--text-secondary); margin-bottom: calc(var(--spacing-unit) * 6);">ClawSafe adopts the strongest ideas from recent agent-security work — and draws a firm line on where an LLM belongs.</p>
+
+    <div class="two-col">
+      <div class="feature-card">
+        <h3 style="color: var(--primary); margin-top: 0;">Progent — argument-level least privilege</h3>
+        <p>From Dawn Song's group (UC Berkeley). ClawSafe's <code>PolicyEngine</code> implements the same declarative JSON rules — per-argument predicates, priorities, allow/forbid, soft-block fallbacks — and Progent's automation: an LLM <em>drafts</em> policies that are sanitized and human-reviewed. A prompt-injected model <strong>cannot widen access</strong>.</p>
+      </div>
+      <div class="feature-card">
+        <h3 style="color: var(--primary); margin-top: 0;">Agent3Sigma — tiered evaluation</h3>
+        <p>From Tsinghua &amp; Ant Group. ClawSafe adopts its 7-category taxonomy and ASR / utility metrics across three tiers: <strong>L1</strong> static and <strong>L2</strong> multi-turn (indirect injection) run in CI at 0% attack success / 100% utility; <strong>L3</strong> is a live real-model loop.</p>
+      </div>
+    </div>
+
+    <div style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: calc(var(--spacing-unit) * 4); margin-top: calc(var(--spacing-unit) * 4);">
+      <h3 style="color: var(--primary); margin-top: 0;">The LLM tests the guard — it never runs it</h3>
+      <p style="color: var(--text-secondary);">The protection path is deterministic and makes <strong>zero LLM calls</strong> (enforced by a dedicated test). An LLM is used only, and always opt-in, for:</p>
+      <ul style="list-style: none; padding: 0; color: var(--text-secondary); line-height: 2;">
+        <li>🧪 <strong>Red-teaming</strong> — generating fresh adversarial scenarios; anything the guard fails to block is a surfaced gap.</li>
+        <li>⚖️ <strong>LLM-as-judge</strong> — grading L3 outcomes semantically (did the agent actually do harm?) and filtering generated attacks for quality.</li>
+        <li>✍️ <strong>Policy authoring</strong> — drafting least-privilege rules for human review, committed as static JSON the deterministic engine enforces.</li>
+      </ul>
+      <p style="color: var(--text-tertiary); font-size: 0.9rem; margin-bottom: 0;">A judge or policy generator in the runtime would itself be an injection target — the content it evaluates is attacker-controlled. Keeping it in the evaluation layer is a deliberate security choice. See the <a href="comparative-frameworks.html">framework comparison</a>.</p>
+    </div>
+  </div>
+</section>
+
+<section style="background: var(--bg-secondary);">
+  <div class="container">
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6); border: none; padding-bottom: 0;">Supported Frameworks</h2>
 
     <figure class="demo-figure" style="margin: 0 auto calc(var(--spacing-unit) * 6); max-width: 860px;">
       <img src="assets/diagrams/framework-integrations.svg" alt="Framework integration topology: OpenClaw, Hermes Agent, LangChain, CrewAI, and custom frameworks all route tool calls through the central AgentGuard, which returns verdicts" loading="lazy">
@@ -322,9 +351,9 @@ layout: default
   </div>
 </section>
 
-<section style="background: var(--bg-secondary);">
+<section>
   <div class="container">
-    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6); border: none; padding-bottom: 0;">Performance & Compliance</h2>
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6);">Performance & Compliance</h2>
     
     <div class="two-col" style="margin-bottom: calc(var(--spacing-unit) * 8);">
       <div>
@@ -353,12 +382,12 @@ layout: default
       <h3 style="color: var(--primary); margin-top: 0; border: none; padding-bottom: 0;">Test Coverage</h3>
       <div class="stats-grid" style="margin-top: calc(var(--spacing-unit) * 4);">
         <div>
-          <div style="font-size: 2rem; font-weight: 700; color: var(--success);">216</div>
+          <div style="font-size: 2rem; font-weight: 700; color: var(--success);">310</div>
           <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: calc(var(--spacing-unit) * 1);">Tests Passing</div>
         </div>
         <div>
-          <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">27</div>
-          <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: calc(var(--spacing-unit) * 1);">Fail-Closed Hardening Tests</div>
+          <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">L1+L2</div>
+          <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: calc(var(--spacing-unit) * 1);">Security Benchmark in CI</div>
         </div>
         <div>
           <div style="font-size: 2rem; font-weight: 700; color: var(--success);">2</div>
@@ -373,9 +402,9 @@ layout: default
   </div>
 </section>
 
-<section>
+<section style="background: var(--bg-secondary);">
   <div class="container">
-    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6);">Quick Start</h2>
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6); border: none; padding-bottom: 0;">Quick Start</h2>
 
     <h3 style="color: var(--primary);">Installation</h3>
     <pre><code># The whole framework — zero dependencies
@@ -448,9 +477,9 @@ insights = agent.get_agent_insights()</code></pre>
   </div>
 </section>
 
-<section style="background: var(--bg-secondary);">
+<section>
   <div class="container">
-    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 8); border: none; padding-bottom: 0;">Why ClawSafe?</h2>
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 8);">Why ClawSafe?</h2>
     
     <div class="two-col">
       <div>
@@ -479,9 +508,9 @@ insights = agent.get_agent_insights()</code></pre>
   </div>
 </section>
 
-<section>
+<section style="background: var(--bg-secondary);">
   <div class="container">
-    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6);">Documentation</h2>
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 6); border: none; padding-bottom: 0;">Documentation</h2>
     
     <div class="features">
       <div class="feature-card">
