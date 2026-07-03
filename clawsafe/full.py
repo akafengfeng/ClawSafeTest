@@ -35,6 +35,7 @@ from clawsafe.core.auth import (
     AuthorizationMode,
 )
 from clawsafe.core.config import ClawSafeConfig
+from clawsafe.core.detection import DetectionResult, SemanticDetector
 from clawsafe.core.memory_integration import (
     AgentMemoryProfile,
     MemoryAwareAgentState,
@@ -113,6 +114,7 @@ __all__ = [
     "ClawSafeAgent",
     "ClawSafeConfig",
     "CrewAIAdapter",
+    "DetectionResult",
     "DynamicPolicyManager",
     "Finding",
     "FindingSeverity",
@@ -142,6 +144,7 @@ __all__ = [
     "PolicyGenerator",
     "PolicyRule",
     "SecurityBlockedError",
+    "SemanticDetector",
     "Severity",
     "Skill",
     "SkillPhase",

@@ -1,6 +1,7 @@
 """Configuration for AgentGuard security framework."""
 
 from dataclasses import dataclass
+from typing import Any
 
 from clawsafe.core.auth import AuthorizationMode
 from clawsafe.core.policy import PolicyEngine
@@ -39,6 +40,9 @@ class AgentGuardConfig:
 
     tool_registry: ToolRegistry | None = None
     policy_engine: PolicyEngine | None = None
+    # Optional pluggable semantic detector (advisory, layered on the rule-based
+    # floor). None = fully deterministic, LLM-free. See clawsafe.core.detection.
+    semantic_detector: Any = None
     authorization_mode: AuthorizationMode = AuthorizationMode.STANDARD
     block_on_high_severity: bool = True
     block_on_medium_severity: bool = False

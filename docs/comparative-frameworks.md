@@ -54,6 +54,9 @@ Both L1 and L2 run in CI, so any change that lets an attack through — direct o
 | Immutable audit trail | ✅ | ❌ | — |
 | Adversarial benchmark with ASR/utility | ✅ L1+L2 CI-gated, L3 opt-in | external benchmarks | ✅ L1/L2/L3 |
 | Multi-turn / indirect-injection eval | ✅ L2 | — | ✅ L2 |
+| Layered detection (rules + optional semantic) | ✅ pluggable `SemanticDetector` | — | — |
+
+**On rule-based detection.** Pattern matching is evadable, so ClawSafe treats it as a deterministic *floor*, not the whole story. The real guarantees are structural — deny-by-default whitelisting, `allowed_dirs` containment, the argument-level policy engine, and capability restriction — none of which a paraphrase or obfuscation defeats. For semantic recall on top, an opt-in `SemanticDetector` (ML- or LLM-backed) runs as an advisory layer that can add findings but never lift a structural control.
 
 ---
 

@@ -510,11 +510,18 @@ Action: Extract from output, log with redaction, alert on findings
 
 ### 2. Deterministic Security — the runtime never calls an LLM
 - Rule-based, not ML-based; repeatable, auditable decisions
-- **The guard's protection path makes zero LLM/API calls.** Protecting a tool
-  call, evaluating a policy, and guarding memory are pure-Python and load no
-  LLM SDK — enforced by `tests/test_runtime_llm_free.py`. This keeps protection
-  fast, offline-capable, free of model latency and non-determinism, and immune
-  to a compromised model.
+- **By default, the guard's protection path makes zero LLM/API calls.**
+  Protecting a tool call, evaluating a policy, and guarding memory are
+  pure-Python and load no LLM SDK — enforced by `tests/test_runtime_llm_free.py`.
+  This keeps protection fast, offline-capable, free of model latency and
+  non-determinism, and immune to a compromised model.
+- **Detection is layered and pluggable.** The rule-based detectors are the
+  deterministic floor; an optional `SemanticDetector` (ML- or LLM-backed) can be
+  attached for paraphrase/obfuscation recall. It is *advisory* and layered on
+  the structural controls (whitelist, `allowed_dirs`, policy engine), never the
+  sole gate — fooling the detector cannot lift a capability restriction. It is
+  the one deliberate, opt-in exception to the LLM-free default, and it fails
+  open by default so an unreliable model cannot disrupt the agent.
 - **The LLM's role in this project is testing and authoring, not runtime:**
   - *Dynamic testing / red-teaming* — an LLM generates adversarial scenarios
     (`benchmarks/redteam.py`) and drives the opt-in L3 live loop

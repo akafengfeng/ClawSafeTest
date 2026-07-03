@@ -1,12 +1,18 @@
-"""Guarantee: the guard's runtime protection path never calls an LLM.
+"""Guarantee: by default, the guard's runtime protection path never calls an LLM.
 
-ClawSafe's security is deterministic and rule-based. No LLM SDK or provider
-module may be loaded, and no network/model call may happen, while building a
-guard or protecting a tool call. The LLM's role in this project is *testing*
-and *policy authoring* — never the agent's live protection path.
+ClawSafe's security is deterministic and rule-based. With no semantic detector
+configured (the default), no LLM SDK or provider module is loaded and no
+network/model call happens while building a guard or protecting a tool call.
+The LLM's role in this project is *testing* and *policy authoring*.
 
-These tests run the protection path in a fresh subprocess and assert no LLM
-machinery was imported.
+The one deliberate, opt-in exception is an LLM-backed semantic detector
+(``AgentGuardConfig(semantic_detector=...)``) — an advisory layer you attach
+knowingly, accepting a model call in the *detection* path. It never replaces
+the deterministic structural controls (whitelist, allowed_dirs, policy engine),
+so the guarantees below still hold for every default deployment.
+
+These tests run the default protection path in a fresh subprocess and assert no
+LLM machinery was imported.
 """
 
 import subprocess

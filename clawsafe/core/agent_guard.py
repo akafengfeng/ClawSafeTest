@@ -227,8 +227,12 @@ class AgentGuard:
                 )
                 raise SecurityBlockedError(findings[-1], error_msg)
 
-        # Phase 4: Input Validation (command injection, SQL injection, etc.)
+        # Phase 4: Input Validation — deterministic rule-based detectors, plus
+        # an optional semantic detector layered on top (advisory: it can only
+        # add findings; the structural controls below run regardless).
         input_findings = self.input_validator.validate_tool_call(tool_name, params)
+        if self.config.semantic_detector is not None:
+            input_findings.extend(self.config.semantic_detector.scan_params(params))
         findings.extend(input_findings)
 
         # Block on critical/high findings

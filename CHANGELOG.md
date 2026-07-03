@@ -32,6 +32,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Docstring and docs updated to make the draft → review → commit → enforce flow
   explicit.
 
+### Added (detection)
+- **Pluggable semantic detection layer** (`clawsafe.core.detection`): a
+  `SemanticDetector` (ML- or LLM-backed, injected as a `str -> DetectionResult`
+  callable or via `from_provider`) adds paraphrase/obfuscation recall that the
+  rule-based detectors miss. Wired into the guard's input-validation phase via
+  `AgentGuardConfig(semantic_detector=...)`. It is **advisory and layered on the
+  deterministic floor, never the sole gate** — the structural controls
+  (whitelist, `allowed_dirs`, policy engine) run regardless, so fooling the
+  detector cannot lift a capability restriction (proven by
+  `test_detection.py::TestGuardIntegration`). Opt-in: the default guard stays
+  deterministic and LLM-free. Fails open by default (an unreliable model can't
+  disrupt the agent); `fail_flag=True` for fail-closed. Exported at top level
+  and in `clawsafe.full`.
+
 ### Added (SOTA alignment)
 - **LLM-as-judge for evaluation** (`benchmarks/judge.py`): an LLM grades test
   outcomes rather than gating runtime. `judge_outcome` decides semantically

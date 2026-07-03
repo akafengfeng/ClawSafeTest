@@ -54,6 +54,9 @@ _LAZY_EXPORTS = {
     "PolicyGenerator": ("clawsafe.core.policy_generation", "PolicyGenerator"),
     "GeneratedPolicy": ("clawsafe.core.policy_generation", "GeneratedPolicy"),
     "DynamicPolicyManager": ("clawsafe.core.policy_generation", "DynamicPolicyManager"),
+    # Detection (rule-based + optional pluggable semantic layer)
+    "SemanticDetector": ("clawsafe.core.detection", "SemanticDetector"),
+    "DetectionResult": ("clawsafe.core.detection", "DetectionResult"),
     # Validation
     "InputValidator": ("clawsafe.core.validator", "InputValidator"),
     "OutputValidator": ("clawsafe.core.validator", "OutputValidator"),

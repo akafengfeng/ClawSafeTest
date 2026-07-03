@@ -33,7 +33,7 @@ Autonomous agents call tools, store memories, and act on untrusted input — eve
 - 📈 **Behavior** — baseline profiling, anomaly detection, learning-loop integrity
 - 🧾 **Audit** — every decision (allow *and* block) recorded in a queryable SQLite trail
 
-Detection is **deterministic and rule-based**: the same input always produces the same verdict, with no ML inference in the hot path. **The guard's runtime never calls an LLM** — protecting a tool call is pure-Python, fast, offline-capable, and immune to a compromised model (enforced by [`test_runtime_llm_free.py`](tests/test_runtime_llm_free.py)). In this project the LLM's role is *testing and policy authoring*, never the agent's live protection path.
+Detection is **deterministic and rule-based by default**: the same input always produces the same verdict, and the runtime makes no LLM calls (enforced by [`test_runtime_llm_free.py`](tests/test_runtime_llm_free.py)). But rules are shallow — they catch `"ignore previous instructions"` and miss paraphrases and obfuscation. So detection is **layered and pluggable**: a [`SemanticDetector`](clawsafe/core/detection.py) (ML- or LLM-backed, opt-in) can be attached as an *advisory* layer for semantic recall. Crucially, it's **never the sole gate** — ClawSafe's actual guarantees come from *structural* controls (deny-by-default whitelist, `allowed_dirs` containment, the policy engine, capability restriction) that no rephrasing defeats. Fooling the detector still can't call a denied tool or violate a policy.
 
 ## 📦 One Package, Two Tiers
 
@@ -57,6 +57,7 @@ Nothing from the full tier loads until you touch it — `from clawsafe import Ag
 | **One-line integration** | `protect_agent(agent, tools=...)` auto-detects the framework; `@guarded` protects a single function with no framework at all |
 | **One-call hardening** | `secure_openclaw_adapter()` / `secure_hermes_adapter()` give an agent strict mode + a pre-applied denylist of 13 dangerous tools |
 | **Argument-level policies** | Progent-style declarative rules: allow `transfer_funds` only when `amount ≤ 100` and the recipient is allowlisted — with priorities and soft-block fallbacks |
+| **Layered, pluggable detection** | Deterministic rules by default; attach an opt-in ML/LLM `SemanticDetector` for paraphrase/obfuscation recall — advisory only, never able to lift the structural floor |
 | **LLM tests the guard, never runs it** | The runtime is LLM-free; an LLM is used only to *draft* policies (reviewed & committed as static rules) and to *red-team* the guard with generated attacks — not in the agent's protection path |
 | **Benchmarked, not asserted** | Agent3Sigma-style L1 benchmark in CI: 0% attack success across 7 risk categories, 100% benign utility |
 | **Path containment** | File tools are confined to `allowed_dirs`; traversal patterns, sibling-prefix tricks, and relative paths are rejected |
@@ -190,6 +191,19 @@ engine = build_engine(generated, generic_rules=my_human_rules)
 ```
 
 Even a fully-compromised model can't grant itself a dangerous tool — the sanitizer drops it, the registry denies it, or the human rule outranks it (three independent layers).
+
+### Stronger detection: attach a semantic layer
+
+Rules are fast and deterministic but shallow. For paraphrase and obfuscation recall, attach a `SemanticDetector` — an ML- or LLM-backed classifier, injected as a `str → DetectionResult` callable (or `from_provider` for an LLM):
+
+```python
+from clawsafe import AgentGuard, AgentGuardConfig, SemanticDetector
+
+detector = SemanticDetector.from_provider(my_llm_provider)   # or SemanticDetector(my_ml_classifier)
+guard = AgentGuard(AgentGuardConfig(tool_registry=tools, semantic_detector=detector))
+```
+
+It runs as an **advisory** layer alongside the rule-based detectors. It's opt-in (the default guard is deterministic and LLM-free), and it's **never the sole gate**: the deny-by-default whitelist, `allowed_dirs`, and policy engine all run regardless, so fooling the detector still can't call a denied tool or violate a policy. If the model errors, it fails open by default (an unreliable classifier can't take the agent down) — set `fail_flag=True` for the stricter, fail-closed behavior.
 
 ### Memory-aware agent with protected learning
 
