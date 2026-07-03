@@ -48,11 +48,13 @@ full = [
     "anthropic>=0.30.0",
 ]
 dev = [
+    # Provider SDKs so the mocked provider tests run in CI (no API calls).
     "anthropic>=0.30.0",
+    "openai>=1.0",
     "pytest>=8",
     "pytest-cov>=6",
     "black>=24",
-    "ruff>=0.6",
+    "ruff==0.15.20",
     "mypy>=1.11",
 ]
 docs = [

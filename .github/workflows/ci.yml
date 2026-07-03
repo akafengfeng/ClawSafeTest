@@ -16,9 +16,11 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install ruff
-        run: pip install ruff
+        # Pinned so a new ruff release can't fail CI on a rule that wasn't
+        # present when the code was written. Bump deliberately.
+        run: pip install "ruff==0.15.20"
       - name: Ruff check
-        run: ruff check clawsafe/ tests/
+        run: ruff check clawsafe/ tests/ benchmarks/
 
   test:
     name: Test (Python ${{ matrix.python-version }})

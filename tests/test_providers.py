@@ -6,17 +6,31 @@ Each test verifies that the provider correctly normalizes responses to LLMRespon
 
 from __future__ import annotations
 
+import importlib.util
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-pytest.importorskip("anthropic", reason="provider tests need the [providers] extra")
-
+# The provider module is pure-Python and always importable; the vendor SDKs it
+# uses are loaded lazily inside each provider, so this import is dependency-free.
 from clawsafe.core.provider import (
     AnthropicProvider,
     LLMResponse,
     OpenAIProvider,
     get_provider,
+)
+
+# Each mocked test needs its vendor SDK importable so @patch can target it.
+# Provider SDKs are optional (the base package is zero-dependency), so guard
+# per-SDK and skip gracefully when one is absent rather than failing hard.
+_HAS_ANTHROPIC = importlib.util.find_spec("anthropic") is not None
+_HAS_OPENAI = importlib.util.find_spec("openai") is not None
+
+needs_anthropic = pytest.mark.skipif(
+    not _HAS_ANTHROPIC, reason="needs the anthropic SDK (pip install \"clawsafe-agent[providers]\")"
+)
+needs_openai = pytest.mark.skipif(
+    not _HAS_OPENAI, reason="needs the openai SDK (pip install openai)"
 )
 
 # Note: TogetherAI provider tests are in tests/integrations/test_providers_integration.py
@@ -54,6 +68,7 @@ class TestLLMResponse:
         assert response.input_tokens + response.output_tokens == 150
 
 
+@needs_anthropic
 class TestAnthropicProvider:
     """Test AnthropicProvider (Claude models)."""
 
@@ -136,6 +151,7 @@ class TestAnthropicProvider:
         assert tokens == ["Hello", " ", "world"]
 
 
+@needs_openai
 class TestOpenAIProvider:
     """Test OpenAIProvider (GPT models)."""
 
@@ -229,6 +245,7 @@ class TestOpenAIProvider:
 class TestGetProviderFactory:
     """Test get_provider() factory function."""
 
+    @needs_anthropic
     @patch("anthropic.Anthropic")
     def test_get_provider_anthropic(self, mock_anthropic):
         """Factory should create AnthropicProvider."""
@@ -236,6 +253,7 @@ class TestGetProviderFactory:
         assert isinstance(provider, AnthropicProvider)
         assert provider.model == "claude-opus-4-1"
 
+    @needs_openai
     @patch("openai.OpenAI")
     def test_get_provider_openai(self, mock_openai):
         """Factory should create OpenAIProvider."""
@@ -250,12 +268,14 @@ class TestGetProviderFactory:
             get_provider("invalid_provider", "some-model")
         assert "Unknown provider" in str(exc_info.value)
 
+    @needs_openai
     @patch("openai.OpenAI")
     def test_get_provider_case_insensitive(self, mock_openai):
         """Factory should handle provider names case-insensitively."""
         provider = get_provider("OpenAI", "gpt-4")
         assert isinstance(provider, OpenAIProvider)
 
+    @needs_anthropic
     @patch("anthropic.Anthropic")
     def test_get_provider_with_api_key(self, mock_anthropic):
         """Factory should pass api_key to provider."""
@@ -263,6 +283,8 @@ class TestGetProviderFactory:
         assert provider.api_key == "sk-test-123"
 
 
+@needs_anthropic
+@needs_openai
 class TestProviderIntegration:
     """Integration tests across providers."""
 
