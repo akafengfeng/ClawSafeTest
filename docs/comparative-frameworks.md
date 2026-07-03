@@ -9,6 +9,38 @@ This document compares ClawSafe's security framework with other approaches and i
 
 ---
 
+## How ClawSafe Relates to Recent Research
+
+Two 2025–2026 systems define the current state of the art, and ClawSafe deliberately borrows from both:
+
+### Progent (UC Berkeley — Shi, He, Wang, Wu, Li, Guo, Song)
+
+[Progent](https://arxiv.org/abs/2504.11703) frames agent security as **least privilege over tool calls**, expressed in a JSON-based policy language: per-argument boolean predicates, allow/forbid effects, numeric priorities (forbid evaluated before allow), and explicit fallbacks (terminate, ask the user, or return an explanatory message to the agent). Policies can be LLM-generated per task and updated dynamically.
+
+ClawSafe's [`PolicyEngine`](https://github.com/akafengfeng/ClawSafeTest/blob/main/clawsafe/core/policy.py) implements the same core semantics — declarative JSON rules, argument-level predicates (`eq/lt/lte/in_/regex/startswith/...` plus `all/any/not` combinators), priority ordering with forbid-wins-ties, and `raise` / `message` / `require_approval` fallbacks — layered on top of ClawSafe's deny-by-default registry. What ClawSafe does **not** yet do is LLM-generated per-task policies with verified dynamic updates; that is the most valuable piece of Progent left to adopt.
+
+Where ClawSafe goes further than Progent: memory security (integrity hashing, ACLs, poisoning gates, verified persistence) and the immutable audit trail are first-class, whereas Progent focuses on the tool-call decision itself.
+
+### Agent3Sigma (Tsinghua, PKU, ZJU, NJU, HDU & Ant Group)
+
+[Agent3Sigma](https://github.com/antgroup/Agent3Sigma) is an **evaluation platform**, not a guard: it maps agent risk into 7 categories (availability, data security, memory poisoning, privilege, network, abuse, financial) across 30+ scenarios, evaluated at three tiers — L1 offline static scoring, L2 simulated interaction, L3 real tool interfaces — and scored on attack success rate (ASR), security awareness, and benign task success.
+
+ClawSafe adopts the taxonomy and metrics directly: [`benchmarks/run_benchmark.py`](https://github.com/akafengfeng/ClawSafeTest/blob/main/benchmarks/run_benchmark.py) is an L1-style offline benchmark with attack scenarios in all 7 categories plus benign utility tasks, reporting ASR, security awareness, task success, and Agent3Sigma's composite weighting. It runs in CI, so any change that lets an attack through or blocks a benign task fails the build. L2/L3-style evaluation (simulated and live agent loops) is future work.
+
+### Summary
+
+| Capability | ClawSafe | Progent | Agent3Sigma |
+|---|---|---|---|
+| Deny-by-default tool whitelist | ✅ | ✅ (default-deny) | — (eval platform) |
+| Argument-level policy DSL | ✅ `PolicyEngine` | ✅ (origin of the design) | — |
+| Policy fallbacks (raise/message/approval) | ✅ | ✅ | — |
+| LLM-generated / dynamic policies | ❌ roadmap | ✅ | — |
+| Memory integrity + poisoning gates | ✅ | ❌ | evaluated only |
+| Immutable audit trail | ✅ | ❌ | — |
+| Adversarial benchmark with ASR/utility | ✅ L1 (CI-gated) | external benchmarks | ✅ L1/L2/L3 |
+
+---
+
 ## Framework Comparison
 
 ### ClawSafe vs. Blacklist-Based Security

@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (SOTA alignment)
+- **Argument-level policy engine** (`clawsafe.core.policy`), inspired by
+  Progent (Shi et al., UC Berkeley, arXiv:2504.11703): declarative JSON rules
+  with per-argument predicates (`eq/lt/lte/in_/regex/...` plus `all/any/not`),
+  allow/forbid effects, numeric priorities (forbid wins ties), and fallbacks —
+  `raise`, `message` (soft-block: the agent receives an explanation instead of
+  an exception), or `require_approval`. Wired into the guard pipeline as
+  Phase 2b via `AgentGuardConfig(policy_engine=...)`; rules load from JSON
+  files with `PolicyEngine.load_file()`. Exported at top level and in
+  `clawsafe.full`.
+- **L1 security benchmark** (`benchmarks/`), following Agent3Sigma's
+  (Tsinghua/Ant Group) taxonomy and metrics: attack scenarios across all 7
+  risk categories plus benign utility tasks, scored on attack success rate,
+  security awareness, task success, and the Agent3Sigma composite weighting.
+  Runs in CI and as tests — any attack getting through or benign task being
+  blocked fails the build. Current reference results: 0% ASR, 100% utility.
+- `docs/comparative-frameworks.md`: honest comparison against Progent and
+  Agent3Sigma, including what ClawSafe has not adopted yet (LLM-generated
+  dynamic policies; L2/L3 live evaluation).
+
 ### Security
 - **Memory TTL enforced at read time**: expired memories were returned until
   `cleanup_expired()` happened to run; `retrieve_memory` now purges and

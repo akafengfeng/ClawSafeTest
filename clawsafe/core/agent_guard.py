@@ -174,6 +174,40 @@ class AgentGuard:
             )
             raise SecurityBlockedError(findings[0], error_msg)
 
+        # Phase 2b: Argument-Level Privilege Policy (Progent-style).
+        # Refines the whitelist with per-argument rules; forbid decisions
+        # honor the rule's fallback — raise, or return an explanatory
+        # message to the agent without executing (soft block).
+        if self.config.policy_engine is not None:
+            decision = self.config.policy_engine.evaluate(tool_name, params)
+            if not decision.allowed:
+                finding = ValidationFinding(
+                    policy_name="privilege_policy",
+                    severity=FindingSeverity.HIGH,
+                    message=decision.message,
+                    details=decision.reason,
+                )
+                findings.append(finding)
+                self.memory.save(
+                    MemoryEntry(
+                        type=MemoryType.SECURITY_EVENT,
+                        content={
+                            "phase": "privilege_policy",
+                            "tool": tool_name,
+                            "reason": decision.reason,
+                            "message": decision.message,
+                        },
+                    )
+                )
+                if decision.fallback == "message":
+                    return ToolCallResult(
+                        tool_name=tool_name,
+                        success=False,
+                        error=decision.message,
+                        findings=findings,
+                    )
+                raise SecurityBlockedError(finding, decision.message)
+
         # Phase 3: Parameter Type Validation
         is_valid, error_msg = self._tool_registry.validate_parameter_types(tool_name, params)
         if not is_valid:

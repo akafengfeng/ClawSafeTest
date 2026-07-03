@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 
 from clawsafe.core.auth import AuthorizationMode
+from clawsafe.core.policy import PolicyEngine
 from clawsafe.core.tools import ToolRegistry
 
 
@@ -16,6 +17,8 @@ class AgentGuardConfig:
 
     Attributes:
         tool_registry: ToolRegistry defining allowed/blocked tools and policies.
+        policy_engine: Optional argument-level privilege rules (PolicyEngine),
+            evaluated after the registry whitelist check.
         authorization_mode: "strict", "standard", or "permissive" authorization.
         block_on_high_severity: Block tool execution on HIGH severity findings.
         block_on_medium_severity: Block tool execution on MEDIUM severity findings.
@@ -35,6 +38,7 @@ class AgentGuardConfig:
     """
 
     tool_registry: ToolRegistry | None = None
+    policy_engine: PolicyEngine | None = None
     authorization_mode: AuthorizationMode = AuthorizationMode.STANDARD
     block_on_high_severity: bool = True
     block_on_medium_severity: bool = False

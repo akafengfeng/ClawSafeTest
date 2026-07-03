@@ -41,6 +41,9 @@ jobs:
       - name: Run tests
         run: python -m pytest tests/ -v --tb=short
 
+      - name: L1 security benchmark
+        run: python benchmarks/run_benchmark.py
+
       - name: Token budget smoke check
         run: |
           python - <<'EOF'

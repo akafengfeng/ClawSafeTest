@@ -56,6 +56,8 @@ Nothing from the full tier loads until you touch it — `from clawsafe import Ag
 | **Two tiers, one package** | Zero-dependency lite tier on plain install; the full framework loads lazily, only when you import it |
 | **One-line integration** | `protect_agent(agent, tools=...)` auto-detects the framework; `@guarded` protects a single function with no framework at all |
 | **One-call hardening** | `secure_openclaw_adapter()` / `secure_hermes_adapter()` give an agent strict mode + a pre-applied denylist of 13 dangerous tools |
+| **Argument-level policies** | Progent-style declarative rules: allow `transfer_funds` only when `amount ≤ 100` and the recipient is allowlisted — with priorities and soft-block fallbacks |
+| **Benchmarked, not asserted** | Agent3Sigma-style L1 benchmark in CI: 0% attack success across 7 risk categories, 100% benign utility |
 | **Path containment** | File tools are confined to `allowed_dirs`; traversal patterns, sibling-prefix tricks, and relative paths are rejected |
 | **Sliding-window rate limits** | Per-user, per-tool quotas that actually reset — flooding one identity never blocks another |
 | **Recursive output redaction** | Credentials are detected and `[REDACTED]` even when nested deep inside structured tool results |
@@ -149,6 +151,28 @@ protected_agent = adapter.wrap_agent(agent)
 ```
 
 The hardened preset enables strict authorization, blocks on medium+ severity findings, turns on rate limiting and output sanitization, and pre-denies `shell_exec`, `eval`, `delete_file`, and ten other dangerous tool names. Only tools you explicitly register can run.
+
+### Argument-level least privilege (policy engine)
+
+Whitelisting says *which* tools may run; the policy engine says *with which arguments* — declarative JSON rules with predicates, priorities, and fallbacks, in the style of [Progent](https://arxiv.org/abs/2504.11703) (Berkeley):
+
+```python
+from clawsafe import AgentGuard, AgentGuardConfig, PolicyEngine
+
+policy = PolicyEngine(rules=[
+    {"tool": "transfer_funds", "effect": "allow", "conditions": {"all": [
+        {"param": "amount", "lte": 100},
+        {"param": "recipient", "in_": ["alice@corp.com", "bob@corp.com"]},
+    ]}},
+    {"tool": "transfer_funds", "effect": "forbid", "priority": -1,
+     "fallback": "message",   # soft-block: the agent gets an explanation instead of an exception
+     "message": "Transfers are limited to $100 and known recipients."},
+])
+
+guard = AgentGuard(AgentGuardConfig(tool_registry=tools, policy_engine=policy))
+```
+
+Rules can also be loaded from JSON files (`policy.load_file("policies.json")`) so privilege policies live in version control next to your code.
 
 ### Memory-aware agent with protected learning
 
@@ -264,6 +288,24 @@ Every threat class maps to specific policies with recorded audit evidence — se
 Full details with threat mappings: [docs/features/policies.md](docs/features/policies.md)
 
 </details>
+
+## 🥇 Security Benchmark
+
+ClawSafe measures itself the way [Agent3Sigma](https://github.com/antgroup/Agent3Sigma) (Tsinghua/Ant Group) measures agents: attack scenarios across **all 7 risk categories** (availability, data security, memory poisoning, privilege, network, abuse, financial) plus benign utility tasks, scored on attack success rate and task success.
+
+```bash
+python benchmarks/run_benchmark.py
+```
+
+Current reference-deployment results (CI-gated — a regression on any scenario fails the build):
+
+| Metric | Score |
+|---|---|
+| Attack success rate (18 attack scenarios) | **0.0%** |
+| Security awareness | **100%** |
+| Benign task success (8 utility scenarios) | **100%** |
+
+See [docs/comparative-frameworks.md](docs/comparative-frameworks.md) for how ClawSafe relates to Progent, Agent3Sigma, and other state-of-the-art work.
 
 ## 📊 Performance
 

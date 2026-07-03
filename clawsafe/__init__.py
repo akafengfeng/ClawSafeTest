@@ -45,6 +45,10 @@ _LAZY_EXPORTS = {
     "ActionAuthorizer": ("clawsafe.core.auth", "ActionAuthorizer"),
     "AuthContext": ("clawsafe.core.auth", "AuthContext"),
     "AuthorizationMode": ("clawsafe.core.auth", "AuthorizationMode"),
+    # Argument-level privilege policies
+    "PolicyDecision": ("clawsafe.core.policy", "PolicyDecision"),
+    "PolicyEngine": ("clawsafe.core.policy", "PolicyEngine"),
+    "PolicyRule": ("clawsafe.core.policy", "PolicyRule"),
     # Validation
     "InputValidator": ("clawsafe.core.validator", "InputValidator"),
     "OutputValidator": ("clawsafe.core.validator", "OutputValidator"),
