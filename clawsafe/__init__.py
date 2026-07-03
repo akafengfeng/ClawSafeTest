@@ -17,12 +17,13 @@ adapters, hardened presets, and LLM providers::
     from clawsafe import AgentGuard, OpenClawAdapter
 
 Selection happens purely by import: nothing from the full tier is loaded
-until you ask for it, and both tiers are zero-dependency — the guard
-framework never calls an LLM itself. The optional extra is only for proxy
-mode, where ``ClawSafeAgent`` makes your LLM calls and needs vendor SDKs::
+until you ask for it, and both tiers are zero-dependency. **The guard runtime
+never calls an LLM.** The optional extra is only for the opt-in LLM tooling
+that *tests or authors* — the L3 live benchmark, the LLM red-teamer, and
+LLM-drafted policies — plus the legacy ``ClawSafeAgent`` wrapper::
 
     pip install clawsafe-agent               # the whole framework
-    pip install "clawsafe-agent[providers]"  # only for ClawSafeAgent proxy mode
+    pip install "clawsafe-agent[providers]"  # only for the LLM testing/authoring tools
 """
 
 import importlib

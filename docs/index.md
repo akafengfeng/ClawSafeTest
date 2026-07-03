@@ -381,7 +381,7 @@ layout: default
     <pre><code># The whole framework — zero dependencies
 pip install clawsafe-agent
 
-# Only if ClawSafeAgent makes your LLM calls (proxy mode)
+# Only for the opt-in LLM testing/authoring tools (L3 benchmark, red-team, policy drafting)
 pip install "clawsafe-agent[providers]"</code></pre>
 
     <h3 style="color: var(--primary);">One-Line Integration</h3>

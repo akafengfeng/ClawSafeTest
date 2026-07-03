@@ -32,7 +32,19 @@ class SecurityBlockedError(Exception):
 
 
 class ClawSafeAgent:
-    """Security-first wrapper for any LLM API (Claude, GPT-4, Qwen, DeepSeek, etc.).
+    """LEGACY (v0.3) — security-first *LLM wrapper* that makes the model call for you.
+
+    .. note::
+       This is the legacy "proxy mode": ClawSafeAgent itself calls the LLM API
+       and runs rule-based skills around it. It is kept for backward
+       compatibility and is **not** the recommended path. The current design is
+       a deterministic guard (:class:`~clawsafe.AgentGuard`) that protects an
+       agent's *tool calls* and never calls an LLM itself — your framework makes
+       the model calls. In this project the LLM's role is testing and policy
+       authoring, not the guard runtime. Prefer ``AgentGuard`` / ``protect_agent``
+       for new code; the standalone :func:`~clawsafe.scan_messages` /
+       :func:`~clawsafe.scan_output` scanners cover the input/output checks this
+       wrapper performs, without owning the LLM call.
 
     Wraps all LLM API calls with deterministic security checks in PRE and POST phases.
     Skills run rule-based detection (credentials, injection, PII, policy violations) before

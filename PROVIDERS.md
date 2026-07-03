@@ -1,6 +1,14 @@
-# Multi-Provider Support
+# Multi-Provider Support (LLM tooling)
 
-ClawSafe is **provider-agnostic** and works with any LLM API. This document explains how to use different providers: Anthropic (Claude), OpenAI (GPT), TogetherAI (Qwen, DeepSeek, Llama, Mistral), and how to add custom providers.
+> **Scope.** ClawSafe's guard runtime is deterministic and **never calls an LLM**.
+> LLM providers are used only by the opt-in **testing and authoring** tools — the
+> L3 live benchmark (`benchmarks/run_l3.py`), the LLM red-teamer
+> (`benchmarks/run_redteam.py`), LLM-drafted policies (`PolicyGenerator`), and the
+> **legacy** `ClawSafeAgent` wrapper (v0.3 proxy mode, kept for compatibility).
+> This document covers how to configure a provider for those tools. It is not
+> required to protect an agent — see the [Getting Started](GETTING_STARTED.md) guide.
+
+ClawSafe is **provider-agnostic**: any of these works wherever an LLM is used for testing or authoring — Anthropic (Claude), OpenAI (GPT), TogetherAI (Qwen, DeepSeek, Llama, Mistral), or a custom provider.
 
 ---
 

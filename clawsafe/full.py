@@ -2,7 +2,8 @@
 
 This is the heavyweight tier: the AgentGuard orchestrator with all eight
 pipeline phases, memory security and the learning loop, framework adapters
-with hardened presets, and the multi-provider LLM security agent.
+with hardened presets, and — for the opt-in LLM testing/authoring tools —
+the multi-provider LLM classes (plus the legacy ClawSafeAgent wrapper).
 
 Import it when you want everything in one namespace::
 
@@ -16,8 +17,9 @@ low-ceremony taste of the same pipeline — everything here is what it routes
 through under the hood.
 
 Everything here is zero-dependency except the LLM provider classes, which
-are only used in proxy mode (``ClawSafeAgent`` making your LLM calls) and
-need their vendor SDKs::
+are used only by the opt-in LLM *testing/authoring* tools (the L3 live
+benchmark, the red-teamer, LLM-drafted policies) and the legacy
+``ClawSafeAgent`` wrapper — never by the guard runtime. They need vendor SDKs::
 
     pip install "clawsafe-agent[providers]"
 """

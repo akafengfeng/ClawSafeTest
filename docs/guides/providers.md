@@ -5,6 +5,8 @@ title: LLM Providers Guide
 
 # LLM Providers Guide
 
+> **Note.** ClawSafe's guard runtime never calls an LLM. Providers are for the opt-in LLM *testing/authoring* tools and the legacy `ClawSafeAgent` wrapper shown below — not for protecting an agent. For protection, use `AgentGuard` / `protect_agent` (no provider needed).
+
 ClawSafe supports 4 types of LLM providers with a unified security framework.
 
 ## Supported Providers

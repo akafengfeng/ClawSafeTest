@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed (LLM usage — correctness)
+- **Docs corrected to match the design**: removed remaining instructions that
+  framed the `[providers]` extra as "proxy mode where ClawSafeAgent makes your
+  LLM calls." The extra is for the opt-in LLM **testing/authoring** tools (L3
+  live benchmark, red-teamer, LLM-drafted policies); the guard runtime never
+  calls an LLM. Updated across README, GETTING_STARTED, docs/index, PROVIDERS.md
+  (now scoped as LLM-tooling config), docs/guides/providers, and the package
+  docstrings.
+- **`ClawSafeAgent` marked LEGACY (v0.3)** in its docstring — the LLM-wrapper
+  "proxy mode" is kept for backward compatibility but is not the recommended
+  path; new code should use `AgentGuard` / `protect_agent` plus the standalone
+  `scan_messages` / `scan_output` scanners.
 - **Clarified and enforced: the guard's runtime never calls an LLM.** Protecting
   a tool call, evaluating a policy, and guarding memory are pure-Python and load
   no LLM SDK — now guaranteed by `tests/test_runtime_llm_free.py`. The LLM's role

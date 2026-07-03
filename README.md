@@ -43,10 +43,10 @@ ClawSafe ships as a single package; you select what you load purely by import. T
 |---|---|---|
 | **Install** | `pip install clawsafe-agent` | same install — tiers are selected by import |
 | **Import** | `from clawsafe import guarded, protect_agent, scan_messages` | `from clawsafe.full import AgentGuard, MemoryGuard, ...` |
-| **What you get** | A decorator for single functions, an auto-detecting agent wrapper, standalone input/output scanners | The eight-phase orchestrator, memory security + learning loop, framework adapters, hardened presets, LLM providers |
+| **What you get** | A decorator for single functions, an auto-detecting agent wrapper, standalone input/output scanners | The eight-phase orchestrator, memory security + learning loop, framework adapters, hardened presets, and LLM classes for the testing/authoring tools |
 | **When** | Demos, quick hardening, frameworks without adapters | Production deployments, audit requirements, memory-aware agents |
 
-Nothing from the full tier loads until you touch it — `from clawsafe import AgentGuard` lazily pulls in exactly that module and no more. **Both tiers are zero-dependency**: the guard framework never calls an LLM itself. The optional `[providers]` extra is only needed for proxy mode, where `ClawSafeAgent` makes your LLM calls for you and therefore needs the vendor SDKs. And lite is not a different engine: it routes through the same pipeline the full tier uses.
+Nothing from the full tier loads until you touch it — `from clawsafe import AgentGuard` lazily pulls in exactly that module and no more. **Both tiers are zero-dependency, and the guard runtime never calls an LLM.** The optional `[providers]` extra is only for the opt-in **LLM tooling that tests or authors** — the L3 live benchmark, the LLM red-teamer, and LLM-drafted policies — plus the legacy `ClawSafeAgent` wrapper. None of that sits in the protection path. Lite is not a different engine: it routes through the same pipeline the full tier uses.
 
 ## ✨ Highlights
 
@@ -70,7 +70,7 @@ Nothing from the full tier loads until you touch it — `from clawsafe import Ag
 
 ```bash
 pip install clawsafe-agent                # the whole framework — zero dependencies
-pip install "clawsafe-agent[providers]"   # only if ClawSafeAgent makes your LLM calls
+pip install "clawsafe-agent[providers]"   # only for the opt-in LLM testing/authoring tools
 ```
 
 ### One line, whole agent
@@ -177,13 +177,16 @@ Rules can also be loaded from JSON files (`policy.load_file("policies.json")`) s
 
 **LLM-assisted policy authoring** — let a model *draft* the least-privilege rules for a task, then review and commit them as static JSON that the deterministic engine enforces (the LLM is not in the runtime). ClawSafe treats generated policy as *untrusted input*: a prompt-injected model **cannot widen access** (generated `allow` rules are honored only for already-whitelisted tools, never denied ones or `*`), human rules always outrank generated ones, and updates from tool output can only *tighten* policy, never loosen it.
 
+Run this **offline, at authoring time** — draft rules, review them, commit the JSON — so no LLM call touches the live request path:
+
 ```python
 from clawsafe import PolicyGenerator
 from clawsafe.core.policy_generation import build_engine
 
-gen = PolicyGenerator.from_provider(my_llm_provider)   # or any prompt->text callable
+gen = PolicyGenerator(my_llm_fn)   # any prompt->text callable; from_provider() for a full-tier provider
 generated = gen.generate(user_task, tool_specs, denied_tools=["shell_exec"])
 engine = build_engine(generated, generic_rules=my_human_rules)
+# review generated.rules, then commit them as static JSON that the deterministic engine loads
 ```
 
 Even a fully-compromised model can't grant itself a dangerous tool — the sanitizer drops it, the registry denies it, or the human rule outranks it (three independent layers).
@@ -358,7 +361,7 @@ ClawSafe's audit trail, access controls, and redaction are built to **support** 
 | [Website](https://akafengfeng.github.io/ClawSafeTest/) | Guides, architecture, policies, diagrams |
 | [Architecture](docs/architecture.md) | Core design, pipeline, component reference |
 | [Security Policies](docs/features/policies.md) | Every policy with threat model and response |
-| [Providers](PROVIDERS.md) | Claude, GPT-4, DeepSeek, Qwen, custom LLMs |
+| [Providers](PROVIDERS.md) | Configuring an LLM for the testing/authoring tools (not the runtime) |
 | [Memory Integration](MEMORY_INTEGRATION_SUMMARY.md) | Agent learning and memory protection |
 | [Security Policy](SECURITY.md) | Vulnerability reporting and disclosure |
 | [Examples](examples/) | Four complete, runnable examples |
