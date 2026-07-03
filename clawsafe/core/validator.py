@@ -30,13 +30,23 @@ class InputValidator:
     """Validates tool calls before execution."""
 
     def __init__(self):
-        # Command injection patterns
+        # Command injection patterns. These require actual injection *structure*
+        # — command substitution, or a shell separator immediately followed by a
+        # dangerous command — rather than any single shell metacharacter. A bare
+        # "$" (as in "$50"), ";" or "()" in natural-language text is not command
+        # injection, so scanning arbitrary tool params for lone metacharacters
+        # produced false positives on benign content (file bodies, email text,
+        # search queries) without adding real protection.
         self.shell_patterns = [
-            r"[;&|`$()]",
-            r">\s*\w+",
-            r"<\s*\w+",
-            r"\$\{.*\}",
-            r"`.*`",
+            r"\$\([^)]*\)",  # $(...) command substitution
+            r"`[^`]*`",  # `...` command substitution
+            r"\$\{[^}]*\}",  # ${...} expansion
+            # a shell separator (; & |, incl. && ||) then a dangerous command
+            r"[;&|]\s*(?:sudo|rm|curl|wget|bash|sh|zsh|nc|ncat|chmod|chown|dd|"
+            r"mkfifo|kill|eval|exec|python[0-9.]*|perl|ruby|php|powershell|pwsh|"
+            r"cmd|crontab|systemctl|service|ssh|scp|telnet|cat|mv|cp)\b",
+            r"\|\s*(?:sh|bash|zsh|python[0-9.]*|perl|ruby|php|nc)\b",  # pipe to interpreter
+            r"[0-9]*>\s*/?\w+(?:\.\w+|/\w+)",  # redirection to a file path
         ]
 
         # SQL injection patterns

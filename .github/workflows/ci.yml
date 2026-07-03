@@ -43,8 +43,8 @@ jobs:
       - name: Run tests
         run: python -m pytest tests/ -v --tb=short
 
-      - name: L1 security benchmark
-        run: python benchmarks/run_benchmark.py
+      - name: Security benchmark (L1 static + L2 multi-turn)
+        run: python benchmarks/run_benchmark.py --level all
 
       - name: Token budget smoke check
         run: |

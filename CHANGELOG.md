@@ -10,6 +10,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added (SOTA alignment)
+- **L2 multi-turn and L3 live benchmarks** (`benchmarks/harness.py`),
+  completing Agent3Sigma's tiered structure. L2 (`SimulatedAgentHarness`) runs
+  deterministic multi-turn scenarios where attacks arrive *indirectly* through
+  tool output (poisoned pages, malicious emails) and a scripted agent acts on
+  them — the realistic indirect-prompt-injection threat a single-action
+  benchmark can't express; it runs in CI alongside L1. L3 (`LiveAgentHarness`,
+  `run_l3.py`) wraps the guard around a real LLM-driven tool loop over
+  sandboxed tools; opt-in and non-deterministic, with the loop mechanics unit-
+  tested via a scripted fake provider. Reference results: 0% ASR / 100%
+  utility on both L1 and L2.
+- **Command-injection precision fix**: building L2 surfaced that the detector
+  flagged benign punctuation (`$50`, prose semicolons, parentheticals) on
+  non-shell tool parameters. It now requires real injection structure —
+  command substitution (`$(...)`, backticks), or a shell separator followed by
+  a dangerous command — so every real attack is still blocked while benign
+  content passes (regression tests in `test_validator_precision.py`).
 - **LLM-generated and dynamic policies** (`clawsafe.core.policy_generation`),
   completing Progent's automation half — the gap previously flagged as
   ClawSafe's most significant relative to Progent. `PolicyGenerator` has an

@@ -305,19 +305,26 @@ Full details with threat mappings: [docs/features/policies.md](docs/features/pol
 
 ## 🥇 Security Benchmark
 
-ClawSafe measures itself the way [Agent3Sigma](https://github.com/antgroup/Agent3Sigma) (Tsinghua/Ant Group) measures agents: attack scenarios across **all 7 risk categories** (availability, data security, memory poisoning, privilege, network, abuse, financial) plus benign utility tasks, scored on attack success rate and task success.
+ClawSafe measures itself the way [Agent3Sigma](https://github.com/antgroup/Agent3Sigma) (Tsinghua/Ant Group) measures agents — attack scenarios across **all 7 risk categories** plus benign utility tasks — and adopts its three tiers:
 
 ```bash
-python benchmarks/run_benchmark.py
+python benchmarks/run_benchmark.py --level all   # L1 static + L2 multi-turn
+python benchmarks/run_l3.py                       # L3 live (opt-in, real model)
 ```
 
-Current reference-deployment results (CI-gated — a regression on any scenario fails the build):
+| Tier | What it tests | Runs in |
+|---|---|---|
+| **L1** static | single actions scored in isolation | CI |
+| **L2** multi-turn | *indirect* attacks via tool output, acted on across turns | CI |
+| **L3** live | the guard around a real LLM-driven tool loop | opt-in |
 
-| Metric | Score |
-|---|---|
-| Attack success rate (18 attack scenarios) | **0.0%** |
-| Security awareness | **100%** |
-| Benign task success (8 utility scenarios) | **100%** |
+Current reference-deployment results (a regression on any L1/L2 scenario fails the build):
+
+| Metric | L1 | L2 |
+|---|---|---|
+| Attack success rate | **0.0%** | **0.0%** |
+| Security awareness | **100%** | **100%** |
+| Benign task success | **100%** | **100%** |
 
 See [docs/comparative-frameworks.md](docs/comparative-frameworks.md) for how ClawSafe relates to Progent, Agent3Sigma, and other state-of-the-art work.
 

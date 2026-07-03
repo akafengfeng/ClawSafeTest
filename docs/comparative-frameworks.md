@@ -33,7 +33,13 @@ Where ClawSafe goes further than Progent: memory security (integrity hashing, AC
 
 [Agent3Sigma](https://github.com/antgroup/Agent3Sigma) is an **evaluation platform**, not a guard: it maps agent risk into 7 categories (availability, data security, memory poisoning, privilege, network, abuse, financial) across 30+ scenarios, evaluated at three tiers — L1 offline static scoring, L2 simulated interaction, L3 real tool interfaces — and scored on attack success rate (ASR), security awareness, and benign task success.
 
-ClawSafe adopts the taxonomy and metrics directly: [`benchmarks/run_benchmark.py`](https://github.com/akafengfeng/ClawSafeTest/blob/main/benchmarks/run_benchmark.py) is an L1-style offline benchmark with attack scenarios in all 7 categories plus benign utility tasks, reporting ASR, security awareness, task success, and Agent3Sigma's composite weighting. It runs in CI, so any change that lets an attack through or blocks a benign task fails the build. L2/L3-style evaluation (simulated and live agent loops) is future work.
+ClawSafe adopts the taxonomy, metrics, and the tiered structure:
+
+- **L1** ([`run_benchmark.py`](https://github.com/akafengfeng/ClawSafeTest/blob/main/benchmarks/run_benchmark.py)) — single actions scored in isolation across all 7 categories plus benign utility tasks.
+- **L2** ([`harness.py` `SimulatedAgentHarness`](https://github.com/akafengfeng/ClawSafeTest/blob/main/benchmarks/harness.py)) — deterministic *multi-turn* scenarios where an attack arrives **indirectly** (embedded in a tool's output — a poisoned page, a malicious email) and a scripted agent then acts on it. This is the realistic agent threat, indirect prompt injection, that a single-action benchmark can't express.
+- **L3** ([`run_l3.py`](https://github.com/akafengfeng/ClawSafeTest/blob/main/benchmarks/run_l3.py)) — the guard wrapped around a **real LLM-driven** tool-use loop over sandboxed tools. Non-deterministic and provider-dependent, so it is opt-in (the loop mechanics are unit-tested with a scripted fake provider).
+
+Both L1 and L2 run in CI, so any change that lets an attack through — direct or indirect — or blocks a benign task fails the build. All tiers report ASR, security awareness, task success, and Agent3Sigma's composite. Building L2 surfaced (and fixed) a real false-positive: the command-injection detector was flagging benign punctuation (`$50`, prose semicolons) — exactly the kind of utility regression the L2 tier exists to catch.
 
 ### Summary
 
@@ -46,7 +52,8 @@ ClawSafe adopts the taxonomy and metrics directly: [`benchmarks/run_benchmark.py
 | Prompt-injected LLM can't widen access | ✅ hard invariant | ✅ | — |
 | Memory integrity + poisoning gates | ✅ | ❌ | evaluated only |
 | Immutable audit trail | ✅ | ❌ | — |
-| Adversarial benchmark with ASR/utility | ✅ L1 (CI-gated) | external benchmarks | ✅ L1/L2/L3 |
+| Adversarial benchmark with ASR/utility | ✅ L1+L2 CI-gated, L3 opt-in | external benchmarks | ✅ L1/L2/L3 |
+| Multi-turn / indirect-injection eval | ✅ L2 | — | ✅ L2 |
 
 ---
 
