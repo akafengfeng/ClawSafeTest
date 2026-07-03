@@ -33,7 +33,7 @@ Autonomous agents call tools, store memories, and act on untrusted input — eve
 - 📈 **Behavior** — baseline profiling, anomaly detection, learning-loop integrity
 - 🧾 **Audit** — every decision (allow *and* block) recorded in a queryable SQLite trail
 
-Detection is **deterministic and rule-based**: the same input always produces the same verdict, with no ML inference in the hot path.
+Detection is **deterministic and rule-based**: the same input always produces the same verdict, with no ML inference in the hot path. **The guard's runtime never calls an LLM** — protecting a tool call is pure-Python, fast, offline-capable, and immune to a compromised model (enforced by [`test_runtime_llm_free.py`](tests/test_runtime_llm_free.py)). In this project the LLM's role is *testing and policy authoring*, never the agent's live protection path.
 
 ## 📦 One Package, Two Tiers
 
@@ -57,7 +57,7 @@ Nothing from the full tier loads until you touch it — `from clawsafe import Ag
 | **One-line integration** | `protect_agent(agent, tools=...)` auto-detects the framework; `@guarded` protects a single function with no framework at all |
 | **One-call hardening** | `secure_openclaw_adapter()` / `secure_hermes_adapter()` give an agent strict mode + a pre-applied denylist of 13 dangerous tools |
 | **Argument-level policies** | Progent-style declarative rules: allow `transfer_funds` only when `amount ≤ 100` and the recipient is allowlisted — with priorities and soft-block fallbacks |
-| **Safe LLM-generated policies** | A model can draft least-privilege rules, but a prompt-injected model *cannot widen access*: generated rules are sanitized, priority-clamped below human rules, and untrusted updates can only tighten |
+| **LLM tests the guard, never runs it** | The runtime is LLM-free; an LLM is used only to *draft* policies (reviewed & committed as static rules) and to *red-team* the guard with generated attacks — not in the agent's protection path |
 | **Benchmarked, not asserted** | Agent3Sigma-style L1 benchmark in CI: 0% attack success across 7 risk categories, 100% benign utility |
 | **Path containment** | File tools are confined to `allowed_dirs`; traversal patterns, sibling-prefix tricks, and relative paths are rejected |
 | **Sliding-window rate limits** | Per-user, per-tool quotas that actually reset — flooding one identity never blocks another |
@@ -175,7 +175,7 @@ guard = AgentGuard(AgentGuardConfig(tool_registry=tools, policy_engine=policy))
 
 Rules can also be loaded from JSON files (`policy.load_file("policies.json")`) so privilege policies live in version control next to your code.
 
-**LLM-generated policies** — let a model draft the least-privilege rules for a task, safely. ClawSafe treats generated policy as *untrusted input*: a prompt-injected model **cannot widen access** (generated `allow` rules are honored only for already-whitelisted tools, never denied ones or `*`), human rules always outrank generated ones, and updates from tool output can only *tighten* policy, never loosen it.
+**LLM-assisted policy authoring** — let a model *draft* the least-privilege rules for a task, then review and commit them as static JSON that the deterministic engine enforces (the LLM is not in the runtime). ClawSafe treats generated policy as *untrusted input*: a prompt-injected model **cannot widen access** (generated `allow` rules are honored only for already-whitelisted tools, never denied ones or `*`), human rules always outrank generated ones, and updates from tool output can only *tighten* policy, never loosen it.
 
 ```python
 from clawsafe import PolicyGenerator
@@ -310,6 +310,8 @@ ClawSafe measures itself the way [Agent3Sigma](https://github.com/antgroup/Agent
 ```bash
 python benchmarks/run_benchmark.py --level all   # L1 static + L2 multi-turn
 python benchmarks/run_l3.py                       # L3 live (opt-in, real model)
+python benchmarks/run_redteam.py                  # LLM red-team (opt-in): a model
+                                                  # generates attacks; gaps are surfaced
 ```
 
 | Tier | What it tests | Runs in |

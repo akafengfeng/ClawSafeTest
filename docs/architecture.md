@@ -508,11 +508,23 @@ Action: Extract from output, log with redaction, alert on findings
 - Fail-closed (block by default)
 - Explicit allow (whitelist)
 
-### 2. Deterministic Security
-- Rule-based, not ML-based
-- Repeatable results
-- No false positives
-- Auditable decisions
+### 2. Deterministic Security — the runtime never calls an LLM
+- Rule-based, not ML-based; repeatable, auditable decisions
+- **The guard's protection path makes zero LLM/API calls.** Protecting a tool
+  call, evaluating a policy, and guarding memory are pure-Python and load no
+  LLM SDK — enforced by `tests/test_runtime_llm_free.py`. This keeps protection
+  fast, offline-capable, free of model latency and non-determinism, and immune
+  to a compromised model.
+- **The LLM's role in this project is testing and authoring, not runtime:**
+  - *Dynamic testing / red-teaming* — an LLM generates adversarial scenarios
+    (`benchmarks/redteam.py`) and drives the opt-in L3 live loop
+    (`benchmarks/harness.py`); both test the deterministic guard.
+  - *Policy authoring* — an LLM may **draft** least-privilege rules
+    (`clawsafe.core.policy_generation`), which are sanitized, human-reviewed,
+    and committed as static JSON. Enforcement of those rules is LLM-free.
+  - The legacy `ClawSafeAgent` "proxy mode" (ClawSafe making the LLM call for
+    you) is optional, behind the `[providers]` extra, and separate from the
+    guard.
 
 ### 3. Zero-Trust
 - Verify every tool call

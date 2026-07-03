@@ -9,7 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed (LLM usage — correctness)
+- **Clarified and enforced: the guard's runtime never calls an LLM.** Protecting
+  a tool call, evaluating a policy, and guarding memory are pure-Python and load
+  no LLM SDK — now guaranteed by `tests/test_runtime_llm_free.py`. The LLM's role
+  in this project is *testing* and *policy authoring*, never the agent's live
+  protection path.
+- **`PolicyGenerator` reframed as an authoring/test-time aid**: an LLM *drafts*
+  least-privilege rules that are sanitized, reviewed, and committed as static
+  JSON; the deterministic engine enforces them (no LLM in the request path).
+  Docstring and docs updated to make the draft → review → commit → enforce flow
+  explicit.
+
 ### Added (SOTA alignment)
+- **LLM red-team dynamic testing** (`benchmarks/redteam.py`, `run_redteam.py`):
+  an LLM generates fresh adversarial scenarios across the 7 risk categories,
+  which are scored against the deterministic guard — anything not blocked is a
+  DISCOVERED GAP. This is the project's stance made concrete: the LLM tests the
+  guard, it never runs it. Opt-in (needs a provider); parsing/scoring unit-
+  tested offline with a scripted fake, including a test that the harness
+  surfaces a gap.
 - **L2 multi-turn and L3 live benchmarks** (`benchmarks/harness.py`),
   completing Agent3Sigma's tiered structure. L2 (`SimulatedAgentHarness`) runs
   deterministic multi-turn scenarios where attacks arrive *indirectly* through

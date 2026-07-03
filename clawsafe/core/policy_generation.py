@@ -1,10 +1,17 @@
-"""LLM-generated and dynamically-updated privilege policies.
+"""LLM-*assisted* privilege-policy authoring (Progent's automation half).
 
-Implements the automation half of Progent (Shi et al., 2025): an LLM proposes
-least-privilege policy rules for a task, and policies are refined during
-execution as new information arrives. ClawSafe treats generated policy as
-**untrusted input**, not as authority — the "who guards the guards" problem is
-answered structurally:
+**Where the LLM sits — and where it does not.** ClawSafe's runtime protection
+path is deterministic and never calls an LLM (see ``tests/test_runtime_llm_free``
+for the enforced guarantee). This module is an *authoring / test-time* aid: an
+LLM **drafts** candidate least-privilege rules, which are sanitized here and
+then meant to be reviewed and committed as static JSON that the deterministic
+:class:`~clawsafe.core.policy.PolicyEngine` enforces. The recommended flow is
+draft-offline → human-review → commit → enforce, so no LLM call sits in the
+agent's live request path. (The generator can be invoked at task setup if you
+accept a one-time call there, but the enforcement that follows is LLM-free.)
+
+Even so, generated policy is treated as **untrusted input**, not authority —
+the "who guards the guards" problem is answered structurally:
 
 1. **The LLM only ever proposes.** Every generated rule passes through the same
    fail-closed :class:`~clawsafe.core.policy.PolicyRule` validation, then a hard
