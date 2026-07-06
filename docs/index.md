@@ -7,7 +7,7 @@ layout: default
     <h1>ClawSafe</h1>
     <p class="hero-subtitle">Enterprise Agent Security Framework</p>
     <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: calc(var(--spacing-unit) * 6); max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.8;">
-      <strong>Defense-in-depth security framework for autonomous AI agents.</strong> Unified threat detection, memory protection, and behavioral analysis across all agent frameworks. Built for enterprises that require audit compliance, tamper-proof operations, and zero-trust execution.
+      <strong>Deny-by-default security for autonomous AI agents.</strong> Tool-execution guarding, argument-level policy, memory protection, and an immutable audit trail across all agent frameworks — deterministic by default, with an optional semantic detection layer.
     </p>
     
     <div class="cta-buttons">
@@ -17,9 +17,9 @@ layout: default
 
     <div class="stats-grid" style="margin-top: calc(var(--spacing-unit) * 10); max-width: 900px; margin-left: auto; margin-right: auto;">
       <div>
-        <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: calc(var(--spacing-unit) * 1);">33</div>
-        <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Security Policies</div>
-        <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">Pre, post, memory, integration &amp; behavioral</div>
+        <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: calc(var(--spacing-unit) * 1);">8</div>
+        <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Pipeline Phases</div>
+        <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">Fail-closed authorize → validate → execute → audit</div>
       </div>
       <div>
         <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: calc(var(--spacing-unit) * 1);">310</div>
@@ -86,9 +86,9 @@ layout: default
             <td>SHA-256 pattern matching + redaction</td>
           </tr>
           <tr>
-            <td><strong>Behavioral Drift</strong></td>
-            <td>Agent decision patterns change unexpectedly</td>
-            <td>Baseline profiling + statistical anomaly detection</td>
+            <td><strong>Prompt Injection (obfuscated)</strong></td>
+            <td>Paraphrased / encoded injection evades literal patterns</td>
+            <td>Optional semantic detector, layered on structural controls</td>
           </tr>
           <tr>
             <td><strong>Rate-Based DOS</strong></td>
@@ -129,9 +129,9 @@ layout: default
       </div>
 
       <div class="feature-card">
-        <div class="feature-icon">📊</div>
-        <h3>Behavioral Analysis</h3>
-        <p>Baseline profiling, decision pattern tracking, anomaly detection, learning integrity verification, and behavioral drift alerting.</p>
+        <div class="feature-icon">🔎</div>
+        <h3>Layered Detection</h3>
+        <p>Deterministic rule-based detectors by default, with an optional pluggable <code>SemanticDetector</code> (ML/LLM) for paraphrase and obfuscation recall — advisory, never able to lift the structural controls.</p>
       </div>
 
       <div class="feature-card">
@@ -362,7 +362,7 @@ layout: default
           <li style="margin-bottom: calc(var(--spacing-unit) * 1.5);">✓ Tool Call: <strong>&lt;100ms</strong></li>
           <li style="margin-bottom: calc(var(--spacing-unit) * 1.5);">✓ Memory Operation: <strong>&lt;1ms</strong></li>
           <li style="margin-bottom: calc(var(--spacing-unit) * 1.5);">✓ Integrity Check: <strong>&lt;0.5ms</strong></li>
-          <li style="margin-bottom: calc(var(--spacing-unit) * 1.5);">✓ Anomaly Detection: <strong>&lt;5ms</strong></li>
+          <li style="margin-bottom: calc(var(--spacing-unit) * 1.5);">✓ Policy Evaluation: <strong>&lt;1ms</strong></li>
           <li>✓ Total Overhead: <strong>&lt;5%</strong></li>
         </ul>
       </div>

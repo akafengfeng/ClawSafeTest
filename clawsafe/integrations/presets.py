@@ -80,7 +80,6 @@ def hardened_config(
         require_explicit_approval=True,
         enable_rate_limiting=True,
         enable_output_sanitization=True,
-        enable_memory_protection=True,
         audit_db_path=audit_db_path,
     )
 

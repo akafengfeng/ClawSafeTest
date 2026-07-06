@@ -4,7 +4,7 @@
 
 ### Defense-in-depth security for autonomous AI agents
 
-Tool-execution guarding, memory protection, and behavioral analysis<br>
+Deny-by-default tool-execution guarding, argument-level policy, and an audit trail<br>
 for OpenClaw, Hermes Agent, LangChain, CrewAI, and custom frameworks.
 
 ![Version](https://img.shields.io/badge/version-0.5.0-blue?style=flat-square)
@@ -28,9 +28,9 @@ for OpenClaw, Hermes Agent, LangChain, CrewAI, and custom frameworks.
 
 Autonomous agents call tools, store memories, and act on untrusted input — every one of those steps is an attack surface. **ClawSafe** sits between your agent and its tools and applies deny-by-default, fail-closed security controls:
 
-- 🛠️ **Tool execution** — whitelist enforcement, parameter validation, injection detection, `allowed_dirs` containment, per-user rate limiting
-- 🧠 **Agent memory** — SHA-256 integrity hashing, contradiction detection, per-memory access control, TTL expiration
-- 📈 **Behavior** — baseline profiling, anomaly detection, learning-loop integrity
+- 🛠️ **Tool execution** — deny-by-default whitelist, parameter validation, injection detection, `allowed_dirs` containment, per-user rate limiting
+- 🔐 **Argument-level policy** — declarative allow/forbid rules on tool arguments (e.g. `amount ≤ 100`), with priorities and fallbacks
+- 🧠 **Agent memory** — SHA-256 integrity hashing, per-memory access control, TTL, and a validation gate against poisoning
 - 🧾 **Audit** — every decision (allow *and* block) recorded in a queryable SQLite trail
 
 Detection is **deterministic and rule-based by default**: the same input always produces the same verdict, and the runtime makes no LLM calls (enforced by [`test_runtime_llm_free.py`](tests/test_runtime_llm_free.py)). But rules are shallow — they catch `"ignore previous instructions"` and miss paraphrases and obfuscation. So detection is **layered and pluggable**: a [`SemanticDetector`](clawsafe/core/detection.py) (ML- or LLM-backed, opt-in) can be attached as an *advisory* layer for semantic recall. Crucially, it's **never the sole gate** — ClawSafe's actual guarantees come from *structural* controls (deny-by-default whitelist, `allowed_dirs` containment, the policy engine, capability restriction) that no rephrasing defeats. Fooling the detector still can't call a denied tool or violate a policy.
@@ -63,7 +63,7 @@ Nothing from the full tier loads until you touch it — `from clawsafe import Ag
 | **Path containment** | File tools are confined to `allowed_dirs`; traversal patterns, sibling-prefix tricks, and relative paths are rejected |
 | **Sliding-window rate limits** | Per-user, per-tool quotas that actually reset — flooding one identity never blocks another |
 | **Recursive output redaction** | Credentials are detected and `[REDACTED]` even when nested deep inside structured tool results |
-| **33 documented policies** | Pre-execution, post-execution, memory, integration, and behavioral controls ([full list](docs/features/policies.md)) |
+| **Immutable audit trail** | Every allow and block recorded to SQLite with the policy that fired, for incident reconstruction |
 
 ## 🚀 Quick Start
 
@@ -290,35 +290,17 @@ Adapter hardening applies across the board: untrusted agent state cannot claim p
 
 | Threat | Attack vector | ClawSafe response |
 |---|---|---|
-| **Prompt injection** | Input tricks agent into unauthorized calls | Pre-execution validation + pattern detection |
-| **Memory poisoning** | Adversarial data corrupts agent knowledge | Contradiction detection + integrity hashing |
-| **Privilege escalation** | Unauthorized access to high-risk tools | Fine-grained authorization + role clamping |
-| **Command injection** | Shell metacharacters in parameters | Pattern blocking |
-| **Path traversal** | Directory escape in file operations | Traversal patterns + `allowed_dirs` containment |
-| **Credential leakage** | Secrets in requests or responses | Detection + recursive redaction |
-| **Behavioral drift** | Decision patterns change unexpectedly | Baseline profiling + anomaly detection |
+| **Prompt injection** | Input tricks agent into unauthorized calls | Pattern detection + optional semantic detector; structural capability limits |
+| **Privilege escalation** | Unauthorized access to high-risk tools | Deny-by-default whitelist + role clamping |
+| **Command injection** | Shell metacharacters in parameters | Pattern blocking (evadable — defense-in-depth, not the guarantee) |
+| **Path traversal** | Directory escape in file operations | `allowed_dirs` containment (structural) |
+| **Credential leakage** | Secrets in tool output | Detection + recursive redaction |
 | **Rate-based DoS** | Tool-call flooding | Per-user sliding-window limits |
 | **Access-control bypass** | Unauthorized memory/tool access | RBAC + per-memory permissions |
 | **Supply chain** | Malicious tool registration | Whitelisting + high-risk-name quarantine |
+| **Memory poisoning** | Adversarial data planted in memory | Validation gate + integrity hashing *(heuristic — see [Limitations](#-limitations))* |
 
-Every threat class maps to specific policies with recorded audit evidence — see [threat modeling guide](docs/threat-modeling.md).
-
-<details>
-<summary><strong>📋 All 33 security policies</strong></summary>
-
-**Pre-execution (8):** tool authorization · parameter validation · command injection · SQL injection · path traversal · credential detection · privilege escalation · rate limiting
-
-**Post-execution (8):** output validation · error detection · credential leakage · output sanitization · memory integrity · anomaly detection · behavior drift · resource audit
-
-**Memory security (9):** memory poisoning · prompt injection (memory) · invalid confidence · suspicious confidence jumps · tampering detection · access control · contradiction detection · TTL management · audit trail
-
-**Framework integration (5):** tool registry whitelist · fine-grained authorization · session tracking · compliance logging · state export
-
-**Advanced (3):** behavioral baselines · feedback loops · learning-gap identification
-
-Full details with threat mappings: [docs/features/policies.md](docs/features/policies.md)
-
-</details>
+The **strong** guarantees are structural (whitelist, `allowed_dirs`, policy engine); the pattern-based detectors are evadable and are defense-in-depth, not the guarantee. See [Limitations](#-limitations).
 
 ## 🥇 Security Benchmark
 
@@ -361,12 +343,22 @@ Designed for the agent hot path — all checks are rule-based, no model inferenc
 | Tool-call security overhead | < 100 ms |
 | Memory store / retrieve / verify | < 1 ms |
 | Integrity check (SHA-256) | < 0.5 ms |
-| Anomaly detection | < 5 ms |
+| Policy evaluation | < 1 ms |
 | Total overhead | < 5 % |
+
+## ⚠️ Limitations
+
+Being explicit about what ClawSafe does **not** do is part of trusting what it does:
+
+- **The strong guarantees are structural, not detection.** Deny-by-default whitelisting, `allowed_dirs` containment, and the policy engine are what actually hold. The pattern-based detectors (injection/jailbreak/PII regexes) are **evadable** — the [evasion benchmark](benchmarks/) shows they miss 100% of obfuscated payloads on their own. Treat them as defense-in-depth, and add a [`SemanticDetector`](clawsafe/core/detection.py) for recall.
+- **Benchmarks are self-authored regression tests, not proof of security.** The scenarios, the guard config, and the scoring are all written by this project. "0% ASR" means "catches the attacks we wrote," not "is secure against a real adversary." There has been **no third-party audit**.
+- **Memory poisoning defense is heuristic.** The write-gate matches known bad patterns and the contradiction check is keyword-based — both are best-effort, not robust semantic understanding.
+- **Some subsystems are experimental** (see [`clawsafe.experimental`](clawsafe/experimental/) and [ARCHITECTURE.md](ARCHITECTURE.md)): LLM policy generation and the memory learning loop are prototypes with unstable APIs, not hardened security controls.
+- **No sandboxing.** ClawSafe decides *whether* a tool runs; it does not isolate execution. Run tools in your own sandbox for timeout/memory/syscall limits.
 
 ## 🏢 Compliance Support
 
-ClawSafe's audit trail, access controls, and redaction are built to **support** compliance programs (they don't confer certification by themselves):
+ClawSafe's audit trail, access controls, and redaction can **support** compliance programs (they don't confer certification by themselves):
 
 - **SOC 2** — immutable audit trail, access-control matrix, incident logging
 - **HIPAA** — credential protection, PII detection and redaction, access restrictions
