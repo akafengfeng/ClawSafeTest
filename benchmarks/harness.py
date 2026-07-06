@@ -17,8 +17,6 @@ add the two higher Agent3Sigma tiers:
 """
 from __future__ import annotations
 
-import json
-import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
@@ -30,6 +28,7 @@ from clawsafe import (
     scan_messages,
     scan_output,
 )
+from clawsafe.utils.jsonx import extract_json_object
 
 # ── L2: simulated multi-turn ────────────────────────────────────────────────
 
@@ -246,18 +245,7 @@ class LiveAgentHarness:
         return executor
 
 
-def _parse_action(text: str) -> dict | None:
+
+def _parse_action(text):
     """Extract the JSON action object from a model reply (fenced or bare)."""
-    if not isinstance(text, str):
-        return None
-    fence = re.search(r"```(?:json)?\s*(.+?)```", text, re.DOTALL)
-    candidate = fence.group(1) if fence else text
-    start = candidate.find("{")
-    end = candidate.rfind("}")
-    if start == -1 or end == -1 or end < start:
-        return None
-    try:
-        obj = json.loads(candidate[start : end + 1])
-    except json.JSONDecodeError:
-        return None
-    return obj if isinstance(obj, dict) else None
+    return extract_json_object(text)

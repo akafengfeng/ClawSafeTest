@@ -7,9 +7,9 @@
 Tool-execution guarding, memory protection, and behavioral analysis<br>
 for OpenClaw, Hermes Agent, LangChain, CrewAI, and custom frameworks.
 
-![Version](https://img.shields.io/badge/version-0.4.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-0.5.0-blue?style=flat-square)
 ![CI](https://github.com/akafengfeng/ClawSafeTest/actions/workflows/ci.yml/badge.svg)
-![Tests](https://img.shields.io/badge/tests-216%20passing-brightgreen?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-330%20passing-brightgreen?style=flat-square)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue?style=flat-square)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green?style=flat-square)
 
@@ -59,7 +59,7 @@ Nothing from the full tier loads until you touch it — `from clawsafe import Ag
 | **Argument-level policies** | Progent-style declarative rules: allow `transfer_funds` only when `amount ≤ 100` and the recipient is allowlisted — with priorities and soft-block fallbacks |
 | **Layered, pluggable detection** | Deterministic rules by default; attach an opt-in ML/LLM `SemanticDetector` for paraphrase/obfuscation recall — advisory only, never able to lift the structural floor |
 | **LLM tests the guard, never runs it** | The runtime is LLM-free; an LLM is used only to *draft* policies (reviewed & committed as static rules) and to *red-team* the guard with generated attacks — not in the agent's protection path |
-| **Benchmarked, not asserted** | Agent3Sigma-style L1 benchmark in CI: 0% attack success across 7 risk categories, 100% benign utility |
+| **Benchmarked, not asserted** | Agent3Sigma-style L1+L2 benchmarks in CI (0% attack success, 100% utility) plus an evasion benchmark quantifying rules-alone vs. rules+semantic recall |
 | **Path containment** | File tools are confined to `allowed_dirs`; traversal patterns, sibling-prefix tricks, and relative paths are rejected |
 | **Sliding-window rate limits** | Per-user, per-tool quotas that actually reset — flooding one identity never blocks another |
 | **Recursive output redaction** | Credentials are detected and `[REDACTED]` even when nested deep inside structured tool results |
@@ -326,12 +326,15 @@ ClawSafe measures itself the way [Agent3Sigma](https://github.com/antgroup/Agent
 
 ```bash
 python benchmarks/run_benchmark.py --level all   # L1 static + L2 multi-turn
+python benchmarks/run_evasion.py                  # rules-alone vs. rules+semantic recall
 python benchmarks/run_l3.py                       # L3 live (opt-in, real model)
 python benchmarks/run_redteam.py                  # LLM red-team (opt-in): a model
                                                   # generates attacks; gaps are surfaced
 # L3 and red-team also use an LLM-as-judge (opt-in) to grade outcomes semantically
 # and filter generated attacks — evaluation only, never the guard runtime.
 ```
+
+The **evasion benchmark** quantifies exactly why detection is layered: on a set of obfuscated/paraphrased attacks (leetspeak, letter-spacing, base64, zero-width, paraphrase), the rule-based detectors alone let **100%** through, while rules + a semantic layer catch them all at **0% false positives**. The rules-only miss rate is a real measurement of the limitation; the semantic number reflects the detector you plug in (a live model with `--live`).
 
 | Tier | What it tests | Runs in |
 |---|---|---|
@@ -389,7 +392,7 @@ git clone https://github.com/akafengfeng/ClawSafeTest.git
 cd ClawSafeTest
 pip install -e ".[dev]"
 
-python -m pytest tests/     # 216 tests
+python -m pytest tests/     # 330 tests
 ruff check clawsafe/ tests/ # lint
 ```
 

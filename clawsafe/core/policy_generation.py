@@ -35,13 +35,12 @@ without a network. :meth:`PolicyGenerator.from_provider` adapts a full-tier
 """
 from __future__ import annotations
 
-import json
-import re
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from typing import Any
 
 from clawsafe.core.policy import PolicyEngine, PolicyError, PolicyRule
+from clawsafe.utils.jsonx import extract_json_array
 
 # Generated rules may not exceed this priority, so human rules (which use
 # higher priorities, e.g. GENERIC_RULES at 100) always dominate ties and
@@ -106,27 +105,6 @@ USER TASK:
 JSON array of rules:"""
 
 
-def _extract_json_array(text: str) -> list:
-    """Pull the first JSON array out of an LLM response (fenced or bare).
-
-    Fail closed: anything that isn't a clean JSON array yields [].
-    """
-    if not isinstance(text, str):
-        return []
-    # Strip a ```json ... ``` fence if present.
-    fence = re.search(r"```(?:json)?\s*(.+?)```", text, re.DOTALL)
-    candidate = fence.group(1) if fence else text
-    start = candidate.find("[")
-    end = candidate.rfind("]")
-    if start == -1 or end == -1 or end < start:
-        return []
-    try:
-        parsed = json.loads(candidate[start : end + 1])
-    except json.JSONDecodeError:
-        return []
-    return parsed if isinstance(parsed, list) else []
-
-
 class PolicyGenerator:
     """Generates least-privilege policy rules for a task via an injected LLM.
 
@@ -185,7 +163,7 @@ class PolicyGenerator:
         except Exception as e:  # a flaky model must not take the agent down
             return GeneratedPolicy(rejected=[{"reason": f"llm_fn error: {e}"}], raw="")
 
-        proposed = _extract_json_array(raw)
+        proposed = extract_json_array(raw)
         kept: list[PolicyRule] = []
         rejected: list[dict] = []
 

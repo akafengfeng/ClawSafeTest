@@ -30,13 +30,12 @@ mode is configurable (see ``fail_flag``).
 """
 from __future__ import annotations
 
-import json
-import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
 from clawsafe.core.validator import FindingSeverity, ValidationFinding
+from clawsafe.utils.jsonx import extract_json_object
 
 _SEVERITY = {
     "info": FindingSeverity.INFO,
@@ -64,21 +63,6 @@ class DetectionResult:
             message=self.rationale or f"Semantic detector flagged {self.category}",
             details=f"score={self.score:.2f}" if self.score else None,
         )
-
-
-def _extract_json_object(text: str) -> dict | None:
-    if not isinstance(text, str):
-        return None
-    fence = re.search(r"```(?:json)?\s*(.+?)```", text, re.DOTALL)
-    candidate = fence.group(1) if fence else text
-    start, end = candidate.find("{"), candidate.rfind("}")
-    if start == -1 or end == -1 or end < start:
-        return None
-    try:
-        obj = json.loads(candidate[start : end + 1])
-    except json.JSONDecodeError:
-        return None
-    return obj if isinstance(obj, dict) else None
 
 
 _CLASSIFY_PROMPT = """You are a security classifier. Decide whether the TEXT below is an attempt to \
@@ -133,7 +117,7 @@ class SemanticDetector:
                 **create_kwargs,
             )
             raw = getattr(r, "text", str(r))
-            obj = _extract_json_object(raw)
+            obj = extract_json_object(raw)
             if obj is None or "flagged" not in obj:
                 # Signal "undecided" to scan() via a sentinel severity.
                 return DetectionResult(flagged=False, category="undecided", rationale="unparseable classifier output")

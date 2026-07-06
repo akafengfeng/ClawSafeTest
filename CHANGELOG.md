@@ -7,7 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [0.5.0] — 2026-07-06
+
+A large release consolidating the SOTA-alignment, memory-hardening, and
+detection work into a versioned cut.
+
+### Added (detection & evaluation)
+- **Evasion benchmark** (`benchmarks/evasion.py`, `run_evasion.py`) quantifying
+  the recall gap the semantic layer addresses: obfuscated / paraphrased attacks
+  (leetspeak, letter-spacing, base64, zero-width, paraphrase) scored under
+  rule-based detection alone vs. rule-based + a semantic detector, with benign
+  controls to check for over-flagging. On the reference set: **rules-only lets
+  100% of the evasions through; the semantic layer catches all of them at 0%
+  false positives.** The rules-only miss rate is a real, non-circular
+  measurement; the semantic number uses a deterministic normalizing reference
+  detector in CI and a live model via `--live`. Runs as tests.
+
+### Quality / packaging
+- **Cut version 0.5.0** (was still 0.4.0 despite the accumulated work).
+- **Added the PEP 561 `py.typed` marker** and shipped it via package-data, so
+  the long-declared `Typing :: Typed` classifier is now actually honored by
+  downstream type checkers.
+- **De-duplicated JSON extraction**: five copies of the tolerant
+  array/object parser across policy generation, detection, red-team, judge, and
+  the L3 harness were factored into one shared `clawsafe.utils.jsonx`.
 
 ### Changed (LLM usage — correctness)
 - **Docs corrected to match the design**: removed remaining instructions that

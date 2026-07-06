@@ -22,9 +22,9 @@ from clawsafe import (
 from clawsafe.core.policy import GENERIC_RULES
 from clawsafe.core.policy_generation import (
     GENERATED_MAX_PRIORITY,
-    _extract_json_array,
     build_engine,
 )
+from clawsafe.utils.jsonx import extract_json_array
 
 
 def stub_llm(payload) -> "callable":
@@ -38,20 +38,20 @@ TOOLS = ["search", "read_file", "transfer_funds"]
 
 class TestJSONExtraction:
     def test_bare_array(self):
-        assert _extract_json_array('[{"tool": "t", "effect": "allow"}]')[0]["tool"] == "t"
+        assert extract_json_array('[{"tool": "t", "effect": "allow"}]')[0]["tool"] == "t"
 
     def test_fenced_array(self):
         text = 'Sure!\n```json\n[{"tool": "t", "effect": "forbid"}]\n```\nDone.'
-        assert _extract_json_array(text)[0]["effect"] == "forbid"
+        assert extract_json_array(text)[0]["effect"] == "forbid"
 
     def test_prose_around_array(self):
         text = 'Here are the rules: [{"tool": "x", "effect": "allow"}] hope that helps'
-        assert len(_extract_json_array(text)) == 1
+        assert len(extract_json_array(text)) == 1
 
     def test_garbage_returns_empty(self):
-        assert _extract_json_array("I refuse to answer") == []
-        assert _extract_json_array("[not valid json}") == []
-        assert _extract_json_array(None) == []
+        assert extract_json_array("I refuse to answer") == []
+        assert extract_json_array("[not valid json}") == []
+        assert extract_json_array(None) == []
 
 
 class TestGeneration:

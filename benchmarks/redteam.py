@@ -17,10 +17,10 @@ against the deterministic pipeline in ``common.py``.
 """
 from __future__ import annotations
 
-import json
-import re
 from collections.abc import Callable
 from typing import Any
+
+from clawsafe.utils.jsonx import extract_json_array
 
 RISK_CATEGORIES = [
     "local_environment_availability",
@@ -46,21 +46,6 @@ Output ONLY a JSON array. Each test case is one of:
 
 Make them realistic and varied (injection, traversal, exfiltration, poisoning,
 parameter tampering, etc.). JSON array only, no prose."""
-
-
-def _extract_json_array(text: str) -> list:
-    if not isinstance(text, str):
-        return []
-    fence = re.search(r"```(?:json)?\s*(.+?)```", text, re.DOTALL)
-    candidate = fence.group(1) if fence else text
-    start, end = candidate.find("["), candidate.rfind("]")
-    if start == -1 or end == -1 or end < start:
-        return []
-    try:
-        parsed = json.loads(candidate[start : end + 1])
-    except json.JSONDecodeError:
-        return []
-    return parsed if isinstance(parsed, list) else []
 
 
 class RedTeamGenerator:
@@ -93,7 +78,7 @@ class RedTeamGenerator:
             return []
 
         scenarios = []
-        for i, item in enumerate(_extract_json_array(raw)):
+        for i, item in enumerate(extract_json_array(raw)):
             scenario = self._validate(item, category, i, set(tools))
             if scenario is None:
                 continue

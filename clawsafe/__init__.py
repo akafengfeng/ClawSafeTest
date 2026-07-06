@@ -30,7 +30,7 @@ import importlib
 
 from .lite import configure, guarded, protect_agent, scan_messages, scan_output
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 # Full-tier exports resolve lazily on first attribute access, so a plain
 # `import clawsafe` stays lightweight and dependency-free.
