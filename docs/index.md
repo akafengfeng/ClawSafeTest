@@ -22,7 +22,7 @@ layout: default
         <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">Fail-closed authorize → validate → execute → audit</div>
       </div>
       <div>
-        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: calc(var(--spacing-unit) * 1);">310</div>
+        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: calc(var(--spacing-unit) * 1);">330</div>
         <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Tests Passing</div>
         <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: calc(var(--spacing-unit) * 0.5);">CI on Python 3.11 &amp; 3.12</div>
       </div>
@@ -382,7 +382,7 @@ layout: default
       <h3 style="color: var(--primary); margin-top: 0; border: none; padding-bottom: 0;">Test Coverage</h3>
       <div class="stats-grid" style="margin-top: calc(var(--spacing-unit) * 4);">
         <div>
-          <div style="font-size: 2rem; font-weight: 700; color: var(--success);">310</div>
+          <div style="font-size: 2rem; font-weight: 700; color: var(--success);">330</div>
           <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: calc(var(--spacing-unit) * 1);">Tests Passing</div>
         </div>
         <div>
@@ -487,7 +487,7 @@ insights = agent.get_agent_insights()</code></pre>
         <ul style="list-style: none; padding: 0; color: var(--text-secondary); line-height: 2;">
           <li>✓ Deny by default, whitelist approach</li>
           <li>✓ Fail-closed authorization &amp; registry checks</li>
-          <li>✓ Deterministic rule-based detection</li>
+          <li>✓ Deterministic rule-based detection (+ optional semantic layer)</li>
           <li>✓ Immutable audit trails</li>
           <li>✓ SHA-256 integrity verification</li>
           <li>✓ Per-memory access control</li>
@@ -499,11 +499,26 @@ insights = agent.get_agent_insights()</code></pre>
           <li>✓ Multi-tenant isolation</li>
           <li>✓ Compliance reporting (SOC 2, HIPAA, GDPR)</li>
           <li>✓ Role-based authorization</li>
-          <li>✓ Rate limiting & DOS prevention</li>
-          <li>✓ Resource budgets per tool</li>
-          <li>✓ Complete state persistence</li>
+          <li>✓ Per-user sliding-window rate limiting</li>
+          <li>✓ Argument-level policy engine</li>
+          <li>✓ Runs tests &amp; benchmarks in CI</li>
         </ul>
       </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2 style="text-align: center; margin-bottom: calc(var(--spacing-unit) * 3);">Limitations</h2>
+    <p style="text-align: center; color: var(--text-secondary); margin-bottom: calc(var(--spacing-unit) * 6);">Being explicit about what ClawSafe does <strong>not</strong> do is part of trusting what it does.</p>
+    <div style="max-width: 820px; margin: 0 auto; color: var(--text-secondary); line-height: 1.9;">
+      <ul style="list-style: none; padding: 0;">
+        <li style="margin-bottom: calc(var(--spacing-unit) * 2);">⚠️ <strong>The guarantees are structural, not detection.</strong> Deny-by-default whitelisting, <code>allowed_dirs</code>, and the policy engine hold; the pattern-based detectors are <em>evadable</em> defense-in-depth. The evasion benchmark shows they miss 100% of obfuscated payloads alone — attach a <code>SemanticDetector</code> for recall.</li>
+        <li style="margin-bottom: calc(var(--spacing-unit) * 2);">⚠️ <strong>Benchmarks are self-authored regression tests, not proof.</strong> The scenarios, guard config, and scoring are written by this project. "0% ASR" means "catches the attacks we wrote," and there has been no third-party audit.</li>
+        <li style="margin-bottom: calc(var(--spacing-unit) * 2);">⚠️ <strong>Memory-poisoning defense is heuristic</strong>, and some subsystems (LLM policy generation, the memory learning loop) are <code>clawsafe.experimental</code> prototypes with unstable APIs — not hardened controls.</li>
+        <li>⚠️ <strong>No sandboxing.</strong> ClawSafe decides <em>whether</em> a tool runs; it does not isolate execution. Run tools in your own sandbox for timeout / memory / syscall limits.</li>
+      </ul>
     </div>
   </div>
 </section>
