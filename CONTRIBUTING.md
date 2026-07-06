@@ -104,7 +104,7 @@ if matches_injection_pattern(content):
 
 ## Architecture & Design Principles
 
-Before starting work, please review [AGENTS.md](AGENTS.md) for:
+Before starting work, please review [ARCHITECTURE.md](ARCHITECTURE.md) for:
 - **Plugin boundaries:** Skills must not import from integrations, memory must not import from skills.
 - **5% token budget:** Every new skill must stay cheap. Rule-based skills are free; LLM-assisted skills must be budgeted.
 - **Immutable findings:** SkillResult objects are never mutated after creation.
@@ -186,7 +186,7 @@ Before submitting a PR:
 - [ ] New public APIs have docstrings
 - [ ] If adding a skill: includes at least 2 test cases (pass + detection)
 - [ ] If changing config: includes migration notes in PR description
-- [ ] If modifying core logic: update AGENTS.md if architecture changes
+- [ ] If modifying core logic: update ARCHITECTURE.md if the module map changes
 
 ## Skill Development Guidelines
 
@@ -197,7 +197,7 @@ New skills must:
 3. **Return `SkillResult`** with `passed: bool` and list of `Finding` objects
 4. **Stay cheap:** Rule-based skills should cost 0 tokens
 5. **Include tests:** At least one pass case and one detection case
-6. **Document behavior:** Update SKILL.md or add integration-specific README
+6. **Document behavior:** Update the module docstring and ARCHITECTURE.md if needed
 
 Example structure:
 
@@ -230,14 +230,14 @@ Include:
 
 - **All PRs require review** before merging
 - **CI must pass:** Tests, type checks, coverage >80%
-- **Design review:** If changing core architecture, expect discussion on AGENTS.md compliance
+- **Design review:** If changing core architecture, expect discussion on ARCHITECTURE.md
 - **Feedback is constructive:** Focus on code, not the author
 
 ## Questions?
 
 - **General questions:** Open a GitHub Discussion
 - **Security issues:** Email maintainer instead of opening a public issue
-- **Architecture questions:** See AGENTS.md, SOUL.md, or open an issue
+- **Architecture questions:** See ARCHITECTURE.md, or open an issue
 
 ---
 

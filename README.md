@@ -368,14 +368,12 @@ ClawSafe's audit trail, access controls, and redaction can **support** complianc
 
 | Resource | Contents |
 |---|---|
-| [Getting Started](GETTING_STARTED.md) | 5-minute quickstart for all providers |
+| [Getting Started](GETTING_STARTED.md) | 5-minute quickstart |
+| [Architecture](ARCHITECTURE.md) | Module map, load-bearing vs. experimental, request flow |
 | [Website](https://akafengfeng.github.io/ClawSafeTest/) | Guides, architecture, policies, diagrams |
-| [Architecture](docs/architecture.md) | Core design, pipeline, component reference |
-| [Security Policies](docs/features/policies.md) | Every policy with threat model and response |
 | [Providers](PROVIDERS.md) | Configuring an LLM for the testing/authoring tools (not the runtime) |
-| [Memory Integration](MEMORY_INTEGRATION_SUMMARY.md) | Agent learning and memory protection |
 | [Security Policy](SECURITY.md) | Vulnerability reporting and disclosure |
-| [Examples](examples/) | Four complete, runnable examples |
+| [Examples](examples/) | Complete, runnable examples |
 
 ## 🧪 Development
 

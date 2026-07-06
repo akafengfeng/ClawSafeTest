@@ -527,8 +527,8 @@ insights = agent.get_agent_insights()</code></pre>
 
       <div class="feature-card">
         <div style="font-size: 1.5rem; margin-bottom: calc(var(--spacing-unit) * 1);">🎯</div>
-        <h3>Threat Modeling</h3>
-        <p><a href="threat-modeling.html">Threat modeling guide</a> mapping attack classes to ClawSafe controls.</p>
+        <h3>How It Compares</h3>
+        <p><a href="comparative-frameworks.html">Comparison</a> with Progent, Agent3Sigma, and other approaches — including honest limitations.</p>
       </div>
 
       <div class="feature-card">

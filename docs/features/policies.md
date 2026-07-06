@@ -92,7 +92,7 @@ Blocks requests for harmful content.
 
 ### 6. Rate Limiting
 
-Prevents DOS-like behavioral patterns.
+Prevents tool-call flooding (per-user sliding window).
 
 **Limits:**
 - Max 60 requests per minute

@@ -180,7 +180,7 @@ Advantages:
 | **Production ready** | ✓ Yes | Risky (non-deterministic) |
 | **Best for** | Security | Anomaly detection |
 
-**ClawSafe Decision**: Rule-based for security (deterministic verdicts), behavioral ML for anomaly detection (optional).
+**ClawSafe Decision**: Deterministic rule-based detection, with an optional pluggable semantic detector for recall.
 
 ---
 
@@ -553,96 +553,6 @@ Disadvantages:
 | **Encryption** | ✓ | ✗ | ✓ | Medium | Medium |
 
 **ClawSafe Decision**: SHA-256 now (simple, fast), HMAC or signatures for future compliance.
-
----
-
-## Behavioral Anomaly Detection
-
-### ClawSafe: Statistical Baseline
-
-```
-Phase 1: Establish Baseline
-  • Agent operates normally
-  • Collect 100+ interactions
-  • Compute:
-    - Mean tool calls per minute
-    - Std dev of frequency
-    - Success rate per tool
-    - Confidence distribution
-
-Phase 2: Detect Anomalies
-  • New interactions compared to baseline
-  • Calculate standard deviations from mean
-  
-  < 1σ:  ✓ Normal
-  1-2σ:  ⚠ Watch (monitor)
-  2-3σ:  ⚠ Alert (investigate)
-  > 3σ:  ✗ Block (immediate action)
-
-Advantages:
-✓ Learns agent behavior
-✓ Adaptive (changes with agent)
-✓ Statistical (mathematically sound)
-✓ Few false positives
-
-Disadvantages:
-✗ Needs warm-up period
-✗ Baseline corruption from attacks
-✗ Doesn't catch first attack
-```
-
-### Alternative: Rule-Based
-
-```
-Hard-coded rules:
-  IF tool_calls_per_minute > 100:
-    → Anomalous
-  IF success_rate < 0.5:
-    → Anomalous
-  IF new_tool_called:
-    → Alert
-
-Advantages:
-✓ No warm-up needed
-✓ Catches first attack
-✓ Predictable
-
-Disadvantages:
-✗ Brittle (rules need tuning)
-✗ Not adaptive
-✗ Many false positives
-```
-
-### Alternative: Clustering (ML)
-
-```
-Use unsupervised clustering:
-  1. Collect interaction vectors
-     (tool_id, success_rate, confidence, etc.)
-  2. Cluster with K-means
-  3. New interaction → which cluster?
-  4. If far from any cluster → Anomaly
-
-Advantages:
-✓ No baseline needed
-✓ Catches novel patterns
-✓ Flexible
-
-Disadvantages:
-✗ Black-box (hard to explain)
-✗ Non-deterministic
-✗ Needs tuning
-```
-
-### Comparison: Anomaly Detection
-
-| Approach | Baseline Needed | First Attack Detection | Adaptivity | Explainability |
-|----------|---|---|---|---|
-| **Statistical (ClawSafe)** | Yes | ✗ | ✓ | High |
-| **Rule-Based** | No | ✓ | ✗ | High |
-| **Clustering (ML)** | No | ✓ | ✓ | Low |
-
-**ClawSafe Decision**: Statistical baseline for main detection, optional rule-based for critical threats.
 
 ---
 
