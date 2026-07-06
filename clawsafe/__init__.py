@@ -51,9 +51,9 @@ _LAZY_EXPORTS = {
     "PolicyEngine": ("clawsafe.core.policy", "PolicyEngine"),
     "PolicyRule": ("clawsafe.core.policy", "PolicyRule"),
     # LLM-generated / dynamic policies
-    "PolicyGenerator": ("clawsafe.core.policy_generation", "PolicyGenerator"),
-    "GeneratedPolicy": ("clawsafe.core.policy_generation", "GeneratedPolicy"),
-    "DynamicPolicyManager": ("clawsafe.core.policy_generation", "DynamicPolicyManager"),
+    "PolicyGenerator": ("clawsafe.experimental.policy_generation", "PolicyGenerator"),
+    "GeneratedPolicy": ("clawsafe.experimental.policy_generation", "GeneratedPolicy"),
+    "DynamicPolicyManager": ("clawsafe.experimental.policy_generation", "DynamicPolicyManager"),
     # Detection (rule-based + optional pluggable semantic layer)
     "SemanticDetector": ("clawsafe.core.detection", "SemanticDetector"),
     "DetectionResult": ("clawsafe.core.detection", "DetectionResult"),
@@ -74,8 +74,8 @@ _LAZY_EXPORTS = {
     "LangChainAdapter": ("clawsafe.integrations", "LangChainAdapter"),
     "OpenClawAdapter": ("clawsafe.integrations", "OpenClawAdapter"),
     # LLM security agent + providers (SDKs are optional extras)
-    "ClawSafeAgent": ("clawsafe.core.agent", "ClawSafeAgent"),
-    "ClawSafeConfig": ("clawsafe.core.config", "ClawSafeConfig"),
+    "ClawSafeAgent": ("clawsafe.experimental.agent", "ClawSafeAgent"),
+    "ClawSafeConfig": ("clawsafe.experimental.config", "ClawSafeConfig"),
     "AnthropicProvider": ("clawsafe.core.provider", "AnthropicProvider"),
     "LLMProvider": ("clawsafe.core.provider", "LLMProvider"),
     "LLMResponse": ("clawsafe.core.provider", "LLMResponse"),
@@ -86,6 +86,8 @@ _LAZY_EXPORTS = {
     "SkillRegistry": ("clawsafe.skills.registry", "SkillRegistry"),
     # Full-framework namespace module
     "full": ("clawsafe.full", None),
+    # Experimental subsystems (unstable APIs)
+    "experimental": ("clawsafe.experimental", None),
 }
 
 __all__ = [

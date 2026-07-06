@@ -43,7 +43,7 @@ ClawSafe ships as a single package; you select what you load purely by import. T
 |---|---|---|
 | **Install** | `pip install clawsafe-agent` | same install — tiers are selected by import |
 | **Import** | `from clawsafe import guarded, protect_agent, scan_messages` | `from clawsafe.full import AgentGuard, MemoryGuard, ...` |
-| **What you get** | A decorator for single functions, an auto-detecting agent wrapper, standalone input/output scanners | The eight-phase orchestrator, memory security + learning loop, framework adapters, hardened presets, and LLM classes for the testing/authoring tools |
+| **What you get** | A decorator for single functions, an auto-detecting agent wrapper, standalone input/output scanners | The eight-phase orchestrator, argument-level policy engine, memory security, framework adapters, and hardened presets (plus experimental extras under `clawsafe.experimental`) |
 | **When** | Demos, quick hardening, frameworks without adapters | Production deployments, audit requirements, memory-aware agents |
 
 Nothing from the full tier loads until you touch it — `from clawsafe import AgentGuard` lazily pulls in exactly that module and no more. **Both tiers are zero-dependency, and the guard runtime never calls an LLM.** The optional `[providers]` extra is only for the opt-in **LLM tooling that tests or authors** — the L3 live benchmark, the LLM red-teamer, and LLM-drafted policies — plus the legacy `ClawSafeAgent` wrapper. None of that sits in the protection path. Lite is not a different engine: it routes through the same pipeline the full tier uses.

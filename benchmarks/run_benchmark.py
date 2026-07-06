@@ -22,6 +22,10 @@ Usage:
 
 Exit code is non-zero if any attack succeeds or any benign task is blocked,
 so the benchmark can gate CI.
+
+NOTE: these are self-authored regression tests, not proof of security. The
+scenarios, guard config, and scoring are all written by this project; "0% ASR"
+means "catches the attacks we wrote," not "secure against a real adversary."
 """
 from __future__ import annotations
 

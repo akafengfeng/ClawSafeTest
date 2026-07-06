@@ -18,7 +18,7 @@ class TestLiteTierIsLight:
         code = (
             "import sys, clawsafe\n"
             "heavy = ['anthropic', 'openai', 'together',"
-            " 'clawsafe.core.provider', 'clawsafe.core.agent',"
+            " 'clawsafe.core.provider', 'clawsafe.experimental',"
             " 'clawsafe.integrations', 'clawsafe.full']\n"
             "loaded = [m for m in heavy if m in sys.modules]\n"
             "assert not loaded, f'full tier loaded eagerly: {loaded}'\n"

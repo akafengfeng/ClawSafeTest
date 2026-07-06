@@ -4,13 +4,14 @@ import time
 from collections.abc import Iterator
 from typing import Any
 
+from clawsafe.core.provider import LLMProvider, LLMResponse, get_provider
+
 from ..memory.entry import MemoryEntry, MemoryType
 from ..memory.store import MemoryStore
 from ..skills.base import Severity, SkillPhase, SkillResult
 from ..skills.registry import SkillRegistry
 from ..utils.token_budget import TokenBudget
 from .config import ClawSafeConfig
-from .provider import LLMProvider, LLMResponse, get_provider
 
 
 class SecurityBlockedError(Exception):

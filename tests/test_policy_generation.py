@@ -20,7 +20,7 @@ from clawsafe import (
     ToolRegistry,
 )
 from clawsafe.core.policy import GENERIC_RULES
-from clawsafe.core.policy_generation import (
+from clawsafe.experimental.policy_generation import (
     GENERATED_MAX_PRIORITY,
     build_engine,
 )

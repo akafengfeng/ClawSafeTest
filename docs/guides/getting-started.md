@@ -86,7 +86,7 @@ print(response.text)
 When ClawSafe detects a security threat, it raises `SecurityBlockedError`:
 
 ```python
-from clawsafe.core.agent import SecurityBlockedError
+from clawsafe import SecurityBlockedError
 
 try:
     agent.create(

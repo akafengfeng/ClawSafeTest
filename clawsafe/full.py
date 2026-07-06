@@ -24,7 +24,6 @@ benchmark, the red-teamer, LLM-drafted policies) and the legacy
     pip install "clawsafe-agent[providers]"
 """
 
-from clawsafe.core.agent import ClawSafeAgent
 from clawsafe.core.agent_config import AgentGuardConfig
 from clawsafe.core.agent_guard import AgentGuard, SecurityBlockedError, ToolCallResult
 from clawsafe.core.auth import (
@@ -34,7 +33,6 @@ from clawsafe.core.auth import (
     AuthContext,
     AuthorizationMode,
 )
-from clawsafe.core.config import ClawSafeConfig
 from clawsafe.core.detection import DetectionResult, SemanticDetector
 from clawsafe.core.memory_integration import (
     AgentMemoryProfile,
@@ -57,13 +55,6 @@ from clawsafe.core.policy import (
     PolicyError,
     PolicyRule,
 )
-from clawsafe.core.policy_generation import (
-    GENERATED_MAX_PRIORITY,
-    DynamicPolicyManager,
-    GeneratedPolicy,
-    PolicyGenerator,
-    build_engine,
-)
 from clawsafe.core.provider import (
     AnthropicProvider,
     LLMProvider,
@@ -78,6 +69,15 @@ from clawsafe.core.validator import (
     InputValidator,
     OutputValidator,
     ValidationFinding,
+)
+from clawsafe.experimental.agent import ClawSafeAgent
+from clawsafe.experimental.config import ClawSafeConfig
+from clawsafe.experimental.policy_generation import (
+    GENERATED_MAX_PRIORITY,
+    DynamicPolicyManager,
+    GeneratedPolicy,
+    PolicyGenerator,
+    build_engine,
 )
 from clawsafe.integrations import (
     DEFAULT_DENYLIST,

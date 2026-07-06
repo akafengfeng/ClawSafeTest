@@ -527,7 +527,7 @@ Action: Extract from output, log with redaction, alert on findings
     (`benchmarks/redteam.py`) and drives the opt-in L3 live loop
     (`benchmarks/harness.py`); both test the deterministic guard.
   - *Policy authoring* — an LLM may **draft** least-privilege rules
-    (`clawsafe.core.policy_generation`), which are sanitized, human-reviewed,
+    (`clawsafe.experimental.policy_generation`), which are sanitized, human-reviewed,
     and committed as static JSON. Enforcement of those rules is LLM-free.
   - The legacy `ClawSafeAgent` "proxy mode" (ClawSafe making the LLM call for
     you) is optional, behind the `[providers]` extra, and separate from the

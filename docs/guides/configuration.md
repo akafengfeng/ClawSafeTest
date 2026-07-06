@@ -256,7 +256,7 @@ config = ClawSafeConfig(
 
 ```python
 from clawsafe import ClawSafeConfig, ClawSafeAgent
-from clawsafe.core.agent import SecurityBlockedError
+from clawsafe import SecurityBlockedError
 
 config = ClawSafeConfig(
     # Provider

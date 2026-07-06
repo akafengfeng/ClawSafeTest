@@ -173,10 +173,14 @@ class MemoryValidator:
     def validate_confidence_change(
         self, old_confidence: float, new_confidence: float, memory_id: str
     ) -> MemoryFinding | None:
-        """Detect suspicious confidence changes.
+        """Flag a large confidence swing.
+
+        .. note::
+           Heuristic: the 0.5 threshold is a fixed magnitude check, not a
+           learned or statistical model. Treat it as a coarse tripwire.
 
         Returns:
-            MemoryFinding if change is suspicious
+            MemoryFinding if the change exceeds the threshold.
         """
         change = abs(new_confidence - old_confidence)
 
@@ -329,7 +333,15 @@ class MemoryGuard:
         return True
 
     def detect_contradictions(self, memory_id: str) -> MemoryFinding | None:
-        """Detect contradictory memories."""
+        """Detect contradictory memories.
+
+        .. warning::
+           **Heuristic, not robust.** This matches a small hardcoded list of
+           antonym pairs (good/bad, true/false, …) via :meth:`_are_contradictory`.
+           It catches only lexical opposites, not semantic contradiction, and is
+           best-effort — do not rely on it as a security control. See
+           ``ARCHITECTURE.md`` (experimental subsystems).
+        """
         memory = self.memory_store.get(memory_id)
         if not memory:
             return None

@@ -23,7 +23,7 @@ def _run(code: str) -> subprocess.CompletedProcess:
     return subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
 
 
-LLM_MODULES = "['anthropic', 'openai', 'together', 'clawsafe.core.provider', 'clawsafe.core.agent']"
+LLM_MODULES = "['anthropic', 'openai', 'together', 'clawsafe.core.provider', 'clawsafe.experimental.agent']"
 
 
 def test_protect_tool_call_loads_no_llm():
